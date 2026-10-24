@@ -12,6 +12,7 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 add_library(bitforge STATIC
     src/status.c
+    src/bitops.c
 )
 
 target_include_directories(bitforge
