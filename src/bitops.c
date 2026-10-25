@@ -42,3 +42,18 @@ bf_status bf_toggle(uint8_t *value, size_t bit_index) {
 
     return BF_OK;
 }
+
+bf_status bf_count_set_bits(const uint8_t *value, uint8_t *result) {
+    if (value == NULL || result == NULL) {
+        return BF_EINVAL;
+    }
+
+    *result = 0;
+    for (int i = 0; i < 8; i++) {
+        if ((*value >> i) & 1u) {
+            (*result)++;
+        }
+    }
+
+    return BF_OK;
+}
