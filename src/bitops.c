@@ -32,3 +32,13 @@ bf_status bf_clear(uint8_t *value, size_t bit_index) {
 
     return BF_OK;
 }
+
+bf_status bf_toggle(uint8_t *value, size_t bit_index) {
+    if (value == NULL || bit_index >= 8) {
+        return BF_EINVAL;
+    }
+
+    *value ^= (1u << bit_index);
+
+    return BF_OK;
+}
