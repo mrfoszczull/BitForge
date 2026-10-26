@@ -88,3 +88,21 @@ bf_status bf_reverse_bits(uint8_t value, uint8_t *result) {
 
     return BF_OK;
 }
+
+bf_status bf_rotate_left(uint8_t value, unsigned int position,
+                         uint8_t *result) {
+    if (result == NULL) {
+        return BF_EINVAL;
+    }
+
+    position %= 8;
+    if (position == 0) {
+        *result = value;
+        return BF_OK;
+    }
+
+    uint8_t rotation_result = (value << position) | (value >> (8 - position));
+    *result = rotation_result;
+
+    return BF_OK;
+}
