@@ -70,3 +70,21 @@ bf_status bf_is_power_of_two(uint8_t value, bool *result) {
 
     return BF_OK;
 }
+
+bf_status bf_reverse_bits(uint8_t value, uint8_t *result) {
+    if (result == NULL) {
+        return BF_EINVAL;
+    }
+
+    int reversed = 0;
+
+    for (int i = 0; i < 8; i++) {
+        uint8_t bit = value & 1u;
+        reversed = (reversed << 1) | bit;
+        value >>= 1;
+    }
+
+    *result = reversed;
+
+    return BF_OK;
+}
