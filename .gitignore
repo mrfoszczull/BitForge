@@ -1,5 +1,7 @@
 build/
 build-sanitize/
+build-debug/
+build-release/
 cmake-build-*/
 
 *.o
