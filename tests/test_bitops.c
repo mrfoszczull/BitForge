@@ -30,6 +30,21 @@ static void test_rotate_left(void) {
 
     CHECK(bf_rotate_left(0x96, 9, &result) == BF_OK);
     CHECK(result == 0x2D);
+
+    CHECK(bf_rotate_left(0x80, 1, &result) == BF_OK);
+    CHECK(result == 0x01);
+
+    CHECK(bf_rotate_left(0x01, 7, &result) == BF_OK);
+    CHECK(result == 0x80);
+
+    CHECK(bf_rotate_left(0x96, 16, &result) == BF_OK);
+    CHECK(result == 0x96);
+
+    CHECK(bf_rotate_left(0x00, 3, &result) == BF_OK);
+    CHECK(result == 0x00);
+
+    CHECK(bf_rotate_left(0xFF, 3, &result) == BF_OK);
+    CHECK(result == 0xFF);
 }
 
 int main(void) {
