@@ -14,7 +14,7 @@ static int failures = 0;
         }                                                                      \
     } while (0)
 
-int main(void) {
+static void test_rotate_left(void) {
     uint8_t result = 0;
 
     CHECK(bf_rotate_left(0x96, 1, &result) == BF_OK);
@@ -31,9 +31,52 @@ int main(void) {
     CHECK(bf_rotate_left(0x96, 9, &result) == BF_OK);
     CHECK(result == 0x2D);
 
+    CHECK(bf_rotate_left(0x80, 1, &result) == BF_OK);
+    CHECK(result == 0x01);
+
+    CHECK(bf_rotate_left(0x01, 7, &result) == BF_OK);
+    CHECK(result == 0x80);
+
+    CHECK(bf_rotate_left(0x96, 16, &result) == BF_OK);
+    CHECK(result == 0x96);
+
+    CHECK(bf_rotate_left(0x00, 3, &result) == BF_OK);
+    CHECK(result == 0x00);
+
+    CHECK(bf_rotate_left(0xFF, 3, &result) == BF_OK);
+    CHECK(result == 0xFF);
+}
+
+static void test_get(void) {
+    uint8_t value = 0xA5;
+    bool result = false;
+
+    CHECK(bf_get(&value, 0, &result) == BF_OK);
+    CHECK(result == true);
+
+    CHECK(bf_get(&value, 1, &result) == BF_OK);
+    CHECK(result == false);
+
+    CHECK(bf_get(&value, 2, &result) == BF_OK);
+    CHECK(result == true);
+
+    CHECK(bf_get(&value, 7, &result) == BF_OK);
+    CHECK(result == true);
+
+    CHECK(bf_get(NULL, 0, &result) == BF_EINVAL);
+    CHECK(bf_get(&value, 8, &result) == BF_EINVAL);
+    CHECK(bf_get(&value, 0, NULL) == BF_EINVAL);
+}
+
+int main(void) {
+    test_rotate_left();
+    test_get();
+
     if (failures != 0) {
         fprintf(stderr, "%d check(s) failed\n", failures);
         return EXIT_FAILURE;
     }
+
+    printf("All bitops tests passed.\n");
     return EXIT_SUCCESS;
 }
