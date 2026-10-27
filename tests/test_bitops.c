@@ -14,7 +14,7 @@ static int failures = 0;
         }                                                                      \
     } while (0)
 
-int main(void) {
+static void test_rotate_left(void) {
     uint8_t result = 0;
 
     CHECK(bf_rotate_left(0x96, 1, &result) == BF_OK);
@@ -30,10 +30,16 @@ int main(void) {
 
     CHECK(bf_rotate_left(0x96, 9, &result) == BF_OK);
     CHECK(result == 0x2D);
+}
+
+int main(void) {
+    test_rotate_left();
 
     if (failures != 0) {
         fprintf(stderr, "%d check(s) failed\n", failures);
         return EXIT_FAILURE;
     }
+
+    printf("All bitops tests passed.\n");
     return EXIT_SUCCESS;
 }
