@@ -47,8 +47,30 @@ static void test_rotate_left(void) {
     CHECK(result == 0xFF);
 }
 
+static void test_get(void) {
+    uint8_t value = 0xA5;
+    bool result = false;
+
+    CHECK(bf_get(&value, 0, &result) == BF_OK);
+    CHECK(result == true);
+
+    CHECK(bf_get(&value, 1, &result) == BF_OK);
+    CHECK(result == false);
+
+    CHECK(bf_get(&value, 2, &result) == BF_OK);
+    CHECK(result == true);
+
+    CHECK(bf_get(&value, 7, &result) == BF_OK);
+    CHECK(result == true);
+
+    CHECK(bf_get(NULL, 0, &result) == BF_EINVAL);
+    CHECK(bf_get(&value, 8, &result) == BF_EINVAL);
+    CHECK(bf_get(&value, 0, NULL) == BF_EINVAL);
+}
+
 int main(void) {
     test_rotate_left();
+    test_get();
 
     if (failures != 0) {
         fprintf(stderr, "%d check(s) failed\n", failures);
