@@ -1,5 +1,6 @@
 #include "bitforge/status.h"
 #include <bitforge/bitops.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -133,6 +134,42 @@ static void test_count_set_bits(void) {
     CHECK(bf_count_set_bits(&value, NULL) == BF_EINVAL);
 }
 
+static void test_is_power_of_two(void) {
+    bool result = false;
+
+    CHECK(bf_is_power_of_two(16, &result) == BF_OK);
+    CHECK(result == true);
+
+    CHECK(bf_is_power_of_two(128, &result) == BF_OK);
+    CHECK(result == true);
+
+    CHECK(bf_is_power_of_two(32, &result) == BF_OK);
+    CHECK(result == true);
+
+    CHECK(bf_is_power_of_two(64, &result) == BF_OK);
+    CHECK(result == true);
+
+    CHECK(bf_is_power_of_two(26, &result) == BF_OK);
+    CHECK(result == false);
+
+    CHECK(bf_is_power_of_two(3, &result) == BF_OK);
+    CHECK(result == false);
+
+    CHECK(bf_is_power_of_two(255, &result) == BF_OK);
+    CHECK(result == false);
+
+    CHECK(bf_is_power_of_two(127, &result) == BF_OK);
+    CHECK(result == false);
+
+    CHECK(bf_is_power_of_two(0, &result) == BF_OK);
+    CHECK(result == false);
+
+    CHECK(bf_is_power_of_two(1, &result) == BF_OK);
+    CHECK(result == true);
+
+    CHECK(bf_is_power_of_two(128, NULL) == BF_EINVAL);
+}
+
 int main(void) {
     test_rotate_left();
     test_get();
@@ -140,6 +177,7 @@ int main(void) {
     test_clear();
     test_toggle();
     test_count_set_bits();
+    test_is_power_of_two();
 
     if (failures != 0) {
         fprintf(stderr, "%d check(s) failed\n", failures);
