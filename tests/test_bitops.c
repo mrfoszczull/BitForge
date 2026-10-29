@@ -170,6 +170,24 @@ static void test_is_power_of_two(void) {
     CHECK(bf_is_power_of_two(128, NULL) == BF_EINVAL);
 }
 
+static void test_reverse_bits(void) {
+    uint8_t result = 0;
+
+    CHECK(bf_reverse_bits(0x01, &result) == BF_OK);
+    CHECK(result == 0x80);
+
+    CHECK(bf_reverse_bits(0x00, &result) == BF_OK);
+    CHECK(result == 0x00);
+
+    CHECK(bf_reverse_bits(0x69, &result) == BF_OK);
+    CHECK(result == 0x96);
+
+    CHECK(bf_reverse_bits(0xFF, &result) == BF_OK);
+    CHECK(result == 0xFF);
+
+    CHECK(bf_reverse_bits(0x00, NULL) == BF_EINVAL);
+}
+
 int main(void) {
     test_rotate_left();
     test_get();
