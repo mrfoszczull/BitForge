@@ -196,6 +196,7 @@ int main(void) {
     test_toggle();
     test_count_set_bits();
     test_is_power_of_two();
+    test_reverse_bits();
 
     if (failures != 0) {
         fprintf(stderr, "%d check(s) failed\n", failures);
