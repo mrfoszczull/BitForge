@@ -98,6 +98,10 @@ static void test_clear(void) {
     CHECK(bf_clear(&value, 7) == BF_OK);
     CHECK(value == 13);
 
+    value = 0x80;
+    CHECK(bf_clear(&value, 7) == BF_OK);
+    CHECK(value == 0x00);
+
     CHECK(bf_clear(NULL, 1) == BF_EINVAL);
     CHECK(bf_clear(&value, 8) == BF_EINVAL);
 }
@@ -110,6 +114,10 @@ static void test_toggle(void) {
 
     CHECK(bf_toggle(&value, 2) == BF_OK);
     CHECK(value == 4);
+
+    value = 0x00;
+    CHECK(bf_toggle(&value, 7) == BF_OK);
+    CHECK(value == 0x80);
 
     CHECK(bf_toggle(NULL, 2) == BF_EINVAL);
     CHECK(bf_toggle(&value, 8) == BF_EINVAL);
