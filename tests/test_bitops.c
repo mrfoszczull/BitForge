@@ -114,12 +114,32 @@ static void test_toggle(void) {
     CHECK(bf_toggle(&value, 8) == BF_EINVAL);
 }
 
+static void test_count_set_bits(void) {
+    uint8_t value = 0x0F;
+    uint8_t result = 0;
+
+    CHECK(bf_count_set_bits(&value, &result) == BF_OK);
+    CHECK(result == 4);
+
+    value = 0x00;
+    CHECK(bf_count_set_bits(&value, &result) == BF_OK);
+    CHECK(result == 0);
+
+    value = 0xFF;
+    CHECK(bf_count_set_bits(&value, &result) == BF_OK);
+    CHECK(result == 8);
+
+    CHECK(bf_count_set_bits(NULL, &result) == BF_EINVAL);
+    CHECK(bf_count_set_bits(&value, NULL) == BF_EINVAL);
+}
+
 int main(void) {
     test_rotate_left();
     test_get();
     test_set();
     test_clear();
     test_toggle();
+    test_count_set_bits();
 
     if (failures != 0) {
         fprintf(stderr, "%d check(s) failed\n", failures);
