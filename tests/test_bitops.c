@@ -1,3 +1,4 @@
+#include "bitforge/status.h"
 #include <bitforge/bitops.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -87,10 +88,24 @@ static void test_set(void) {
     CHECK(bf_set(&value, 8) == BF_EINVAL);
 }
 
+static void test_clear(void) {
+    uint8_t value = 0x0F;
+
+    CHECK(bf_clear(&value, 1) == BF_OK);
+    CHECK(value == 13);
+
+    CHECK(bf_clear(&value, 7) == BF_OK);
+    CHECK(value == 13);
+
+    CHECK(bf_clear(NULL, 1) == BF_EINVAL);
+    CHECK(bf_clear(&value, 8) == BF_EINVAL);
+}
+
 int main(void) {
     test_rotate_left();
     test_get();
     test_set();
+    test_clear();
 
     if (failures != 0) {
         fprintf(stderr, "%d check(s) failed\n", failures);
