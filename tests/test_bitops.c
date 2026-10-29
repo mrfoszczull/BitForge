@@ -1,5 +1,5 @@
-#include "bitforge/status.h"
 #include <bitforge/bitops.h>
+#include <bitforge/status.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>

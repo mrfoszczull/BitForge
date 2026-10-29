@@ -1,6 +1,6 @@
 #ifndef BITOPS_H
 #define BITOPS_H
-#include "status.h"
+#include <bitforge/status.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

@@ -3,6 +3,7 @@ build-sanitize/
 build-debug/
 build-release/
 cmake-build-*/
+build-external/
 
 *.o
 *.a
