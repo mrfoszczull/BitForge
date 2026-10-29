@@ -101,11 +101,25 @@ static void test_clear(void) {
     CHECK(bf_clear(&value, 8) == BF_EINVAL);
 }
 
+static void test_toggle(void) {
+    uint8_t value = 0x04;
+
+    CHECK(bf_toggle(&value, 2) == BF_OK);
+    CHECK(value == 0);
+
+    CHECK(bf_toggle(&value, 2) == BF_OK);
+    CHECK(value == 4);
+
+    CHECK(bf_toggle(NULL, 2) == BF_EINVAL);
+    CHECK(bf_toggle(&value, 8) == BF_EINVAL);
+}
+
 int main(void) {
     test_rotate_left();
     test_get();
     test_set();
     test_clear();
+    test_toggle();
 
     if (failures != 0) {
         fprintf(stderr, "%d check(s) failed\n", failures);
