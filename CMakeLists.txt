@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(BitForge
-    VERSION 0.1.0
+    VERSION 1.0.0
     DESCRIPTION "A C17 library for binary file manipulation and analysis"
     LANGUAGES C
 )

@@ -115,9 +115,9 @@ See the public header, `include/bitforge/bitops.h`, for the available functions,
 
 ## Project Status
 
-BitForge is under active development. Its API and features may evolve.
+BitForge 1.0.0 is the first stable release.
 
-The project is working toward its first stable release, `1.0.0`.
+The public API is considered stable for the 1.x series. Breaking API changes are not expected before a future major release.
 
 ## License
 
