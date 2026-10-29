@@ -68,9 +68,29 @@ static void test_get(void) {
     CHECK(bf_get(&value, 0, NULL) == BF_EINVAL);
 }
 
+static void test_set(void) {
+    uint8_t value = 0x00;
+
+    CHECK(bf_set(&value, 3) == BF_OK);
+    CHECK(value == 0x08);
+
+    CHECK(bf_set(&value, 3) == BF_OK);
+    CHECK(value == 0x08);
+
+    CHECK(bf_set(&value, 0) == BF_OK);
+    CHECK(value == 0x09);
+
+    CHECK(bf_set(&value, 7) == BF_OK);
+    CHECK(value == 0x89);
+
+    CHECK(bf_set(NULL, 0) == BF_EINVAL);
+    CHECK(bf_set(&value, 8) == BF_EINVAL);
+}
+
 int main(void) {
     test_rotate_left();
     test_get();
+    test_set();
 
     if (failures != 0) {
         fprintf(stderr, "%d check(s) failed\n", failures);
