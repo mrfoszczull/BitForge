@@ -16,7 +16,8 @@ static int failures = 0;
         }                                                                      \
     } while (0)
 
-static void test_rotate_left(void) {
+static void test_rotate_left(void)
+{
     uint8_t result = 0;
 
     CHECK(bf_rotate_left(0x96, 1, &result) == BF_OK);
@@ -49,7 +50,8 @@ static void test_rotate_left(void) {
     CHECK(result == 0xFF);
 }
 
-static void test_get(void) {
+static void test_get(void)
+{
     uint8_t value = 0xA5;
     bool result = false;
 
@@ -70,7 +72,8 @@ static void test_get(void) {
     CHECK(bf_get(&value, 0, NULL) == BF_EINVAL);
 }
 
-static void test_set(void) {
+static void test_set(void)
+{
     uint8_t value = 0x00;
 
     CHECK(bf_set(&value, 3) == BF_OK);
@@ -89,7 +92,8 @@ static void test_set(void) {
     CHECK(bf_set(&value, 8) == BF_EINVAL);
 }
 
-static void test_clear(void) {
+static void test_clear(void)
+{
     uint8_t value = 0x0F;
 
     CHECK(bf_clear(&value, 1) == BF_OK);
@@ -106,7 +110,8 @@ static void test_clear(void) {
     CHECK(bf_clear(&value, 8) == BF_EINVAL);
 }
 
-static void test_toggle(void) {
+static void test_toggle(void)
+{
     uint8_t value = 0x04;
 
     CHECK(bf_toggle(&value, 2) == BF_OK);
@@ -123,7 +128,8 @@ static void test_toggle(void) {
     CHECK(bf_toggle(&value, 8) == BF_EINVAL);
 }
 
-static void test_count_set_bits(void) {
+static void test_count_set_bits(void)
+{
     uint8_t value = 0x0F;
     uint8_t result = 0;
 
@@ -142,7 +148,8 @@ static void test_count_set_bits(void) {
     CHECK(bf_count_set_bits(&value, NULL) == BF_EINVAL);
 }
 
-static void test_is_power_of_two(void) {
+static void test_is_power_of_two(void)
+{
     bool result = false;
 
     CHECK(bf_is_power_of_two(16, &result) == BF_OK);
@@ -178,7 +185,8 @@ static void test_is_power_of_two(void) {
     CHECK(bf_is_power_of_two(128, NULL) == BF_EINVAL);
 }
 
-static void test_reverse_bits(void) {
+static void test_reverse_bits(void)
+{
     uint8_t result = 0;
 
     CHECK(bf_reverse_bits(0x01, &result) == BF_OK);
@@ -196,7 +204,8 @@ static void test_reverse_bits(void) {
     CHECK(bf_reverse_bits(0x00, NULL) == BF_EINVAL);
 }
 
-int main(void) {
+int main(void)
+{
     test_rotate_left();
     test_get();
     test_set();

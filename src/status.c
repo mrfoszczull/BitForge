@@ -1,6 +1,7 @@
 #include <bitforge/status.h>
 
-const char *bf_status_string(bf_status status) {
+const char *bf_status_string(bf_status status)
+{
     switch (status) {
     case BF_OK:
         return "Success";

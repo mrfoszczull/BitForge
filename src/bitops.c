@@ -3,7 +3,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-bf_status bf_get(const uint8_t *value, size_t bit_index, bool *result) {
+bf_status bf_get(const uint8_t *value, size_t bit_index, bool *result)
+{
     if (value == NULL || bit_index >= 8 || result == NULL) {
         return BF_EINVAL;
     }
@@ -13,7 +14,8 @@ bf_status bf_get(const uint8_t *value, size_t bit_index, bool *result) {
     return BF_OK;
 }
 
-bf_status bf_set(uint8_t *value, size_t bit_index) {
+bf_status bf_set(uint8_t *value, size_t bit_index)
+{
     if (value == NULL || bit_index >= 8) {
         return BF_EINVAL;
     }
@@ -23,7 +25,8 @@ bf_status bf_set(uint8_t *value, size_t bit_index) {
     return BF_OK;
 }
 
-bf_status bf_clear(uint8_t *value, size_t bit_index) {
+bf_status bf_clear(uint8_t *value, size_t bit_index)
+{
     if (value == NULL || bit_index >= 8) {
         return BF_EINVAL;
     }
@@ -32,7 +35,8 @@ bf_status bf_clear(uint8_t *value, size_t bit_index) {
     return BF_OK;
 }
 
-bf_status bf_toggle(uint8_t *value, size_t bit_index) {
+bf_status bf_toggle(uint8_t *value, size_t bit_index)
+{
     if (value == NULL || bit_index >= 8) {
         return BF_EINVAL;
     }
@@ -42,7 +46,8 @@ bf_status bf_toggle(uint8_t *value, size_t bit_index) {
     return BF_OK;
 }
 
-bf_status bf_count_set_bits(const uint8_t *value, uint8_t *result) {
+bf_status bf_count_set_bits(const uint8_t *value, uint8_t *result)
+{
     if (value == NULL || result == NULL) {
         return BF_EINVAL;
     }
@@ -57,7 +62,8 @@ bf_status bf_count_set_bits(const uint8_t *value, uint8_t *result) {
     return BF_OK;
 }
 
-bf_status bf_is_power_of_two(uint8_t value, bool *result) {
+bf_status bf_is_power_of_two(uint8_t value, bool *result)
+{
     if (result == NULL) {
         return BF_EINVAL;
     }
@@ -71,7 +77,8 @@ bf_status bf_is_power_of_two(uint8_t value, bool *result) {
     return BF_OK;
 }
 
-bf_status bf_reverse_bits(uint8_t value, uint8_t *result) {
+bf_status bf_reverse_bits(uint8_t value, uint8_t *result)
+{
     if (result == NULL) {
         return BF_EINVAL;
     }
@@ -89,8 +96,8 @@ bf_status bf_reverse_bits(uint8_t value, uint8_t *result) {
     return BF_OK;
 }
 
-bf_status bf_rotate_left(uint8_t value, unsigned int position,
-                         uint8_t *result) {
+bf_status bf_rotate_left(uint8_t value, unsigned int position, uint8_t *result)
+{
     if (result == NULL) {
         return BF_EINVAL;
     }
