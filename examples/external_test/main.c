@@ -4,7 +4,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-int main(void) {
+int main(void)
+{
     uint8_t result = 0;
 
     bf_status status = bf_reverse_bits(0x01, &result);
