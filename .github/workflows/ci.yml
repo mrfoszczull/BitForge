@@ -1,3 +1,4 @@
+
 name: CI
 
 on:
@@ -35,3 +36,69 @@ jobs:
 
       - name: Check formatting
         run: make format-check
+
+  install-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Install BitForge
+        run: cmake --install build --prefix "$RUNNER_TEMP/bitforge-install"
+
+      - name: Create consumer project
+        run: |
+          mkdir -p "$RUNNER_TEMP/bitforge-consumer"
+          cd "$RUNNER_TEMP/bitforge-consumer"
+
+          cat > CMakeLists.txt <<'EOF'
+          cmake_minimum_required(VERSION 3.20)
+
+          project(BitForgeConsumer LANGUAGES C)
+
+          find_package(BitForge 1.0 CONFIG REQUIRED)
+
+          add_executable(consumer main.c)
+          target_link_libraries(consumer PRIVATE BitForge::bitforge)
+          EOF
+
+          cat > main.c <<'EOF'
+          #include <bitforge/bitops.h>
+          #include <stdint.h>
+          #include <stdio.h>
+
+          int main(void)
+          {
+              uint8_t value = 0x00;
+
+              if (bf_set(&value, 3) != BF_OK) {
+                  return 1;
+              }
+
+              printf("Value: 0x%02X\n", (unsigned int)value);
+
+              return 0;
+          }
+          EOF
+
+      - name: Configure consumer project
+        run: |
+          cmake -S "$RUNNER_TEMP/bitforge-consumer" \
+                -B "$RUNNER_TEMP/bitforge-consumer/build" \
+                -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/bitforge-install"
+
+      - name: Build consumer project
+        run: cmake --build "$RUNNER_TEMP/bitforge-consumer/build" --parallel
+
+      - name: Run consumer
+        run: |
+          output=$("$RUNNER_TEMP/bitforge-consumer/build/consumer")
+          echo "$output"
+          test "$output" = "Value: 0x08"

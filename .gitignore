@@ -4,6 +4,8 @@ build-debug/
 build-release/
 cmake-build-*/
 build-external/
+build-ci/
+install-ci/
 install/
 
 *.o
