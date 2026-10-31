@@ -7,6 +7,10 @@ build-external/
 build-ci/
 install-ci/
 install/
+build-clang-debug/
+build-clang-release/
+build-gcc-debug/
+build-gcc-release/
 
 *.o
 *.a

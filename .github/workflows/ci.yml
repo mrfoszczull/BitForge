@@ -7,14 +7,25 @@ on:
 
 jobs:
   build-and-test:
+    name: ${{ matrix.compiler }} / ${{ matrix.build_type }}
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+        build_type: [Debug, Release]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBITFORGE_ENABLE_SANITIZERS=ON
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBITFORGE_ENABLE_SANITIZERS=${{ matrix.compiler == 'gcc' && matrix.build_type == 'Debug' }}
 
       - name: Build
         run: cmake --build build --parallel
