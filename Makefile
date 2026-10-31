@@ -5,6 +5,9 @@ test:
 	cmake --build $(BUILD_DIR)
 	ctest --test-dir $(BUILD_DIR) --output-on-failure
 
+build:
+	cmake -S . -B $(BUILD_DIR)
+
 sanitize:
 	cmake -S . -B $(SANITIZE_DIR) -DBITFORGE_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug
 	cmake --build $(SANITIZE_DIR)

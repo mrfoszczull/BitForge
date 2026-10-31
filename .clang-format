@@ -1,19 +1,29 @@
 BasedOnStyle: LLVM
-Language: Cpp
-Standard: c++03
 
-IndentWidth: 4
-TabWidth: 4
-UseTab: Never
+Language: Cpp
+
+IndentWidth: 8
+TabWidth: 8
+UseTab: Always
+
 ColumnLimit: 80
 
-BreakBeforeBraces: Custom
-BraceWrapping:
-  AfterFunction: true
-  AfterControlStatement: Never
-  BeforeElse: false
+BreakBeforeBraces: Linux
 
-PointerAlignment: Right
 DerivePointerAlignment: false
+PointerAlignment: Right
 
-SortIncludes: CaseSensitive
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+IndentCaseLabels: false
+
+SpaceAfterCStyleCast: false
+SpaceBeforeParens: ControlStatements
+AlignAfterOpenBracket: DontAlign
+
+SortIncludes: Never
+
+MaxEmptyLinesToKeep: 1
+KeepEmptyLinesAtTheStartOfBlocks: false
+
