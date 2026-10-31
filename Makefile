@@ -1,12 +1,14 @@
 BUILD_DIR = build
 SANITIZE_DIR = build-sanitize
 
-test:
-	cmake --build $(BUILD_DIR)
-	ctest --test-dir $(BUILD_DIR) --output-on-failure
+.PHONY: build test sanitize check format format-check clean
 
 build:
 	cmake -S . -B $(BUILD_DIR)
+	cmake --build $(BUILD_DIR)
+
+test: build
+	ctest --test-dir $(BUILD_DIR) --output-on-failure
 
 sanitize:
 	cmake -S . -B $(SANITIZE_DIR) -DBITFORGE_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug
