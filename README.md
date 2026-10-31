@@ -1,24 +1,23 @@
 # BitForge
 
-**BitForge** is a lightweight C17 library for bit-level manipulation and analysis of 8-bit values.
+BitForge is a lightweight C17 library for bit-level manipulation and analysis of 8-bit values.
 
-It provides a simple API for common bitwise operations, bit counting, bit reversal, and bit rotation, with status codes for error handling.
+It provides a simple and consistent API for common bitwise operations, with explicit status codes and a focus on portability, reliability, and ease of integration.
 
 ## Features
 
-- Read individual bits
-- Set, clear, and toggle individual bits
-- Count the number of set bits in a byte
-- Check whether a byte is a power of two
-- Reverse the bit order of a byte
-- Rotate bits to the left
-- Status codes for error handling
+- Set, clear, toggle, and check individual bits.
+- Perform bitwise operations on 8-bit values.
+- Explicit status codes for error handling.
+- Lightweight implementation with no external dependencies.
+- C17-compatible API.
+- CMake installation and package export support.
 
 ## Requirements
 
-- A C compiler with C17 support
-- CMake 3.20 or newer
-- GNU Make (optional, for Makefile shortcuts)
+- A C compiler with C17 support.
+- CMake 3.20 or newer.
+- GNU Make (optional, for Makefile shortcuts).
 
 ## Getting Started
 
@@ -26,7 +25,7 @@ Clone the repository and enter the project directory:
 
 ```bash
 git clone https://github.com/mrfoszczull/BitForge
-cd bitforge
+cd BitForge
 ```
 
 Configure and build the project with CMake:
@@ -34,6 +33,56 @@ Configure and build the project with CMake:
 ```bash
 cmake -S . -B build
 cmake --build build
+```
+
+## Installation
+
+Install BitForge to a local directory:
+
+```bash
+cmake --install build --prefix "$PWD/install"
+```
+
+The installation includes:
+
+- Static library: `lib/libbitforge.a`
+- Public headers: `include/bitforge/`
+- CMake package configuration: `lib/cmake/BitForge/`
+
+You can also install BitForge system-wide by using an appropriate installation prefix for your system.
+
+## Using BitForge in Another CMake Project
+
+After installing BitForge, use `find_package()` to locate the package and link against its exported target.
+
+Example `CMakeLists.txt`:
+
+```cmake
+cmake_minimum_required(VERSION 3.20)
+
+project(MyApplication LANGUAGES C)
+
+find_package(BitForge 1.0 CONFIG REQUIRED)
+
+add_executable(my_app main.c)
+
+target_link_libraries(my_app PRIVATE BitForge::bitforge)
+```
+
+If BitForge was installed to a custom prefix, provide that prefix when configuring your project:
+
+```bash
+cmake -S . -B build \
+    -DCMAKE_PREFIX_PATH="/path/to/bitforge/install"
+
+cmake --build build
+```
+
+Include the public headers in your source files:
+
+```c
+#include <bitforge/bitops.h>
+#include <bitforge/status.h>
 ```
 
 ## Testing
@@ -56,68 +105,49 @@ Run both regular and sanitizer-enabled tests:
 make check
 ```
 
-Build and test with sanitizers only:
+## Code Formatting
+
+BitForge uses ClangFormat to maintain consistent source code formatting.
+
+Format the source files:
 
 ```bash
-make sanitize
+make format
 ```
 
-Remove generated build directories:
+Check formatting without modifying files:
 
 ```bash
-make clean
+make format-check
 ```
 
-## Usage
+## Sanitizers
 
-Include the public header in your C source file:
+AddressSanitizer and UndefinedBehaviorSanitizer can be enabled through the CMake option:
 
-```c
-#include <bitforge/bitops.h>
-#include <stdint.h>
-#include <stdio.h>
+```bash
+cmake -S . -B build-sanitize \
+    -DBITFORGE_ENABLE_SANITIZERS=ON \
+    -DCMAKE_BUILD_TYPE=Debug
 
-int main(void)
-{
-    uint8_t value = 0x00;
-
-    if (bf_set(&value, 3) != BF_OK) {
-        return 1;
-    }
-
-    printf("Value: 0x%02X\n", (unsigned int)value);
-
-    return 0;
-}
+cmake --build build-sanitize
+ctest --test-dir build-sanitize --output-on-failure
 ```
-
-Output:
-
-```text
-Value: 0x08
-```
-
-This example sets bit 3, changing the value from `0x00` to `0x08`.
 
 ## API Overview
 
-BitForge provides functions for:
+Public headers are located in `include/bitforge/`:
 
-- Reading and modifying individual bits
-- Counting set bits
-- Checking whether a byte is a power of two
-- Reversing the bit order of a byte
-- Rotating bits to the left
-
-Operations that can fail return status codes, allowing callers to check whether an operation completed successfully.
-
-See the public header, `include/bitforge/bitops.h`, for the available functions, parameter types, and status codes.
+| Header | Description |
+|---|---|
+| `bitops.h` | Bit-level operations on 8-bit values |
+| `status.h` | Status codes and error handling |
 
 ## Project Status
 
-BitForge 1.0.0 is the first stable release.
+BitForge 1.0.0 is released.
 
-The public API is considered stable for the 1.x series. Breaking API changes are not expected before a future major release.
+The public API is considered stable throughout the 1.x release series. Breaking API changes are reserved for a future major release.
 
 ## License
 
