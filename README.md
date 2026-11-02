@@ -189,6 +189,25 @@ The public API is intended to remain stable throughout the 1.x release series. B
 
 The long-term goal is to evolve BitForge into a lightweight, portable C library for bit-level operations and binary data manipulation.
 
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup, coding guidelines and the pull request process.
+
+Before submitting a pull request, run:
+
+```bash
+make format
+make check
+```
+
+Found a bug or have an idea? Open an [issue](https://github.com/mrfoszczull/BitForge/issues) and include the BitForge version, your platform and compiler, and a minimal example that reproduces the problem.
+
+## Security
+
+If you believe you have found a security vulnerability, **do not open a public issue**. Report it privately through [GitHub Security Advisories](https://github.com/mrfoszczull/BitForge/security/advisories/new) instead.
+
+Security fixes are provided for the latest stable release. See [SECURITY.md](SECURITY.md) for the full policy, including what to include in a report and how it is handled.
+
 ## License
 
 BitForge is distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
