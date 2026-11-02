@@ -203,3 +203,19 @@ bf_status bf_toggle_bits(uint8_t *value, size_t bit_index, size_t bit_count)
 
 	return BF_OK;
 }
+
+bf_status bf_swap_bits(uint8_t *value, size_t first_bit, size_t second_bit)
+{
+	if (value == NULL || first_bit > 7 || second_bit > 7) {
+		return BF_EINVAL;
+	}
+
+	uint8_t first_value = (*value >> first_bit) & 1U;
+	uint8_t second_value = (*value >> second_bit) & 1U;
+
+	if (first_value != second_value) {
+		*value ^= (uint8_t)((1U << first_bit) | (1U << second_bit));
+	}
+
+	return BF_OK;
+}

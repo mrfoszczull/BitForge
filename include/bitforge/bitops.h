@@ -163,4 +163,20 @@ bf_status bf_clear_bits(uint8_t *value, size_t bit_index, size_t bit_count);
  */
 bf_status bf_toggle_bits(uint8_t *value, size_t bit_index, size_t bit_count);
 
+/**
+ * @brief Swaps two bits in an 8-bit value.
+ *
+ * Exchanges the values of the two specified bits. Other bits remain
+ * unchanged.
+ *
+ * @param value Pointer to the value to modify.
+ * @param first_bit Index of the first bit, counted from the least
+ * significant bit (0).
+ * @param second_bit Index of the second bit, counted from the least
+ * significant bit (0).
+ * @return BF_OK on success, BF_EINVAL if value is NULL or either bit
+ * index is outside the range 0–7.
+ */
+bf_status bf_swap_bits(uint8_t *value, size_t first_bit, size_t second_bit);
+
 #endif

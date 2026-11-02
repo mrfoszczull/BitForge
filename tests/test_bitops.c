@@ -343,6 +343,35 @@ static void test_bf_toggle_bits(void)
 	CHECK(bf_toggle_bits(NULL, 0, 1) == BF_EINVAL);
 }
 
+static void test_bf_swap_bits(void)
+{
+	uint8_t value = 0x01;
+
+	CHECK(bf_swap_bits(&value, 0, 1) == BF_OK);
+	CHECK(value == 0x02);
+
+	value = 0x81;
+	CHECK(bf_swap_bits(&value, 0, 7) == BF_OK);
+	CHECK(value == 0x81);
+
+	value = 0x00;
+	CHECK(bf_swap_bits(&value, 2, 5) == BF_OK);
+	CHECK(value == 0x00);
+
+	value = 0xFF;
+	CHECK(bf_swap_bits(&value, 2, 5) == BF_OK);
+	CHECK(value == 0xFF);
+
+	value = 0xA5;
+	CHECK(bf_swap_bits(&value, 3, 3) == BF_OK);
+	CHECK(value == 0xA5);
+
+	CHECK(bf_swap_bits(&value, 8, 0) == BF_EINVAL);
+	CHECK(bf_swap_bits(&value, 0, 8) == BF_EINVAL);
+
+	CHECK(bf_swap_bits(NULL, 0, 1) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_rotate_left();
@@ -358,6 +387,7 @@ int main(void)
 	test_bf_set_bits();
 	test_bf_clear_bits();
 	test_bf_toggle_bits();
+	test_bf_swap_bits();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
