@@ -89,4 +89,17 @@ bf_status bf_reverse_bits(uint8_t value, uint8_t *result);
  */
 bf_status bf_rotate_left(uint8_t value, unsigned int position, uint8_t *result);
 
+/**
+ * @brief Rotates an 8-bit value to the right.
+ *
+ * The rotation count is reduced modulo 8.
+ *
+ * @param value Value to rotate.
+ * @param position Number of bit positions to rotate.
+ * @param result Pointer to receive the rotated value.
+ * @return BF_OK on success, BF_EINVAL if result is NULL.
+ */
+bf_status bf_rotate_right(
+    uint8_t value, unsigned int position, uint8_t *result);
+
 #endif

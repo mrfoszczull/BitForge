@@ -50,6 +50,28 @@ static void test_rotate_left(void)
 	CHECK(result == 0xFF);
 }
 
+static void test_bf_rotate_right(void)
+{
+	uint8_t result = 0;
+
+	CHECK(bf_rotate_right(0x0D, 1, &result) == BF_OK);
+	CHECK(result == 0x86);
+
+	CHECK(bf_rotate_right(0x0D, 2, &result) == BF_OK);
+	CHECK(result == 0x43);
+
+	CHECK(bf_rotate_right(0x0D, 0, &result) == BF_OK);
+	CHECK(result == 0x0D);
+
+	CHECK(bf_rotate_right(0x0D, 8, &result) == BF_OK);
+	CHECK(result == 0x0D);
+
+	CHECK(bf_rotate_right(0x0D, 9, &result) == BF_OK);
+	CHECK(result == 0x86);
+
+	CHECK(bf_rotate_right(0x0D, 1, NULL) == BF_EINVAL);
+}
+
 static void test_get(void)
 {
 	uint8_t value = 0xA5;
@@ -207,6 +229,7 @@ static void test_reverse_bits(void)
 int main(void)
 {
 	test_rotate_left();
+	test_bf_rotate_right();
 	test_get();
 	test_set();
 	test_clear();
