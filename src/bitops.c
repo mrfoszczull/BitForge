@@ -133,3 +133,19 @@ bf_status bf_rotate_right(uint8_t value, unsigned int position, uint8_t *result)
 
 	return BF_OK;
 }
+
+bf_status bf_get_bits(
+    uint8_t value, size_t bit_index, size_t bit_count, uint8_t *result)
+{
+	if (result == NULL || bit_count == 0 || bit_count > 8) {
+		return BF_EINVAL;
+	}
+
+	if (bit_index > 8 || bit_count > 8 - bit_index) {
+		return BF_EINVAL;
+	}
+
+	*result = (value >> bit_index) & ((1U << bit_count) - 1);
+
+	return BF_OK;
+}

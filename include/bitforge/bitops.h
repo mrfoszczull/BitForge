@@ -102,4 +102,20 @@ bf_status bf_rotate_left(uint8_t value, unsigned int position, uint8_t *result);
 bf_status bf_rotate_right(
     uint8_t value, unsigned int position, uint8_t *result);
 
+/**
+ * @brief Reads a range of bits from an 8-bit value.
+ *
+ * The extracted bits are shifted to the least significant positions.
+ *
+ * @param value Source 8-bit value.
+ * @param bit_index Index of the first bit, counted from the least
+ * significant bit (0).
+ * @param bit_count Number of bits to read (1–8).
+ * @param result Pointer to receive the extracted value.
+ * @return BF_OK on success, BF_EINVAL if result is NULL or the requested
+ * bit range is invalid.
+ */
+bf_status bf_get_bits(
+    uint8_t value, size_t bit_index, size_t bit_count, uint8_t *result);
+
 #endif

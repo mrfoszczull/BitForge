@@ -226,6 +226,30 @@ static void test_reverse_bits(void)
 	CHECK(bf_reverse_bits(0x00, NULL) == BF_EINVAL);
 }
 
+static void test_bf_get_bits(void)
+{
+	uint8_t result = 0;
+
+	CHECK(bf_get_bits(0xD6, 1, 1, &result) == BF_OK);
+	CHECK(result == 1);
+
+	CHECK(bf_get_bits(0xD6, 2, 3, &result) == BF_OK);
+	CHECK(result == 0x05);
+
+	CHECK(bf_get_bits(0xD6, 0, 8, &result) == BF_OK);
+	CHECK(result == 0xD6);
+
+	CHECK(bf_get_bits(0xD6, 0, 4, &result) == BF_OK);
+	CHECK(result == 0x06);
+
+	CHECK(bf_get_bits(0xD6, 0, 0, &result) == BF_EINVAL);
+	CHECK(bf_get_bits(0xD6, 0, 9, &result) == BF_EINVAL);
+
+	CHECK(bf_get_bits(0xD6, 7, 2, &result) == BF_EINVAL);
+	CHECK(bf_get_bits(0xD6, 8, 1, &result) == BF_EINVAL);
+
+	CHECK(bf_get_bits(0xD6, 0, 4, NULL) == BF_EINVAL);
+}
 int main(void)
 {
 	test_rotate_left();
@@ -237,6 +261,7 @@ int main(void)
 	test_count_set_bits();
 	test_is_power_of_two();
 	test_reverse_bits();
+	test_bf_get_bits();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
