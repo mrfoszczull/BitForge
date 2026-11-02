@@ -89,4 +89,94 @@ bf_status bf_reverse_bits(uint8_t value, uint8_t *result);
  */
 bf_status bf_rotate_left(uint8_t value, unsigned int position, uint8_t *result);
 
+/**
+ * @brief Rotates an 8-bit value to the right.
+ *
+ * The rotation count is reduced modulo 8.
+ *
+ * @param value Value to rotate.
+ * @param position Number of bit positions to rotate.
+ * @param result Pointer to receive the rotated value.
+ * @return BF_OK on success, BF_EINVAL if result is NULL.
+ */
+bf_status bf_rotate_right(
+    uint8_t value, unsigned int position, uint8_t *result);
+
+/**
+ * @brief Reads a range of bits from an 8-bit value.
+ *
+ * The extracted bits are shifted to the least significant positions.
+ *
+ * @param value Source 8-bit value.
+ * @param bit_index Index of the first bit, counted from the least
+ * significant bit (0).
+ * @param bit_count Number of bits to read (1–8).
+ * @param result Pointer to receive the extracted value.
+ * @return BF_OK on success, BF_EINVAL if result is NULL or the requested
+ * bit range is invalid.
+ */
+bf_status bf_get_bits(
+    uint8_t value, size_t bit_index, size_t bit_count, uint8_t *result);
+
+/**
+ * @brief Sets a range of bits in an 8-bit value.
+ *
+ * Sets all bits in the specified range to 1. Bits outside the range
+ * remain unchanged.
+ *
+ * @param value Pointer to the value to modify.
+ * @param bit_index Index of the first bit, counted from the least
+ * significant bit (0).
+ * @param bit_count Number of bits to set (1–8).
+ * @return BF_OK on success, BF_EINVAL if value is NULL or the requested
+ * bit range is invalid.
+ */
+bf_status bf_set_bits(uint8_t *value, size_t bit_index, size_t bit_count);
+
+/**
+ * @brief Clears a range of bits in an 8-bit value.
+ *
+ * Sets all bits in the specified range to 0. Bits outside the range
+ * remain unchanged.
+ *
+ * @param value Pointer to the value to modify.
+ * @param bit_index Index of the first bit, counted from the least
+ * significant bit (0).
+ * @param bit_count Number of bits to clear (1–8).
+ * @return BF_OK on success, BF_EINVAL if value is NULL or the requested
+ * bit range is invalid.
+ */
+bf_status bf_clear_bits(uint8_t *value, size_t bit_index, size_t bit_count);
+
+/**
+ * @brief Toggles a range of bits in an 8-bit value.
+ *
+ * Inverts all bits in the specified range. Bits outside the range
+ * remain unchanged.
+ *
+ * @param value Pointer to the value to modify.
+ * @param bit_index Index of the first bit, counted from the least
+ * significant bit (0).
+ * @param bit_count Number of bits to toggle (1–8).
+ * @return BF_OK on success, BF_EINVAL if value is NULL or the requested
+ * bit range is invalid.
+ */
+bf_status bf_toggle_bits(uint8_t *value, size_t bit_index, size_t bit_count);
+
+/**
+ * @brief Swaps two bits in an 8-bit value.
+ *
+ * Exchanges the values of the two specified bits. Other bits remain
+ * unchanged.
+ *
+ * @param value Pointer to the value to modify.
+ * @param first_bit Index of the first bit, counted from the least
+ * significant bit (0).
+ * @param second_bit Index of the second bit, counted from the least
+ * significant bit (0).
+ * @return BF_OK on success, BF_EINVAL if value is NULL or either bit
+ * index is outside the range 0–7.
+ */
+bf_status bf_swap_bits(uint8_t *value, size_t first_bit, size_t second_bit);
+
 #endif

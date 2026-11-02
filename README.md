@@ -11,17 +11,28 @@ It provides a simple and consistent API for common bitwise operations, with expl
 ## Features
 
 - **Bit manipulation** – set, clear, toggle, and check individual bits.
-- **Bitwise operations** – perform common operations on 8-bit values.
+- **Bit range operations** – read, set, clear, and toggle ranges of bits.
+- **Bitwise operations** – reverse, rotate, and swap bits in 8-bit values.
+- **Bit analysis** – count set bits and check whether a value is a power of two.
 - **Error handling** – explicit status codes for predictable error handling.
 - **Lightweight** – no external runtime dependencies.
 - **Portable** – C17-compatible API.
 - **CMake integration** – installable static library with exported CMake package support.
 
+## Bit Indexing
+
+BitForge uses **LSB-first indexing** for bit positions.
+
+Bit index `0` refers to the least significant bit (LSB), while bit index `7` refers to the most significant bit (MSB) of an 8-bit value.
+
+For range operations, `bit_index` specifies the first bit and `bit_count` specifies the number of consecutive bits to process.
+
 ## Requirements
 
-- A C compiler with C17 support.
+- C compiler with C17 support.
 - CMake 3.20 or newer.
-- GNU Make (optional, for Makefile shortcuts).
+- Make (optional, for using the provided Makefile).
+- ClangFormat (optional, for code formatting).
 
 ## Getting Started
 
@@ -39,9 +50,7 @@ cmake -S . -B build
 cmake --build build
 ```
 
-## Installation
-
-Install BitForge to a local directory:
+Install the library:
 
 ```bash
 cmake --install build --prefix "$PWD/install"
@@ -61,14 +70,12 @@ To install BitForge system-wide, use an appropriate installation prefix for your
 
 After installing BitForge, use `find_package()` to locate the package and link against its exported target.
 
-Example `CMakeLists.txt`:
-
 ```cmake
 cmake_minimum_required(VERSION 3.20)
 
 project(MyApplication LANGUAGES C)
 
-find_package(BitForge 1.0 CONFIG REQUIRED)
+find_package(BitForge 1.1 CONFIG REQUIRED)
 
 add_executable(my_app main.c)
 
@@ -80,8 +87,6 @@ For a custom installation prefix, specify `CMAKE_PREFIX_PATH`:
 ```bash
 cmake -S . -B build \
     -DCMAKE_PREFIX_PATH="/path/to/bitforge/install"
-
-cmake --build build
 ```
 
 Include the public headers in your source files:
@@ -135,8 +140,8 @@ Configure, build, and test a sanitizer-enabled build:
 
 ```bash
 cmake -S . -B build-sanitize \
-    -DBITFORGE_ENABLE_SANITIZERS=ON \
-    -DCMAKE_BUILD_TYPE=Debug
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DBITFORGE_ENABLE_SANITIZERS=ON
 
 cmake --build build-sanitize
 ctest --test-dir build-sanitize --output-on-failure
@@ -151,11 +156,36 @@ Public headers are located in `include/bitforge/`:
 | `bitops.h` | Bit-level operations on 8-bit values |
 | `status.h` | Status codes and error handling |
 
+### Bit Operations
+
+The `bitops.h` header provides the following operations:
+
+| Function | Description |
+|---|---|
+| `bf_get` | Reads an individual bit |
+| `bf_set` | Sets an individual bit |
+| `bf_clear` | Clears an individual bit |
+| `bf_toggle` | Toggles an individual bit |
+| `bf_count_set_bits` | Counts set bits |
+| `bf_is_power_of_two` | Checks whether a value is a power of two |
+| `bf_reverse_bits` | Reverses bit order |
+| `bf_rotate_left` | Rotates bits to the left |
+| `bf_rotate_right` | Rotates bits to the right |
+| `bf_get_bits` | Reads a range of bits |
+| `bf_set_bits` | Sets a range of bits |
+| `bf_clear_bits` | Clears a range of bits |
+| `bf_toggle_bits` | Toggles a range of bits |
+| `bf_swap_bits` | Swaps two bits |
+
+All functions return a `bf_status` value to indicate success or failure.
+
 ## Project Status
 
-**Current version: 1.0.0**
+**BitForge 1.1.0 is released.**
 
-BitForge 1.0.0 has been released. The public API is considered stable throughout the 1.x release series. Breaking API changes are reserved for a future major release.
+This release introduces additional bit manipulation operations, including bit rotations, range operations, and bit swapping.
+
+The public API is intended to remain stable throughout the 1.x release series. Breaking API changes are reserved for a future major release.
 
 The long-term goal is to evolve BitForge into a lightweight, portable C library for bit-level operations and binary data manipulation.
 

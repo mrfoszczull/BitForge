@@ -50,6 +50,28 @@ static void test_rotate_left(void)
 	CHECK(result == 0xFF);
 }
 
+static void test_bf_rotate_right(void)
+{
+	uint8_t result = 0;
+
+	CHECK(bf_rotate_right(0x0D, 1, &result) == BF_OK);
+	CHECK(result == 0x86);
+
+	CHECK(bf_rotate_right(0x0D, 2, &result) == BF_OK);
+	CHECK(result == 0x43);
+
+	CHECK(bf_rotate_right(0x0D, 0, &result) == BF_OK);
+	CHECK(result == 0x0D);
+
+	CHECK(bf_rotate_right(0x0D, 8, &result) == BF_OK);
+	CHECK(result == 0x0D);
+
+	CHECK(bf_rotate_right(0x0D, 9, &result) == BF_OK);
+	CHECK(result == 0x86);
+
+	CHECK(bf_rotate_right(0x0D, 1, NULL) == BF_EINVAL);
+}
+
 static void test_get(void)
 {
 	uint8_t value = 0xA5;
@@ -204,9 +226,156 @@ static void test_reverse_bits(void)
 	CHECK(bf_reverse_bits(0x00, NULL) == BF_EINVAL);
 }
 
+static void test_bf_get_bits(void)
+{
+	uint8_t result = 0;
+
+	CHECK(bf_get_bits(0xD6, 1, 1, &result) == BF_OK);
+	CHECK(result == 1);
+
+	CHECK(bf_get_bits(0xD6, 2, 3, &result) == BF_OK);
+	CHECK(result == 0x05);
+
+	CHECK(bf_get_bits(0xD6, 0, 8, &result) == BF_OK);
+	CHECK(result == 0xD6);
+
+	CHECK(bf_get_bits(0xD6, 0, 4, &result) == BF_OK);
+	CHECK(result == 0x06);
+
+	CHECK(bf_get_bits(0xD6, 0, 0, &result) == BF_EINVAL);
+	CHECK(bf_get_bits(0xD6, 0, 9, &result) == BF_EINVAL);
+
+	CHECK(bf_get_bits(0xD6, 7, 2, &result) == BF_EINVAL);
+	CHECK(bf_get_bits(0xD6, 8, 1, &result) == BF_EINVAL);
+
+	CHECK(bf_get_bits(0xD6, 0, 4, NULL) == BF_EINVAL);
+}
+
+static void test_bf_set_bits(void)
+{
+	uint8_t value = 0x02;
+
+	CHECK(bf_set_bits(&value, 0, 1) == BF_OK);
+	CHECK(value == 0x03);
+
+	value = 0x02;
+	CHECK(bf_set_bits(&value, 2, 3) == BF_OK);
+	CHECK(value == 0x1E);
+
+	value = 0x00;
+	CHECK(bf_set_bits(&value, 0, 8) == BF_OK);
+	CHECK(value == 0xFF);
+
+	value = 0xF0;
+	CHECK(bf_set_bits(&value, 0, 4) == BF_OK);
+	CHECK(value == 0xFF);
+
+	CHECK(bf_set_bits(&value, 0, 0) == BF_EINVAL);
+	CHECK(bf_set_bits(&value, 0, 9) == BF_EINVAL);
+
+	CHECK(bf_set_bits(&value, 7, 2) == BF_EINVAL);
+	CHECK(bf_set_bits(&value, 8, 1) == BF_EINVAL);
+
+	CHECK(bf_set_bits(NULL, 0, 1) == BF_EINVAL);
+}
+
+static void test_bf_clear_bits(void)
+{
+	uint8_t value = 0xFF;
+
+	CHECK(bf_clear_bits(&value, 0, 1) == BF_OK);
+	CHECK(value == 0xFE);
+
+	value = 0xFF;
+	CHECK(bf_clear_bits(&value, 2, 3) == BF_OK);
+	CHECK(value == 0xE3);
+
+	value = 0xFF;
+	CHECK(bf_clear_bits(&value, 0, 8) == BF_OK);
+	CHECK(value == 0x00);
+
+	value = 0xFF;
+	CHECK(bf_clear_bits(&value, 4, 4) == BF_OK);
+	CHECK(value == 0x0F);
+
+	value = 0x00;
+	CHECK(bf_clear_bits(&value, 0, 4) == BF_OK);
+	CHECK(value == 0x00);
+
+	CHECK(bf_clear_bits(&value, 0, 0) == BF_EINVAL);
+	CHECK(bf_clear_bits(&value, 0, 9) == BF_EINVAL);
+
+	CHECK(bf_clear_bits(&value, 7, 2) == BF_EINVAL);
+	CHECK(bf_clear_bits(&value, 8, 1) == BF_EINVAL);
+
+	CHECK(bf_clear_bits(NULL, 0, 1) == BF_EINVAL);
+}
+
+static void test_bf_toggle_bits(void)
+{
+	uint8_t value = 0x00;
+
+	CHECK(bf_toggle_bits(&value, 0, 1) == BF_OK);
+	CHECK(value == 0x01);
+
+	value = 0x00;
+	CHECK(bf_toggle_bits(&value, 2, 3) == BF_OK);
+	CHECK(value == 0x1C);
+
+	value = 0x00;
+	CHECK(bf_toggle_bits(&value, 0, 8) == BF_OK);
+	CHECK(value == 0xFF);
+
+	CHECK(bf_toggle_bits(&value, 0, 8) == BF_OK);
+	CHECK(value == 0x00);
+
+	value = 0x0F;
+	CHECK(bf_toggle_bits(&value, 4, 4) == BF_OK);
+	CHECK(value == 0xFF);
+
+	CHECK(bf_toggle_bits(&value, 0, 0) == BF_EINVAL);
+	CHECK(bf_toggle_bits(&value, 0, 9) == BF_EINVAL);
+
+	/* Zakres wykraczający poza 8 bitów. */
+	CHECK(bf_toggle_bits(&value, 7, 2) == BF_EINVAL);
+	CHECK(bf_toggle_bits(&value, 8, 1) == BF_EINVAL);
+
+	CHECK(bf_toggle_bits(NULL, 0, 1) == BF_EINVAL);
+}
+
+static void test_bf_swap_bits(void)
+{
+	uint8_t value = 0x01;
+
+	CHECK(bf_swap_bits(&value, 0, 1) == BF_OK);
+	CHECK(value == 0x02);
+
+	value = 0x81;
+	CHECK(bf_swap_bits(&value, 0, 7) == BF_OK);
+	CHECK(value == 0x81);
+
+	value = 0x00;
+	CHECK(bf_swap_bits(&value, 2, 5) == BF_OK);
+	CHECK(value == 0x00);
+
+	value = 0xFF;
+	CHECK(bf_swap_bits(&value, 2, 5) == BF_OK);
+	CHECK(value == 0xFF);
+
+	value = 0xA5;
+	CHECK(bf_swap_bits(&value, 3, 3) == BF_OK);
+	CHECK(value == 0xA5);
+
+	CHECK(bf_swap_bits(&value, 8, 0) == BF_EINVAL);
+	CHECK(bf_swap_bits(&value, 0, 8) == BF_EINVAL);
+
+	CHECK(bf_swap_bits(NULL, 0, 1) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_rotate_left();
+	test_bf_rotate_right();
 	test_get();
 	test_set();
 	test_clear();
@@ -214,6 +383,11 @@ int main(void)
 	test_count_set_bits();
 	test_is_power_of_two();
 	test_reverse_bits();
+	test_bf_get_bits();
+	test_bf_set_bits();
+	test_bf_clear_bits();
+	test_bf_toggle_bits();
+	test_bf_swap_bits();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
