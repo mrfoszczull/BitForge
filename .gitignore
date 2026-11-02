@@ -1,12 +1,5 @@
-build/
-build-*/
-cmake-build-*/
-install-ci/
-install/
-build-clang-debug/
-build-clang-release/
-build-gcc-debug/
-build-gcc-release/
+build*/
+install*/
 
 *.o
 *.a
