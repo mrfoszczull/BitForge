@@ -1,10 +1,6 @@
 build/
-build-sanitize/
-build-debug/
-build-release/
+build-*/
 cmake-build-*/
-build-external/
-build-ci/
 install-ci/
 install/
 
