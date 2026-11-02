@@ -279,6 +279,38 @@ static void test_bf_set_bits(void)
 	CHECK(bf_set_bits(NULL, 0, 1) == BF_EINVAL);
 }
 
+static void test_bf_clear_bits(void)
+{
+	uint8_t value = 0xFF;
+
+	CHECK(bf_clear_bits(&value, 0, 1) == BF_OK);
+	CHECK(value == 0xFE);
+
+	value = 0xFF;
+	CHECK(bf_clear_bits(&value, 2, 3) == BF_OK);
+	CHECK(value == 0xE3);
+
+	value = 0xFF;
+	CHECK(bf_clear_bits(&value, 0, 8) == BF_OK);
+	CHECK(value == 0x00);
+
+	value = 0xFF;
+	CHECK(bf_clear_bits(&value, 4, 4) == BF_OK);
+	CHECK(value == 0x0F);
+
+	value = 0x00;
+	CHECK(bf_clear_bits(&value, 0, 4) == BF_OK);
+	CHECK(value == 0x00);
+
+	CHECK(bf_clear_bits(&value, 0, 0) == BF_EINVAL);
+	CHECK(bf_clear_bits(&value, 0, 9) == BF_EINVAL);
+
+	CHECK(bf_clear_bits(&value, 7, 2) == BF_EINVAL);
+	CHECK(bf_clear_bits(&value, 8, 1) == BF_EINVAL);
+
+	CHECK(bf_clear_bits(NULL, 0, 1) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_rotate_left();
