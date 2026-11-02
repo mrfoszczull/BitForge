@@ -149,3 +149,21 @@ bf_status bf_get_bits(
 
 	return BF_OK;
 }
+
+bf_status bf_set_bits(uint8_t *value, size_t bit_index, size_t bit_count)
+{
+	if (value == NULL || bit_count == 0 || bit_count > 8) {
+		return BF_EINVAL;
+	}
+
+	if (bit_index > 8 || bit_count > 8 - bit_index) {
+		return BF_EINVAL;
+	}
+
+	size_t mask = ((size_t)1 << bit_count) - 1;
+	mask <<= bit_index;
+
+	*value |= mask;
+
+	return BF_OK;
+}

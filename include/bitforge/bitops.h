@@ -118,4 +118,19 @@ bf_status bf_rotate_right(
 bf_status bf_get_bits(
     uint8_t value, size_t bit_index, size_t bit_count, uint8_t *result);
 
+/**
+ * @brief Sets a range of bits in an 8-bit value.
+ *
+ * Sets all bits in the specified range to 1. Bits outside the range
+ * remain unchanged.
+ *
+ * @param value Pointer to the value to modify.
+ * @param bit_index Index of the first bit, counted from the least
+ * significant bit (0).
+ * @param bit_count Number of bits to set (1–8).
+ * @return BF_OK on success, BF_EINVAL if value is NULL or the requested
+ * bit range is invalid.
+ */
+bf_status bf_set_bits(uint8_t *value, size_t bit_index, size_t bit_count);
+
 #endif
