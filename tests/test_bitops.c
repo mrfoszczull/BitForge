@@ -311,6 +311,38 @@ static void test_bf_clear_bits(void)
 	CHECK(bf_clear_bits(NULL, 0, 1) == BF_EINVAL);
 }
 
+static void test_bf_toggle_bits(void)
+{
+	uint8_t value = 0x00;
+
+	CHECK(bf_toggle_bits(&value, 0, 1) == BF_OK);
+	CHECK(value == 0x01);
+
+	value = 0x00;
+	CHECK(bf_toggle_bits(&value, 2, 3) == BF_OK);
+	CHECK(value == 0x1C);
+
+	value = 0x00;
+	CHECK(bf_toggle_bits(&value, 0, 8) == BF_OK);
+	CHECK(value == 0xFF);
+
+	CHECK(bf_toggle_bits(&value, 0, 8) == BF_OK);
+	CHECK(value == 0x00);
+
+	value = 0x0F;
+	CHECK(bf_toggle_bits(&value, 4, 4) == BF_OK);
+	CHECK(value == 0xFF);
+
+	CHECK(bf_toggle_bits(&value, 0, 0) == BF_EINVAL);
+	CHECK(bf_toggle_bits(&value, 0, 9) == BF_EINVAL);
+
+	/* Zakres wykraczający poza 8 bitów. */
+	CHECK(bf_toggle_bits(&value, 7, 2) == BF_EINVAL);
+	CHECK(bf_toggle_bits(&value, 8, 1) == BF_EINVAL);
+
+	CHECK(bf_toggle_bits(NULL, 0, 1) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_rotate_left();
@@ -324,6 +356,8 @@ int main(void)
 	test_reverse_bits();
 	test_bf_get_bits();
 	test_bf_set_bits();
+	test_bf_clear_bits();
+	test_bf_toggle_bits();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
