@@ -141,7 +141,7 @@ bf_status bf_get_bits(
 		return BF_EINVAL;
 	}
 
-	if (bit_index > 8 || bit_count > 8 - bit_index) {
+	if (bit_index > 7 || bit_count > 8 - bit_index) {
 		return BF_EINVAL;
 	}
 
@@ -156,7 +156,7 @@ bf_status bf_set_bits(uint8_t *value, size_t bit_index, size_t bit_count)
 		return BF_EINVAL;
 	}
 
-	if (bit_index > 8 || bit_count > 8 - bit_index) {
+	if (bit_index > 7 || bit_count > 8 - bit_index) {
 		return BF_EINVAL;
 	}
 
@@ -174,7 +174,7 @@ bf_status bf_clear_bits(uint8_t *value, size_t bit_index, size_t bit_count)
 		return BF_EINVAL;
 	}
 
-	if (bit_index > 8 || bit_count > 8 - bit_index) {
+	if (bit_index > 7 || bit_count > 8 - bit_index) {
 		return BF_EINVAL;
 	}
 
@@ -192,7 +192,7 @@ bf_status bf_toggle_bits(uint8_t *value, size_t bit_index, size_t bit_count)
 		return BF_EINVAL;
 	}
 
-	if (bit_index > 8 || bit_count > 8 - bit_index) {
+	if (bit_index > 7 || bit_count > 8 - bit_index) {
 		return BF_EINVAL;
 	}
 
