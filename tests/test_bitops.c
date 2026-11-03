@@ -336,7 +336,6 @@ static void test_bf_toggle_bits(void)
 	CHECK(bf_toggle_bits(&value, 0, 0) == BF_EINVAL);
 	CHECK(bf_toggle_bits(&value, 0, 9) == BF_EINVAL);
 
-	/* Zakres wykraczający poza 8 bitów. */
 	CHECK(bf_toggle_bits(&value, 7, 2) == BF_EINVAL);
 	CHECK(bf_toggle_bits(&value, 8, 1) == BF_EINVAL);
 
