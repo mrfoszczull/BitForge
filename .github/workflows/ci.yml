@@ -52,6 +52,7 @@ jobs:
                    --error-exitcode=1 \
                    --suppress=missingIncludeSystem \
                    --suppress=unusedFunction \
+                   --suppress=normalCheckLevelMaxBranches \
                    src/ tests/
 
   format-check:
