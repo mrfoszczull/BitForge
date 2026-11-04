@@ -28,6 +28,7 @@ endif()
 add_library(bitforge STATIC
     src/status.c
     src/bitops.c
+    src/stream.c
 )
 
 add_library(BitForge::bitforge ALIAS bitforge)

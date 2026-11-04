@@ -39,6 +39,17 @@ bf_status bf_stream_init(bf_stream_t *stream, const uint8_t *data, size_t size);
  */
 bool bf_stream_has_remaining(const bf_stream_t *stream, size_t bit_count);
 
+/**
+ * @brief Read a specified number of bits from the stream.
+ *
+ * @param stream Pointer to the bit stream.
+ * @param bit_count Number of bits to read (1 to 32).
+ * @param out_value Pointer to store the read value.
+ * @return bf_status BF_OK on success, or an error code on failure.
+ */
+bf_status bf_stream_read_bits(
+    bf_stream_t *stream, size_t bit_count, uint32_t *out_value);
+
 #ifdef __cplusplus
 }
 #endif
