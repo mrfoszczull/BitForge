@@ -32,6 +32,27 @@ jobs:
       - name: Run tests
         run: ctest --test-dir build --output-on-failure
 
+  cppcheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Cppcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cppcheck
+
+      - name: Run Cppcheck
+        run: |
+          cppcheck --enable=all \
+                   --inconclusive \
+                   --std=c17 \
+                   --error-exitcode=1 \
+                   --suppress=missingIncludeSystem \
+                   src/
+
   format-check:
     runs-on: ubuntu-latest
 
