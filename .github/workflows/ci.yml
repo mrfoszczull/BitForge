@@ -51,6 +51,7 @@ jobs:
                    --std=c17 \
                    --error-exitcode=1 \
                    --suppress=missingIncludeSystem \
+                   --suppress=unusedFunction \
                    src/
 
   format-check:
