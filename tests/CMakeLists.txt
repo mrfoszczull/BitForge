@@ -1,4 +1,3 @@
-
 add_executable(bitforge_tests
     test_bitops.c
 )
@@ -12,3 +11,15 @@ add_test(
     COMMAND bitforge_tests
 )
 
+add_executable(stream_tests
+    test_stream.c
+)
+
+target_link_libraries(stream_tests
+    PRIVATE bitforge
+)
+
+add_test(
+    NAME stream_tests
+    COMMAND stream_tests
+)

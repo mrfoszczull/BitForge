@@ -4,28 +4,27 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![C Standard](https://img.shields.io/badge/C-C17-blue.svg)](https://en.wikipedia.org/wiki/C17_(C_standard))
 
-**BitForge** is a lightweight, portable C17 library for bit-level manipulation and analysis of 8-bit values.
+**BitForge** is a lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, and binary data analysis.
 
-It provides a simple and consistent API for common bitwise operations, with explicit status codes and a focus on reliability, portability, and ease of integration.
+It provides a simple and consistent API for common bitwise operations and bit-level streams, with explicit status codes and a focus on reliability, portability, and ease of integration.
 
 ## Features
 
 - **Bit manipulation** – set, clear, toggle, and check individual bits.
 - **Bit range operations** – read, set, clear, and toggle ranges of bits.
 - **Bitwise operations** – reverse, rotate, and swap bits in 8-bit values.
+- **Bit stream processing** – safe sequential reading of arbitrary bit counts (MSB-first) across byte boundaries, with support for bit skipping and byte alignment.
 - **Bit analysis** – count set bits and check whether a value is a power of two.
 - **Error handling** – explicit status codes for predictable error handling.
 - **Lightweight** – no external runtime dependencies.
 - **Portable** – C17-compatible API.
 - **CMake integration** – installable static library with exported CMake package support.
 
-## Bit Indexing
+## Bit Indexing & Endianness
 
-BitForge uses **LSB-first indexing** for bit positions.
+BitForge uses **LSB-first indexing** for individual 8-bit value operations (`bitops.h`), where bit index `0` refers to the least significant bit (LSB) and bit index `7` to the most significant bit (MSB).
 
-Bit index `0` refers to the least significant bit (LSB), while bit index `7` refers to the most significant bit (MSB) of an 8-bit value.
-
-For range operations, `bit_index` specifies the first bit and `bit_count` specifies the number of consecutive bits to process.
+For sequential stream operations (`stream.h`), bits are read in **MSB-first order** across buffer boundaries, matching standard binary formats and protocol specifications.
 
 ## Requirements
 
@@ -75,7 +74,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(MyApplication LANGUAGES C)
 
-find_package(BitForge 1.1 CONFIG REQUIRED)
+find_package(BitForge 1.2 CONFIG REQUIRED)
 
 add_executable(my_app main.c)
 
@@ -93,6 +92,7 @@ Include the public headers in your source files:
 
 ```c
 #include <bitforge/bitops.h>
+#include <bitforge/stream.h>
 #include <bitforge/status.h>
 ```
 
@@ -154,11 +154,10 @@ Public headers are located in `include/bitforge/`:
 | Header | Description |
 |---|---|
 | `bitops.h` | Bit-level operations on 8-bit values |
+| `stream.h` | Safe sequential bit stream processing and parsing |
 | `status.h` | Status codes and error handling |
 
-### Bit Operations
-
-The `bitops.h` header provides the following operations:
+### Bit Operations (`bitops.h`)
 
 | Function | Description |
 |---|---|
@@ -177,17 +176,27 @@ The `bitops.h` header provides the following operations:
 | `bf_toggle_bits` | Toggles a range of bits |
 | `bf_swap_bits` | Swaps two bits |
 
+### Stream Operations (`stream.h`)
+
+| Function | Description |
+|---|---|
+| `bf_stream_init` | Initializes a bit stream over a buffer |
+| `bf_stream_has_remaining` | Checks if a given number of bits remain |
+| `bf_stream_read_bits` | Reads up to 32 bits (MSB-first) across byte boundaries |
+| `bf_stream_skip_bits` | Skips a specified number of bits |
+| `bf_stream_align` | Aligns the stream to the next byte boundary |
+| `bf_stream_read_byte` | Reads a full byte (8 bits) |
+| `bf_stream_read_bool` | Reads a single bit as a boolean value |
+
 All functions return a `bf_status` value to indicate success or failure.
 
 ## Project Status
 
-**BitForge 1.1.0 is released.**
+**BitForge 1.2.0 is released.**
 
-This release introduces additional bit manipulation operations, including bit rotations, range operations, and bit swapping.
+This release introduces the complete `bfstream` module, providing robust sequential bit-stream parsing primitives for reverse engineering workflows and binary format analysis.
 
 The public API is intended to remain stable throughout the 1.x release series. Breaking API changes are reserved for a future major release.
-
-The long-term goal is to evolve BitForge into a lightweight, portable C library for bit-level operations and binary data manipulation.
 
 ## Contributing
 
