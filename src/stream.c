@@ -61,3 +61,26 @@ bf_status bf_stream_read_bits(
 	*out_value = result;
 	return BF_OK;
 }
+
+bf_status bf_stream_skip_bits(bf_stream_t *stream, size_t bit_count)
+{
+	if (stream == NULL) {
+		return BF_EINVAL;
+	}
+
+	if (bit_count == 0) {
+		return BF_OK;
+	}
+
+	if (!bf_stream_has_remaining(stream, bit_count)) {
+		return BF_EIO;
+	}
+
+	size_t current_bits = (stream->byte_offset * 8) + stream->bit_offset;
+	size_t target_bits = current_bits + bit_count;
+
+	stream->byte_offset = target_bits / 8;
+	stream->bit_offset = target_bits % 8;
+
+	return BF_OK;
+}

@@ -80,11 +80,30 @@ static void test_stream_read_bits(void)
 	CHECK(bf_stream_read_bits(&stream, 1, NULL) == BF_EINVAL);
 }
 
+static void test_stream_skip_bits(void)
+{
+	uint8_t data[] = {0xF0, 0x0F}; // 11110000 00001111
+	bf_stream_t stream;
+
+	CHECK(bf_stream_init(&stream, data, sizeof(data)) == BF_OK);
+
+	CHECK(bf_stream_skip_bits(&stream, 4) == BF_OK);
+
+	uint32_t value = 0;
+	CHECK(bf_stream_read_bits(&stream, 4, &value) == BF_OK);
+	CHECK(value == 0x0);
+
+	CHECK(bf_stream_skip_bits(&stream, 100) != BF_OK);
+
+	CHECK(bf_stream_skip_bits(NULL, 1) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_stream_init();
 	test_stream_has_remaining();
 	test_stream_read_bits();
+	test_stream_skip_bits();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
