@@ -120,6 +120,24 @@ static void test_stream_align(void)
 	CHECK(bf_stream_align(NULL) == BF_EINVAL);
 }
 
+static void test_stream_read_byte(void)
+{
+	uint8_t data[] = {0xAB, 0xCD};
+	bf_stream_t stream;
+
+	CHECK(bf_stream_init(&stream, data, sizeof(data)) == BF_OK);
+
+	uint8_t val = 0;
+	CHECK(bf_stream_read_byte(&stream, &val) == BF_OK);
+	CHECK(val == 0xAB);
+
+	CHECK(bf_stream_read_byte(&stream, &val) == BF_OK);
+	CHECK(val == 0xCD);
+
+	CHECK(bf_stream_read_byte(NULL, &val) == BF_EINVAL);
+	CHECK(bf_stream_read_byte(&stream, NULL) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_stream_init();
@@ -127,6 +145,7 @@ int main(void)
 	test_stream_read_bits();
 	test_stream_skip_bits();
 	test_stream_align();
+	test_stream_read_byte();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);

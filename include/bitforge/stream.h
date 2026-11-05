@@ -70,6 +70,15 @@ bf_status bf_stream_skip_bits(bf_stream_t *stream, size_t bit_count);
  */
 bf_status bf_stream_align(bf_stream_t *stream);
 
+/**
+ * @brief Read a single full byte (8 bits) from the stream.
+ *
+ * @param stream Pointer to the bit stream.
+ * @param out_value Pointer to store the read byte.
+ * @return bf_status BF_OK on success, or an error code on failure.
+ */
+bf_status bf_stream_read_byte(bf_stream_t *stream, uint8_t *out_value);
+
 #ifdef __cplusplus
 }
 #endif

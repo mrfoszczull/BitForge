@@ -102,3 +102,19 @@ bf_status bf_stream_align(bf_stream_t *stream)
 
 	return BF_OK;
 }
+
+bf_status bf_stream_read_byte(bf_stream_t *stream, uint8_t *out_value)
+{
+	if (stream == NULL || out_value == NULL) {
+		return BF_EINVAL;
+	}
+
+	uint32_t val = 0;
+	bf_status status = bf_stream_read_bits(stream, 8, &val);
+	if (status != BF_OK) {
+		return status;
+	}
+
+	*out_value = (uint8_t)val;
+	return BF_OK;
+}
