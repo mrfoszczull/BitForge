@@ -79,6 +79,15 @@ bf_status bf_stream_align(bf_stream_t *stream);
  */
 bf_status bf_stream_read_byte(bf_stream_t *stream, uint8_t *out_value);
 
+/**
+ * @brief Read a single bit from the stream as a boolean value.
+ *
+ * @param stream Pointer to the bit stream.
+ * @param out_value Pointer to store the boolean result.
+ * @return bf_status BF_OK on success, or an error code on failure.
+ */
+bf_status bf_stream_read_bool(bf_stream_t *stream, bool *out_value);
+
 #ifdef __cplusplus
 }
 #endif

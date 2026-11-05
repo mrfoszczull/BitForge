@@ -138,6 +138,27 @@ static void test_stream_read_byte(void)
 	CHECK(bf_stream_read_byte(&stream, NULL) == BF_EINVAL);
 }
 
+static void test_stream_read_bool(void)
+{
+	uint8_t data[] = {0x80};
+	bf_stream_t stream;
+
+	CHECK(bf_stream_init(&stream, data, sizeof(data)) == BF_OK);
+
+	bool b_val = false;
+
+	CHECK(bf_stream_read_bool(&stream, &b_val) == BF_OK);
+	CHECK(b_val == true);
+
+	for (int i = 0; i < 7; i++) {
+		CHECK(bf_stream_read_bool(&stream, &b_val) == BF_OK);
+		CHECK(b_val == false);
+	}
+
+	CHECK(bf_stream_read_bool(NULL, &b_val) == BF_EINVAL);
+	CHECK(bf_stream_read_bool(&stream, NULL) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_stream_init();
@@ -146,6 +167,7 @@ int main(void)
 	test_stream_skip_bits();
 	test_stream_align();
 	test_stream_read_byte();
+	test_stream_read_bool();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
