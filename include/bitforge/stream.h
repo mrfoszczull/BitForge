@@ -59,6 +59,17 @@ bf_status bf_stream_read_bits(
  */
 bf_status bf_stream_skip_bits(bf_stream_t *stream, size_t bit_count);
 
+/**
+ * @brief Align the stream to the next byte boundary.
+ *
+ * If the stream is not currently at a byte boundary (bit_offset != 0),
+ * it advances to the beginning of the next byte.
+ *
+ * @param stream Pointer to the bit stream.
+ * @return bf_status BF_OK on success, or an error code on failure.
+ */
+bf_status bf_stream_align(bf_stream_t *stream);
+
 #ifdef __cplusplus
 }
 #endif

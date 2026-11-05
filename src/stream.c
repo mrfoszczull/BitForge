@@ -84,3 +84,21 @@ bf_status bf_stream_skip_bits(bf_stream_t *stream, size_t bit_count)
 
 	return BF_OK;
 }
+
+bf_status bf_stream_align(bf_stream_t *stream)
+{
+	if (stream == NULL) {
+		return BF_EINVAL;
+	}
+
+	if (stream->bit_offset != 0) {
+		stream->bit_offset = 0;
+		stream->byte_offset++;
+	}
+
+	if (stream->byte_offset > stream->size) {
+		return BF_EIO;
+	}
+
+	return BF_OK;
+}

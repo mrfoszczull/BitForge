@@ -98,12 +98,35 @@ static void test_stream_skip_bits(void)
 	CHECK(bf_stream_skip_bits(NULL, 1) == BF_EINVAL);
 }
 
+static void test_stream_align(void)
+{
+	uint8_t data[] = {0x00, 0x00};
+	bf_stream_t stream;
+
+	CHECK(bf_stream_init(&stream, data, sizeof(data)) == BF_OK);
+
+	CHECK(bf_stream_align(&stream) == BF_OK);
+	CHECK(stream.byte_offset == 0);
+	CHECK(stream.bit_offset == 0);
+
+	CHECK(bf_stream_skip_bits(&stream, 3) == BF_OK);
+	CHECK(stream.byte_offset == 0);
+	CHECK(stream.bit_offset == 3);
+
+	CHECK(bf_stream_align(&stream) == BF_OK);
+	CHECK(stream.byte_offset == 1);
+	CHECK(stream.bit_offset == 0);
+
+	CHECK(bf_stream_align(NULL) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_stream_init();
 	test_stream_has_remaining();
 	test_stream_read_bits();
 	test_stream_skip_bits();
+	test_stream_align();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
