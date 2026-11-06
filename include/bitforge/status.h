@@ -1,5 +1,9 @@
-#ifndef STATUS_H
-#define STATUS_H
+#ifndef BITFORGE_STATUS_H
+#define BITFORGE_STATUS_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Status codes returned by BitForge functions.
@@ -19,5 +23,9 @@ typedef enum {
  * @return A constant string describing the status.
  */
 const char *bf_status_string(bf_status status);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
