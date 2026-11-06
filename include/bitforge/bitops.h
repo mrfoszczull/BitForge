@@ -1,10 +1,14 @@
-#ifndef BITOPS_H
-#define BITOPS_H
+#ifndef BITFORGE_BITOPS_H
+#define BITFORGE_BITOPS_H
 
 #include <bitforge/status.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Reads a bit from an 8-bit value.
@@ -178,5 +182,9 @@ bf_status bf_toggle_bits(uint8_t *value, size_t bit_index, size_t bit_count);
  * index is outside the range 0–7.
  */
 bf_status bf_swap_bits(uint8_t *value, size_t first_bit, size_t second_bit);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
