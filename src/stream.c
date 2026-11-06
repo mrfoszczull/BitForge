@@ -78,7 +78,7 @@ bf_status bf_stream_skip_bits(bf_stream_t *stream, size_t bit_count)
 	}
 
 	if (!bf_stream_has_remaining(stream, bit_count)) {
-		return BF_EIO;
+		return BF_EOF;
 	}
 
 	size_t current_bits = (stream->byte_offset * 8) + stream->bit_offset;
@@ -92,7 +92,7 @@ bf_status bf_stream_skip_bits(bf_stream_t *stream, size_t bit_count)
 
 bf_status bf_stream_align(bf_stream_t *stream)
 {
-	if (stream == NULL) {
+	if (stream == NULL || stream->data == NULL) {
 		return BF_EINVAL;
 	}
 
@@ -102,7 +102,7 @@ bf_status bf_stream_align(bf_stream_t *stream)
 	}
 
 	if (stream->byte_offset > stream->size) {
-		return BF_EIO;
+		return BF_EOF;
 	}
 
 	return BF_OK;
