@@ -21,14 +21,14 @@ bool bf_stream_has_remaining(const bf_stream_t *stream, size_t bit_count)
 		return false;
 	}
 
-	size_t actual_position = (stream->byte_offset * 8) + stream->bit_offset;
-	size_t total_bits = stream->size * 8;
-
-	if (total_bits < actual_position) {
+	if (stream->bit_offset > 7 || stream->byte_offset > stream->size) {
 		return false;
 	}
 
-	return (actual_position + bit_count <= total_bits);
+	size_t pos = (stream->byte_offset * 8) + stream->bit_offset;
+	size_t total = stream->size * 8;
+
+	return bit_count <= total - pos;
 }
 
 bf_status bf_stream_read_bits(
@@ -69,7 +69,7 @@ bf_status bf_stream_read_bits(
 
 bf_status bf_stream_skip_bits(bf_stream_t *stream, size_t bit_count)
 {
-	if (stream == NULL) {
+	if (stream == NULL || stream->data == NULL) {
 		return BF_EINVAL;
 	}
 
@@ -99,10 +99,6 @@ bf_status bf_stream_align(bf_stream_t *stream)
 	if (stream->bit_offset != 0) {
 		stream->bit_offset = 0;
 		stream->byte_offset++;
-	}
-
-	if (stream->byte_offset > stream->size) {
-		return BF_EOF;
 	}
 
 	return BF_OK;

@@ -109,6 +109,9 @@ static void test_stream_skip_bits(void)
 
 	CHECK(bf_stream_skip_bits(&stream, 100) == BF_EOF);
 	CHECK(bf_stream_skip_bits(NULL, 1) == BF_EINVAL);
+
+	bf_stream_t broken = {0};
+	CHECK(bf_stream_skip_bits(&broken, 1) == BF_EINVAL);
 }
 
 static void test_stream_align(void)
@@ -172,6 +175,28 @@ static void test_stream_read_bool(void)
 	CHECK(bf_stream_read_bool(&stream, NULL) == BF_EINVAL);
 }
 
+static void test_stream_size_overflow(void)
+{
+	uint8_t data[] = {0x12, 0x34};
+	bf_stream_t stream;
+	uint32_t value = 0;
+
+	CHECK(bf_stream_init(&stream, data, sizeof(data)) == BF_OK);
+	CHECK(bf_stream_read_bits(&stream, 8, &value) == BF_OK);
+	CHECK(value == 0x12);
+
+	CHECK(bf_stream_has_remaining(&stream, SIZE_MAX) == false);
+	CHECK(bf_stream_has_remaining(&stream, SIZE_MAX - 7) == false);
+	CHECK(bf_stream_has_remaining(&stream, 8) == true);
+
+	CHECK(bf_stream_skip_bits(&stream, SIZE_MAX) == BF_EOF);
+	CHECK(stream.byte_offset == 1);
+	CHECK(stream.bit_offset == 0);
+
+	CHECK(bf_stream_read_bits(&stream, 8, &value) == BF_OK);
+	CHECK(value == 0x34);
+}
+
 int main(void)
 {
 	test_stream_init();
@@ -182,6 +207,7 @@ int main(void)
 	test_stream_align();
 	test_stream_read_byte();
 	test_stream_read_bool();
+	test_stream_size_overflow();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
