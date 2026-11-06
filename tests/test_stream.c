@@ -109,6 +109,9 @@ static void test_stream_skip_bits(void)
 
 	CHECK(bf_stream_skip_bits(&stream, 100) == BF_EOF);
 	CHECK(bf_stream_skip_bits(NULL, 1) == BF_EINVAL);
+
+	bf_stream_t broken = {0};
+	CHECK(bf_stream_skip_bits(&broken, 1) == BF_EINVAL);
 }
 
 static void test_stream_align(void)
@@ -182,18 +185,14 @@ static void test_stream_size_overflow(void)
 	CHECK(bf_stream_read_bits(&stream, 8, &value) == BF_OK);
 	CHECK(value == 0x12);
 
-	/* pozycja = 8, więc 8 + SIZE_MAX zawija się do 7 */
 	CHECK(bf_stream_has_remaining(&stream, SIZE_MAX) == false);
-	/* 8 + (SIZE_MAX - 7) zawija się do 0 */
 	CHECK(bf_stream_has_remaining(&stream, SIZE_MAX - 7) == false);
 	CHECK(bf_stream_has_remaining(&stream, 8) == true);
 
-	/* błąd nie może ruszyć stanu strumienia */
 	CHECK(bf_stream_skip_bits(&stream, SIZE_MAX) == BF_EOF);
 	CHECK(stream.byte_offset == 1);
 	CHECK(stream.bit_offset == 0);
 
-	/* strumień nadal działa */
 	CHECK(bf_stream_read_bits(&stream, 8, &value) == BF_OK);
 	CHECK(value == 0x34);
 }
