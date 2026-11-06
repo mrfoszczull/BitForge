@@ -69,7 +69,7 @@ bf_status bf_stream_read_bits(
 
 bf_status bf_stream_skip_bits(bf_stream_t *stream, size_t bit_count)
 {
-	if (stream == NULL) {
+	if (stream == NULL || stream->data == NULL) {
 		return BF_EINVAL;
 	}
 
