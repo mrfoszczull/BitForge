@@ -17,12 +17,16 @@ bf_status bf_stream_init(bf_stream_t *stream, const uint8_t *data, size_t size)
 
 bool bf_stream_has_remaining(const bf_stream_t *stream, size_t bit_count)
 {
-	if (stream == NULL) {
+	if (stream == NULL || stream->data == NULL) {
 		return false;
 	}
 
 	size_t actual_position = (stream->byte_offset * 8) + stream->bit_offset;
 	size_t total_bits = stream->size * 8;
+
+	if (total_bits < actual_position) {
+		return false;
+	}
 
 	return (actual_position + bit_count <= total_bits);
 }
@@ -30,7 +34,8 @@ bool bf_stream_has_remaining(const bf_stream_t *stream, size_t bit_count)
 bf_status bf_stream_read_bits(
     bf_stream_t *stream, size_t bit_count, uint32_t *out_value)
 {
-	if (stream == NULL || out_value == NULL) {
+	if (stream == NULL || stream->data == NULL || out_value == NULL ||
+	    bit_count > 32) {
 		return BF_EINVAL;
 	}
 
@@ -40,7 +45,7 @@ bf_status bf_stream_read_bits(
 	}
 
 	if (!bf_stream_has_remaining(stream, bit_count)) {
-		return BF_EIO;
+		return BF_EOF;
 	}
 
 	uint32_t result = 0;
