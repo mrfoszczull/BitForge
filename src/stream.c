@@ -110,7 +110,7 @@ bf_status bf_stream_align(bf_stream_t *stream)
 
 bf_status bf_stream_read_byte(bf_stream_t *stream, uint8_t *out_value)
 {
-	if (stream == NULL || out_value == NULL) {
+	if (stream == NULL || stream->data == NULL || out_value == NULL) {
 		return BF_EINVAL;
 	}
 
@@ -126,7 +126,7 @@ bf_status bf_stream_read_byte(bf_stream_t *stream, uint8_t *out_value)
 
 bf_status bf_stream_read_bool(bf_stream_t *stream, bool *out_value)
 {
-	if (stream == NULL || out_value == NULL) {
+	if (stream == NULL || stream->data == NULL || out_value == NULL) {
 		return BF_EINVAL;
 	}
 
