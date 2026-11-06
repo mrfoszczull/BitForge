@@ -172,6 +172,32 @@ static void test_stream_read_bool(void)
 	CHECK(bf_stream_read_bool(&stream, NULL) == BF_EINVAL);
 }
 
+static void test_stream_size_overflow(void)
+{
+	uint8_t data[] = {0x12, 0x34};
+	bf_stream_t stream;
+	uint32_t value = 0;
+
+	CHECK(bf_stream_init(&stream, data, sizeof(data)) == BF_OK);
+	CHECK(bf_stream_read_bits(&stream, 8, &value) == BF_OK);
+	CHECK(value == 0x12);
+
+	/* pozycja = 8, więc 8 + SIZE_MAX zawija się do 7 */
+	CHECK(bf_stream_has_remaining(&stream, SIZE_MAX) == false);
+	/* 8 + (SIZE_MAX - 7) zawija się do 0 */
+	CHECK(bf_stream_has_remaining(&stream, SIZE_MAX - 7) == false);
+	CHECK(bf_stream_has_remaining(&stream, 8) == true);
+
+	/* błąd nie może ruszyć stanu strumienia */
+	CHECK(bf_stream_skip_bits(&stream, SIZE_MAX) == BF_EOF);
+	CHECK(stream.byte_offset == 1);
+	CHECK(stream.bit_offset == 0);
+
+	/* strumień nadal działa */
+	CHECK(bf_stream_read_bits(&stream, 8, &value) == BF_OK);
+	CHECK(value == 0x34);
+}
+
 int main(void)
 {
 	test_stream_init();
@@ -182,6 +208,7 @@ int main(void)
 	test_stream_align();
 	test_stream_read_byte();
 	test_stream_read_bool();
+	test_stream_size_overflow();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
