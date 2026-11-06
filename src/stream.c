@@ -101,10 +101,6 @@ bf_status bf_stream_align(bf_stream_t *stream)
 		stream->byte_offset++;
 	}
 
-	if (stream->byte_offset > stream->size) {
-		return BF_EOF;
-	}
-
 	return BF_OK;
 }
 
