@@ -1,14 +1,36 @@
-# BitForge
+<div align="center">
+
+# 🔧 BitForge
+
+**A lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, and binary data analysis.**
 
 [![CI](https://github.com/mrfoszczull/BitForge/actions/workflows/ci.yml/badge.svg)](https://github.com/mrfoszczull/BitForge/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![C Standard](https://img.shields.io/badge/C-C17-blue.svg)](https://en.wikipedia.org/wiki/C17_(C_standard))
+[![C Standard](https://img.shields.io/badge/C-C17-blue.svg)](https://en.wikipedia.org/wiki/C17_(C_standard_revision))
 
-**BitForge** is a lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, and binary data analysis.
+</div>
 
-It provides a simple and consistent API for common bitwise operations and bit-level streams, with explicit status codes and a focus on reliability, portability, and ease of integration.
+---
 
-## Features
+BitForge provides a simple and consistent API for common bitwise operations and bit-level streams, with explicit status codes and a focus on reliability, portability, and ease of integration.
+
+## 📑 Table of Contents
+
+- [Features](#-features)
+- [Bit Indexing & Endianness](#-bit-indexing--endianness)
+- [Requirements](#-requirements)
+- [Getting Started](#-getting-started)
+- [CMake Integration](#-cmake-integration)
+- [Testing](#-testing)
+- [Code Formatting](#-code-formatting)
+- [Sanitizers](#-sanitizers)
+- [API Overview](#-api-overview)
+- [Project Status](#-project-status)
+- [Contributing](#-contributing)
+- [Security](#-security)
+- [License](#-license)
+
+## ✨ Features
 
 - **Bit manipulation** – set, clear, toggle, and check individual bits.
 - **Bit range operations** – read, set, clear, and toggle ranges of bits.
@@ -20,20 +42,21 @@ It provides a simple and consistent API for common bitwise operations and bit-le
 - **Portable** – C17-compatible API.
 - **CMake integration** – installable static library with exported CMake package support.
 
-## Bit Indexing & Endianness
+## 🧭 Bit Indexing & Endianness
 
-BitForge uses **LSB-first indexing** for individual 8-bit value operations (`bitops.h`), where bit index `0` refers to the least significant bit (LSB) and bit index `7` to the most significant bit (MSB).
+| Module | Header | Order | Description |
+|--------|--------|-------|-------------|
+| 8-bit value operations | `bitops.h` | **LSB-first** | Bit index `0` is the least significant bit (LSB); index `7` is the most significant bit (MSB). |
+| Stream operations | `stream.h` | **MSB-first** | Bits are read most significant first across buffer boundaries, matching standard binary formats and protocol specifications. |
 
-For sequential stream operations (`stream.h`), bits are read in **MSB-first order** across buffer boundaries, matching standard binary formats and protocol specifications.
+## 📋 Requirements
 
-## Requirements
+- C compiler with C17 support
+- CMake 3.20 or newer
+- Make *(optional, for the provided Makefile)*
+- ClangFormat *(optional, for code formatting)*
 
-- C compiler with C17 support.
-- CMake 3.20 or newer.
-- Make (optional, for using the provided Makefile).
-- ClangFormat (optional, for code formatting).
-
-## Getting Started
+## 🚀 Getting Started
 
 Clone the repository:
 
@@ -58,16 +81,16 @@ cmake --install build --prefix "$PWD/install"
 The installation includes:
 
 | Component | Location |
-|---|---|
+|-----------|----------|
 | Static library | `lib/libbitforge.a` |
 | Public headers | `include/bitforge/` |
 | CMake package files | `lib/cmake/BitForge/` |
 
-To install BitForge system-wide, use an appropriate installation prefix for your platform.
+> 💡 To install BitForge system-wide, use an appropriate installation prefix for your platform.
 
-## CMake Integration
+## 🔗 CMake Integration
 
-After installing BitForge, use `find_package()` to locate the package and link against its exported target.
+After installing BitForge, use `find_package()` to locate the package and link against its exported target:
 
 ```cmake
 cmake_minimum_required(VERSION 3.20)
@@ -96,7 +119,7 @@ Include the public headers in your source files:
 #include <bitforge/status.h>
 ```
 
-## Testing
+## 🧪 Testing
 
 Run the test suite with CTest:
 
@@ -104,39 +127,25 @@ Run the test suite with CTest:
 ctest --test-dir build --output-on-failure
 ```
 
-Alternatively, use the provided Makefile:
+Or use the provided Makefile:
 
 ```bash
-make test
+make test    # run tests
+make check   # run regular and sanitizer-enabled checks
 ```
 
-Run regular and sanitizer-enabled checks:
+## 🎨 Code Formatting
+
+BitForge uses ClangFormat to maintain consistent source code formatting.
 
 ```bash
-make check
+make format         # format source files
+make format-check   # check formatting without modifying files
 ```
 
-## Code Formatting
-
-BitForge uses **ClangFormat** to maintain consistent source code formatting.
-
-Format the source files:
-
-```bash
-make format
-```
-
-Check formatting without modifying files:
-
-```bash
-make format-check
-```
-
-## Sanitizers
+## 🛡️ Sanitizers
 
 AddressSanitizer and UndefinedBehaviorSanitizer can be enabled with the `BITFORGE_ENABLE_SANITIZERS` CMake option.
-
-Configure, build, and test a sanitizer-enabled build:
 
 ```bash
 cmake -S . -B build-sanitize \
@@ -147,12 +156,12 @@ cmake --build build-sanitize
 ctest --test-dir build-sanitize --output-on-failure
 ```
 
-## API Overview
+## 📚 API Overview
 
 Public headers are located in `include/bitforge/`:
 
 | Header | Description |
-|---|---|
+|--------|-------------|
 | `bitops.h` | Bit-level operations on 8-bit values |
 | `stream.h` | Safe sequential bit stream processing and parsing |
 | `status.h` | Status codes and error handling |
@@ -160,7 +169,7 @@ Public headers are located in `include/bitforge/`:
 ### Bit Operations (`bitops.h`)
 
 | Function | Description |
-|---|---|
+|----------|-------------|
 | `bf_get` | Reads an individual bit |
 | `bf_set` | Sets an individual bit |
 | `bf_clear` | Clears an individual bit |
@@ -179,7 +188,7 @@ Public headers are located in `include/bitforge/`:
 ### Stream Operations (`stream.h`)
 
 | Function | Description |
-|---|---|
+|----------|-------------|
 | `bf_stream_init` | Initializes a bit stream over a buffer |
 | `bf_stream_has_remaining` | Checks if a given number of bits remain |
 | `bf_stream_read_bits` | Reads up to 32 bits (MSB-first) across byte boundaries |
@@ -188,9 +197,9 @@ Public headers are located in `include/bitforge/`:
 | `bf_stream_read_byte` | Reads a full byte (8 bits) |
 | `bf_stream_read_bool` | Reads a single bit as a boolean value |
 
-All functions return a `bf_status` value to indicate success or failure.
+> All functions return a `bf_status` value to indicate success or failure.
 
-## Project Status
+## 📌 Project Status
 
 **BitForge 1.2.0 is released.**
 
@@ -198,9 +207,9 @@ This release introduces the complete `bfstream` module, providing robust sequent
 
 The public API is intended to remain stable throughout the 1.x release series. Breaking API changes are reserved for a future major release.
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup, coding guidelines and the pull request process.
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup, coding guidelines, and the pull request process.
 
 Before submitting a pull request, run:
 
@@ -209,14 +218,14 @@ make format
 make check
 ```
 
-Found a bug or have an idea? Open an [issue](https://github.com/mrfoszczull/BitForge/issues) and include the BitForge version, your platform and compiler, and a minimal example that reproduces the problem.
+Found a bug or have an idea? [Open an issue](https://github.com/mrfoszczull/BitForge/issues) and include the BitForge version, your platform and compiler, and a minimal example that reproduces the problem.
 
-## Security
+## 🔒 Security
 
-If you believe you have found a security vulnerability, **do not open a public issue**. Report it privately through [GitHub Security Advisories](https://github.com/mrfoszczull/BitForge/security/advisories/new) instead.
+If you believe you have found a security vulnerability, **do not open a public issue**. Report it privately through GitHub Security Advisories instead.
 
 Security fixes are provided for the latest stable release. See [SECURITY.md](SECURITY.md) for the full policy, including what to include in a report and how it is handled.
 
-## License
+## 📄 License
 
-BitForge is distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
+BitForge is distributed under the MIT License. See [LICENSE](LICENSE) for details.
