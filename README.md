@@ -199,12 +199,8 @@ Public headers are located in `include/bitforge/`:
 
 > All functions return a `bf_status` value to indicate success or failure.
 
-## 📌 Project Status
-
-**BitForge 1.2.0 is released.**
-
-This release introduces the complete `bfstream` module, providing robust sequential bit-stream parsing primitives for reverse engineering workflows and binary format analysis.
-
+## 📌BitForge v1.3.0 is currently in active development.
+This version introduces the new `bf_pattern` module for efficient bit-level pattern matching and searching, building upon the robust sequential bit-stream parsing primitives of `bf_stream` from v1.2.0.
 The public API is intended to remain stable throughout the 1.x release series. Breaking API changes are reserved for a future major release.
 
 ## 🤝 Contributing
