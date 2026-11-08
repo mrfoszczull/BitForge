@@ -96,7 +96,7 @@ jobs:
 
           project(BitForgeConsumer LANGUAGES C)
 
-          find_package(BitForge 1.2 CONFIG REQUIRED)
+          find_package(BitForge 1.3 CONFIG REQUIRED)
 
           add_executable(consumer main.c)
           target_link_libraries(consumer PRIVATE BitForge::bitforge)
@@ -105,6 +105,7 @@ jobs:
           cat > main.c <<'EOF'
           #include <bitforge/bitops.h>
           #include <bitforge/stream.h>
+          #include <bitforge/pattern.h>
           #include <stdint.h>
           #include <stdio.h>
 
@@ -116,7 +117,13 @@ jobs:
                   return 1;
               }
 
-              printf("Value: 0x%02X\n", (unsigned int)value);
+              bf_pattern_t pattern;
+              uint8_t pat_data[] = {0x08};
+              if (bf_pattern_init(&pattern, pat_data, 8) != BF_OK) {
+                  return 1;
+              }
+
+              printf("Value: 0x%02X, Pattern bits: %zu\n", (unsigned int)value, pattern.bit_count);
 
               return 0;
           }
@@ -135,4 +142,4 @@ jobs:
         run: |
           output=$("$RUNNER_TEMP/bitforge-consumer/build/consumer")
           echo "$output"
-          test "$output" = "Value: 0x08"
+          test "$output" = "Value: 0x08, Pattern bits: 8"

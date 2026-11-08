@@ -1,0 +1,37 @@
+#ifndef BITFORGE_PATTERN_H
+#define BITFORGE_PATTERN_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <bitforge/status.h>
+#include <bitforge/stream.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#define BF_MAX_PATTERN_BITS 64
+
+typedef struct {
+	uint64_t data;	  // Normalized pattern value
+	uint64_t mask;	  // Bitmask (1 = check bit, 0 = wildcard)
+	size_t bit_count; // Exact pattern length in bits (1 - 64)
+} bf_pattern_t;
+
+/**
+ * @brief Initializes a standard bit pattern from a raw byte buffer.
+ *
+ * @param pattern Pointer to the pattern structure to initialize.
+ * @param data Buffer containing the pattern data.
+ * @param bit_count Number of bits to read from the buffer (max
+ * BF_MAX_PATTERN_BITS).
+ * @return BF_OK on success, or BF_EINVAL on invalid arguments.
+ */
+bf_status bf_pattern_init(
+    bf_pattern_t *pattern, const uint8_t *data, size_t bit_count);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // BITFORGE_PATTERN_H
