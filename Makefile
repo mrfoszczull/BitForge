@@ -24,4 +24,4 @@ format-check:
 	find src tests examples -type f \( -name '*.c' -o -name '*.h' \) -exec clang-format --dry-run --Werror {} +
 
 clean:
-	$(RM) -r $(BUILD_DIR) $(SANITIZE_DIR)
+	find . -type d -name '*build*' -prune -exec rm -rf {} +
