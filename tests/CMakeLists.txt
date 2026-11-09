@@ -23,3 +23,16 @@ add_test(
     NAME stream_tests
     COMMAND stream_tests
 )
+
+add_executable(pattern_tests
+    test_pattern.c
+)
+
+target_link_libraries(pattern_tests
+    PRIVATE bitforge
+)
+
+add_test(
+    NAME pattern_tests
+    COMMAND pattern_tests
+)

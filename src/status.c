@@ -13,6 +13,8 @@ const char *bf_status_string(bf_status status)
 		return "Input/output error";
 	case BF_EOF:
 		return "End of file";
+	case BF_ENOTFOUND:
+		return "Pattern is not found";
 	default:
 		return "Unknown status";
 	}

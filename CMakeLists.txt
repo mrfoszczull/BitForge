@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(BitForge
-    VERSION 1.2.0
+    VERSION 1.3.0
     DESCRIPTION "A C17 library for bit-level manipulation and analysis"
     LANGUAGES C
 )
@@ -29,6 +29,7 @@ add_library(bitforge STATIC
     src/status.c
     src/bitops.c
     src/stream.c
+    src/pattern.c
 )
 
 add_library(BitForge::bitforge ALIAS bitforge)

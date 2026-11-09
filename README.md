@@ -2,7 +2,7 @@
 
 # 🔧 BitForge
 
-**A lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, and binary data analysis.**
+**A lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, bit pattern matching, and binary data analysis.**
 
 [![CI](https://github.com/mrfoszczull/BitForge/actions/workflows/ci.yml/badge.svg)](https://github.com/mrfoszczull/BitForge/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -12,7 +12,7 @@
 
 ---
 
-BitForge provides a simple and consistent API for common bitwise operations and bit-level streams, with explicit status codes and a focus on reliability, portability, and ease of integration.
+BitForge provides a simple and consistent API for common bitwise operations, bit-level streams, and pattern matching, with explicit status codes and a focus on reliability, portability, and ease of integration.
 
 ## 📑 Table of Contents
 
@@ -36,6 +36,7 @@ BitForge provides a simple and consistent API for common bitwise operations and 
 - **Bit range operations** – read, set, clear, and toggle ranges of bits.
 - **Bitwise operations** – reverse, rotate, and swap bits in 8-bit values.
 - **Bit stream processing** – safe sequential reading of arbitrary bit counts (MSB-first) across byte boundaries, with support for bit skipping and byte alignment.
+- **Bit pattern matching** – efficient bit-level pattern matching and searching with support for custom masks and wildcards (`bf_pattern`).
 - **Bit analysis** – count set bits and check whether a value is a power of two.
 - **Error handling** – explicit status codes for predictable error handling.
 - **Lightweight** – no external runtime dependencies.
@@ -47,7 +48,7 @@ BitForge provides a simple and consistent API for common bitwise operations and 
 | Module | Header | Order | Description |
 |--------|--------|-------|-------------|
 | 8-bit value operations | `bitops.h` | **LSB-first** | Bit index `0` is the least significant bit (LSB); index `7` is the most significant bit (MSB). |
-| Stream operations | `stream.h` | **MSB-first** | Bits are read most significant first across buffer boundaries, matching standard binary formats and protocol specifications. |
+| Stream & pattern operations | `stream.h` / `pattern.h` | **MSB-first** | Bits are read and matched most significant first across buffer boundaries, matching standard binary formats and protocol specifications. |
 
 ## 📋 Requirements
 
@@ -97,7 +98,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(MyApplication LANGUAGES C)
 
-find_package(BitForge 1.2 CONFIG REQUIRED)
+find_package(BitForge 1.3 CONFIG REQUIRED)
 
 add_executable(my_app main.c)
 
@@ -116,6 +117,7 @@ Include the public headers in your source files:
 ```c
 #include <bitforge/bitops.h>
 #include <bitforge/stream.h>
+#include <bitforge/pattern.h>
 #include <bitforge/status.h>
 ```
 
@@ -139,8 +141,8 @@ make check   # run regular and sanitizer-enabled checks
 BitForge uses ClangFormat to maintain consistent source code formatting.
 
 ```bash
-make format         # format source files
-make format-check   # check formatting without modifying files
+make format        # format source files
+make format-check  # check formatting without modifying files
 ```
 
 ## 🛡️ Sanitizers
@@ -164,6 +166,7 @@ Public headers are located in `include/bitforge/`:
 |--------|-------------|
 | `bitops.h` | Bit-level operations on 8-bit values |
 | `stream.h` | Safe sequential bit stream processing and parsing |
+| `pattern.h` | Bit-level pattern matching and searching with wildcard support |
 | `status.h` | Status codes and error handling |
 
 ### Bit Operations (`bitops.h`)
@@ -197,13 +200,21 @@ Public headers are located in `include/bitforge/`:
 | `bf_stream_read_byte` | Reads a full byte (8 bits) |
 | `bf_stream_read_bool` | Reads a single bit as a boolean value |
 
+### Pattern Operations (`pattern.h`)
+
+| Function | Description |
+|----------|-------------|
+| `bf_pattern_init` | Initializes a standard bit pattern from a byte buffer |
+| `bf_pattern_init_masked` | Initializes a bit pattern with a custom mask (supporting wildcards) |
+| `bf_stream_find_pattern` | Searches the bit stream for the first occurrence of a pattern |
+
 > All functions return a `bf_status` value to indicate success or failure.
 
 ## 📌 Project Status
 
-**BitForge 1.2.0 is released.**
+BitForge v1.3.0 is currently in active development.
 
-This release introduces the complete `bfstream` module, providing robust sequential bit-stream parsing primitives for reverse engineering workflows and binary format analysis.
+This version introduces the new `bf_pattern` module for efficient bit-level pattern matching and searching, building upon the robust sequential bit-stream parsing primitives of `bf_stream` from v1.2.0.
 
 The public API is intended to remain stable throughout the 1.x release series. Breaking API changes are reserved for a future major release.
 
