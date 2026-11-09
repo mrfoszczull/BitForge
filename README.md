@@ -205,6 +205,8 @@ Public headers are located in `include/bitforge/`:
 | Function | Description |
 |----------|-------------|
 | `bf_pattern_init` | Initializes a standard bit pattern from a byte buffer |
+| `bf_pattern_init_masked` | Initializes a bit pattern with a custom mask (supporting wildcards) |
+| `bf_stream_find_pattern` | Searches the bit stream for the first occurrence of a pattern |
 
 > All functions return a `bf_status` value to indicate success or failure.
 
