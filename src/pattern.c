@@ -27,3 +27,35 @@ bf_status bf_pattern_init(
 
 	return BF_OK;
 }
+
+bf_status bf_pattern_init_masked(bf_pattern_t *pattern, const uint8_t *data,
+    const uint8_t *mask, size_t bit_count)
+{
+	if (pattern == NULL || data == NULL || mask == NULL || bit_count == 0 ||
+	    bit_count > BF_MAX_PATTERN_BITS) {
+		return BF_EINVAL;
+	}
+
+	uint64_t val = 0;
+	uint64_t mask_val = 0;
+
+	for (size_t i = 0; i < bit_count; i++) {
+		size_t byte_idx = i / 8;
+		size_t bit_idx = i % 8;
+
+		uint8_t d_byte = data[byte_idx];
+		uint8_t m_byte = mask[byte_idx];
+
+		uint8_t bit = (d_byte >> (7 - bit_idx)) & 1;
+		uint8_t m_bit = (m_byte >> (7 - bit_idx)) & 1;
+
+		val = (val << 1) | bit;
+		mask_val = (mask_val << 1) | m_bit;
+	}
+
+	pattern->data = val & mask_val;
+	pattern->mask = mask_val;
+	pattern->bit_count = bit_count;
+
+	return BF_OK;
+}

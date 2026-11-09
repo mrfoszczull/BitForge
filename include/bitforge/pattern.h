@@ -30,6 +30,20 @@ typedef struct {
 bf_status bf_pattern_init(
     bf_pattern_t *pattern, const uint8_t *data, size_t bit_count);
 
+/**
+ * @brief Initializes a bit pattern with a custom bitmask (supporting
+ * wildcards).
+ *
+ * @param pattern Pointer to the pattern structure to initialize.
+ * @param data Buffer containing the pattern data.
+ * @param mask Buffer containing the bitmask (1 = check bit, 0 = wildcard).
+ * @param bit_count Number of bits to read from buffers (max
+ * BF_MAX_PATTERN_BITS).
+ * @return BF_OK on success, or BF_EINVAL on invalid arguments.
+ */
+bf_status bf_pattern_init_masked(bf_pattern_t *pattern, const uint8_t *data,
+    const uint8_t *mask, size_t bit_count);
+
 #ifdef __cplusplus
 }
 #endif
