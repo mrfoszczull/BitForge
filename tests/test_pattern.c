@@ -56,12 +56,48 @@ static void test_pattern_init_invalid_args(void)
 	printf("test_pattern_init_invalid_args finished.\n");
 }
 
+static void test_pattern_init_masked_valid(void)
+{
+	bf_pattern_t pattern;
+	uint8_t data[] = {0xAA}; // 10101010
+	uint8_t mask[] = {
+	    0xF0}; // 11110000 (Upper 4 bits checked, lower 4 wildcard)
+
+	CHECK(bf_pattern_init_masked(&pattern, data, mask, 8) == BF_OK);
+	CHECK(pattern.bit_count == 8);
+	CHECK(pattern.mask == 0xF0ULL);
+	// Data should be masked upon init: 0xAA & 0xF0 = 0xA0
+	CHECK(pattern.data == 0xA0ULL);
+
+	printf("test_pattern_init_masked_valid finished.\n");
+}
+
+static void test_pattern_init_masked_invalid_args(void)
+{
+	bf_pattern_t pattern;
+	uint8_t data[] = {0xFF};
+	uint8_t mask[] = {0xFF};
+
+	// Null pointer validations
+	CHECK(bf_pattern_init_masked(NULL, data, mask, 8) == BF_EINVAL);
+	CHECK(bf_pattern_init_masked(&pattern, NULL, mask, 8) == BF_EINVAL);
+	CHECK(bf_pattern_init_masked(&pattern, data, NULL, 8) == BF_EINVAL);
+
+	// Invalid bit counts
+	CHECK(bf_pattern_init_masked(&pattern, data, mask, 0) == BF_EINVAL);
+	CHECK(bf_pattern_init_masked(&pattern, data, mask, 65) == BF_EINVAL);
+
+	printf("test_pattern_init_masked_invalid_args finished.\n");
+}
+
 int main(void)
 {
 	printf("Running pattern initialization tests...\n");
 
 	test_pattern_init_valid();
 	test_pattern_init_invalid_args();
+	test_pattern_init_masked_valid();
+	test_pattern_init_masked_invalid_args();
 
 	if (failures > 0) {
 		fprintf(stderr, "Tests failed with %d error(s).\n", failures);
