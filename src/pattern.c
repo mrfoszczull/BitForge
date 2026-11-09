@@ -59,3 +59,39 @@ bf_status bf_pattern_init_masked(bf_pattern_t *pattern, const uint8_t *data,
 
 	return BF_OK;
 }
+
+bf_status bf_stream_find_pattern(
+    bf_stream_t *stream, const bf_pattern_t *pattern)
+{
+	if (stream == NULL || pattern == NULL || pattern->bit_count == 0 ||
+	    pattern->bit_count > BF_MAX_PATTERN_BITS) {
+		return BF_EINVAL;
+	}
+
+	while (bf_stream_has_remaining(stream, pattern->bit_count)) {
+		bf_stream_t test_stream = *stream;
+		uint64_t value = 0;
+
+		for (size_t i = 0; i < pattern->bit_count; i++) {
+			uint32_t bit = 0;
+
+			if (bf_stream_read_bits(&test_stream, 1, &bit) !=
+			    BF_OK) {
+				return BF_ENOTFOUND;
+			}
+
+			value = (value << 1) | (uint64_t)(bit & 1U);
+		}
+
+		if ((value & pattern->mask) ==
+		    (pattern->data & pattern->mask)) {
+			return BF_OK;
+		}
+
+		if (bf_stream_skip_bits(stream, 1) != BF_OK) {
+			return BF_ENOTFOUND;
+		}
+	}
+
+	return BF_ENOTFOUND;
+}

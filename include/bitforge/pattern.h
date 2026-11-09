@@ -44,6 +44,18 @@ bf_status bf_pattern_init(
 bf_status bf_pattern_init_masked(bf_pattern_t *pattern, const uint8_t *data,
     const uint8_t *mask, size_t bit_count);
 
+/**
+ * @brief Searches the bit stream for the first occurrence of a pattern.
+ *
+ * @param stream Pointer to the bit stream to search.
+ * @param pattern Pointer to the bit pattern to find.
+ * @return BF_OK if found (stream is positioned at the start of the match),
+ *         BF_ENOTFOUND if the pattern is not found, or BF_EINVAL on invalid
+ * arguments.
+ */
+bf_status bf_stream_find_pattern(
+    bf_stream_t *stream, const bf_pattern_t *pattern);
+
 #ifdef __cplusplus
 }
 #endif

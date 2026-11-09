@@ -90,14 +90,82 @@ static void test_pattern_init_masked_invalid_args(void)
 	printf("test_pattern_init_masked_invalid_args finished.\n");
 }
 
+static void test_stream_find_pattern_valid(void)
+{
+	uint8_t buffer[] = {0xDE, 0xAD, 0xBE, 0xEF};
+	bf_stream_t stream;
+	bf_stream_init(&stream, buffer, sizeof(buffer));
+
+	bf_pattern_t pattern;
+	uint8_t pat_data[] = {0xAD};
+	CHECK(bf_pattern_init(&pattern, pat_data, 8) == BF_OK);
+
+	// Should find 0xAD at index 1
+	CHECK(bf_stream_find_pattern(&stream, &pattern) == BF_OK);
+
+	printf("test_stream_find_pattern_valid finished.\n");
+}
+
+static void test_stream_find_pattern_masked(void)
+{
+	uint8_t buffer[] = {0x12, 0x34, 0x56};
+	bf_stream_t stream;
+	bf_stream_init(&stream, buffer, sizeof(buffer));
+
+	bf_pattern_t pattern;
+	uint8_t pat_data[] = {0x30}; // Looking for upper nibble '3'
+	uint8_t pat_mask[] = {0xF0}; // Mask checks only top 4 bits
+	CHECK(bf_pattern_init_masked(&pattern, pat_data, pat_mask, 8) == BF_OK);
+
+	// 0x34 masked with 0xF0 equals 0x30, so it matches
+	CHECK(bf_stream_find_pattern(&stream, &pattern) == BF_OK);
+
+	printf("test_stream_find_pattern_masked finished.\n");
+}
+
+static void test_stream_find_pattern_not_found(void)
+{
+	uint8_t buffer[] = {0x00, 0x00, 0x00};
+	bf_stream_t stream;
+	bf_stream_init(&stream, buffer, sizeof(buffer));
+
+	bf_pattern_t pattern;
+	uint8_t pat_data[] = {0xFF};
+	CHECK(bf_pattern_init(&pattern, pat_data, 8) == BF_OK);
+
+	CHECK(bf_stream_find_pattern(&stream, &pattern) == BF_ENOTFOUND);
+
+	printf("test_stream_find_pattern_not_found finished.\n");
+}
+
+static void test_stream_find_pattern_invalid_args(void)
+{
+	uint8_t buffer[] = {0x12};
+	bf_stream_t stream;
+	bf_stream_init(&stream, buffer, sizeof(buffer));
+
+	bf_pattern_t pattern;
+	uint8_t pat_data[] = {0x12};
+	bf_pattern_init(&pattern, pat_data, 8);
+
+	CHECK(bf_stream_find_pattern(NULL, &pattern) == BF_EINVAL);
+	CHECK(bf_stream_find_pattern(&stream, NULL) == BF_EINVAL);
+
+	printf("test_stream_find_pattern_invalid_args finished.\n");
+}
+
 int main(void)
 {
-	printf("Running pattern initialization tests...\n");
+	printf("Running pattern and stream search tests...\n");
 
 	test_pattern_init_valid();
 	test_pattern_init_invalid_args();
 	test_pattern_init_masked_valid();
 	test_pattern_init_masked_invalid_args();
+	test_stream_find_pattern_valid();
+	test_stream_find_pattern_masked();
+	test_stream_find_pattern_not_found();
+	test_stream_find_pattern_invalid_args();
 
 	if (failures > 0) {
 		fprintf(stderr, "Tests failed with %d error(s).\n", failures);

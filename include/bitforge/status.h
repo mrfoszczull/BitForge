@@ -9,11 +9,12 @@ extern "C" {
  * @brief Status codes returned by BitForge functions.
  */
 typedef enum {
-	BF_OK,	   /**< Operation completed successfully. */
-	BF_EINVAL, /**< An argument is invalid. */
-	BF_ENOMEM, /**< Memory allocation failed. */
-	BF_EIO,	   /**< An input/output operation failed. */
-	BF_EOF	   /**< End of input was reached. */
+	BF_OK,	     /**< Operation completed successfully. */
+	BF_EINVAL,   /**< An argument is invalid. */
+	BF_ENOMEM,   /**< Memory allocation failed. */
+	BF_EIO,	     /**< An input/output operation failed. */
+	BF_EOF,	     /**< End of input was reached. */
+	BF_ENOTFOUND /**< Pattern is not found. */
 } bf_status;
 
 /**
