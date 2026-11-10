@@ -6,6 +6,12 @@ extern "C" {
 #endif
 
 /**
+ * @defgroup status Status codes
+ * @brief Status codes and error handling
+ * @{
+ */
+
+/**
  * @brief Status codes returned by BitForge functions.
  */
 typedef enum {
@@ -24,6 +30,8 @@ typedef enum {
  * @return A constant string describing the status.
  */
 const char *bf_status_string(bf_status status);
+
+/** @} */
 
 #ifdef __cplusplus
 }

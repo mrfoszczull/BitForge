@@ -17,14 +17,13 @@ BitForge provides a simple and consistent API for common bitwise operations, bit
 ## 📑 Table of Contents
 
 - [Features](#-features)
-- [Bit Indexing & Endianness](#-bit-indexing--endianness)
 - [Requirements](#-requirements)
 - [Getting Started](#-getting-started)
 - [CMake Integration](#-cmake-integration)
+- [Documentation](#-documentation)
 - [Testing](#-testing)
 - [Code Formatting](#-code-formatting)
 - [Sanitizers](#-sanitizers)
-- [API Overview](#-api-overview)
 - [Project Status](#-project-status)
 - [Contributing](#-contributing)
 - [Security](#-security)
@@ -32,23 +31,15 @@ BitForge provides a simple and consistent API for common bitwise operations, bit
 
 ## ✨ Features
 
-- **Bit manipulation** – set, clear, toggle, and check individual bits.
-- **Bit range operations** – read, set, clear, and toggle ranges of bits.
+- **Bit manipulation** – set, clear, toggle, and check individual bits and bit ranges.
 - **Bitwise operations** – reverse, rotate, and swap bits in 8-bit values.
-- **Bit stream processing** – safe sequential reading of arbitrary bit counts (MSB-first) across byte boundaries, with support for bit skipping and byte alignment.
-- **Bit pattern matching** – efficient bit-level pattern matching and searching with support for custom masks and wildcards (`bf_pattern`).
+- **Bit stream processing** – safe sequential reading of arbitrary bit counts (MSB-first) across byte boundaries, with bit skipping and byte alignment.
+- **Bit pattern matching** – efficient bit-level pattern matching and searching with custom masks and wildcards.
 - **Bit analysis** – count set bits and check whether a value is a power of two.
 - **Error handling** – explicit status codes for predictable error handling.
 - **Lightweight** – no external runtime dependencies.
 - **Portable** – C17-compatible API.
 - **CMake integration** – installable static library with exported CMake package support.
-
-## 🧭 Bit Indexing & Endianness
-
-| Module | Header | Order | Description |
-|--------|--------|-------|-------------|
-| 8-bit value operations | `bitops.h` | **LSB-first** | Bit index `0` is the least significant bit (LSB); index `7` is the most significant bit (MSB). |
-| Stream & pattern operations | `stream.h` / `pattern.h` | **MSB-first** | Bits are read and matched most significant first across buffer boundaries, matching standard binary formats and protocol specifications. |
 
 ## 📋 Requirements
 
@@ -56,6 +47,7 @@ BitForge provides a simple and consistent API for common bitwise operations, bit
 - CMake 3.20 or newer
 - Make *(optional, for the provided Makefile)*
 - ClangFormat *(optional, for code formatting)*
+- Doxygen and Moxygen *(optional, for generating the API documentation)*
 
 ## 🚀 Getting Started
 
@@ -112,13 +104,25 @@ cmake -S . -B build \
     -DCMAKE_PREFIX_PATH="/path/to/bitforge/install"
 ```
 
-Include the public headers in your source files:
+Then include the headers you need, for example `<bitforge/bitops.h>` or `<bitforge/stream.h>`.
 
-```c
-#include <bitforge/bitops.h>
-#include <bitforge/stream.h>
-#include <bitforge/pattern.h>
-#include <bitforge/status.h>
+## 📚 Documentation
+
+The full API reference, including bit indexing and endianness conventions, is in **[docs/](docs/README.md)**:
+
+| Module | Description |
+|--------|-------------|
+| [bitops](docs/bitops.md) | Bit-level operations on 8-bit values |
+| [stream](docs/stream.md) | Sequential bit stream processing and parsing |
+| [pattern](docs/pattern.md) | Bit-level pattern matching with wildcard support |
+| [status](docs/status.md) | Status codes and error handling |
+
+> All functions return a `bf_status` value to indicate success or failure.
+
+To regenerate the module pages from the source comments:
+
+```bash
+make docs
 ```
 
 ## 🧪 Testing
@@ -158,58 +162,6 @@ cmake --build build-sanitize
 ctest --test-dir build-sanitize --output-on-failure
 ```
 
-## 📚 API Overview
-
-Public headers are located in `include/bitforge/`:
-
-| Header | Description |
-|--------|-------------|
-| `bitops.h` | Bit-level operations on 8-bit values |
-| `stream.h` | Safe sequential bit stream processing and parsing |
-| `pattern.h` | Bit-level pattern matching and searching with wildcard support |
-| `status.h` | Status codes and error handling |
-
-### Bit Operations (`bitops.h`)
-
-| Function | Description |
-|----------|-------------|
-| `bf_get` | Reads an individual bit |
-| `bf_set` | Sets an individual bit |
-| `bf_clear` | Clears an individual bit |
-| `bf_toggle` | Toggles an individual bit |
-| `bf_count_set_bits` | Counts set bits |
-| `bf_is_power_of_two` | Checks whether a value is a power of two |
-| `bf_reverse_bits` | Reverses bit order |
-| `bf_rotate_left` | Rotates bits to the left |
-| `bf_rotate_right` | Rotates bits to the right |
-| `bf_get_bits` | Reads a range of bits |
-| `bf_set_bits` | Sets a range of bits |
-| `bf_clear_bits` | Clears a range of bits |
-| `bf_toggle_bits` | Toggles a range of bits |
-| `bf_swap_bits` | Swaps two bits |
-
-### Stream Operations (`stream.h`)
-
-| Function | Description |
-|----------|-------------|
-| `bf_stream_init` | Initializes a bit stream over a buffer |
-| `bf_stream_has_remaining` | Checks if a given number of bits remain |
-| `bf_stream_read_bits` | Reads up to 32 bits (MSB-first) across byte boundaries |
-| `bf_stream_skip_bits` | Skips a specified number of bits |
-| `bf_stream_align` | Aligns the stream to the next byte boundary |
-| `bf_stream_read_byte` | Reads a full byte (8 bits) |
-| `bf_stream_read_bool` | Reads a single bit as a boolean value |
-
-### Pattern Operations (`pattern.h`)
-
-| Function | Description |
-|----------|-------------|
-| `bf_pattern_init` | Initializes a standard bit pattern from a byte buffer |
-| `bf_pattern_init_masked` | Initializes a bit pattern with a custom mask (supporting wildcards) |
-| `bf_stream_find_pattern` | Searches the bit stream for the first occurrence of a pattern |
-
-> All functions return a `bf_status` value to indicate success or failure.
-
 ## 📌 Project Status
 
 BitForge v1.3.0 is currently in active development.
@@ -220,7 +172,7 @@ The public API is intended to remain stable throughout the 1.x release series. B
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup, coding guidelines, and the pull request process.
+Contributions are welcome! Please read [CONTRIBUTING.md](docs/CONTRIBUTING.md) for the development setup, coding guidelines, and the pull request process.
 
 Before submitting a pull request, run:
 
@@ -235,7 +187,7 @@ Found a bug or have an idea? [Open an issue](https://github.com/mrfoszczull/BitF
 
 If you believe you have found a security vulnerability, **do not open a public issue**. Report it privately through GitHub Security Advisories instead.
 
-Security fixes are provided for the latest stable release. See [SECURITY.md](SECURITY.md) for the full policy, including what to include in a report and how it is handled.
+Security fixes are provided for the latest stable release. See [SECURITY.md](docs/SECURITY.md) for the full policy, including what to include in a report and how it is handled.
 
 ## 📄 License
 

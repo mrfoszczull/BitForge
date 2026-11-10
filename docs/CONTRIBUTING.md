@@ -171,4 +171,4 @@ Adding new functions, headers and status codes is compatible with 1.x.
 ## License
 
 By contributing, you agree that your contributions will be licensed under the
-[MIT License](LICENSE), the same license that covers the project.
+[MIT License](../LICENSE), the same license that covers the project.

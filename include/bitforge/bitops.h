@@ -11,6 +11,12 @@ extern "C" {
 #endif
 
 /**
+ * @defgroup bitops Bit operations
+ * @brief Single-bit and bit-range operations on 8-bit values.
+ * @{
+ */
+
+/**
  * @brief Reads a bit from an 8-bit value.
  *
  * @param value Pointer to the value to read.
@@ -182,6 +188,8 @@ bf_status bf_toggle_bits(uint8_t *value, size_t bit_index, size_t bit_count);
  * index is outside the range 0–7.
  */
 bf_status bf_swap_bits(uint8_t *value, size_t first_bit, size_t second_bit);
+
+/** @} */
 
 #ifdef __cplusplus
 }
