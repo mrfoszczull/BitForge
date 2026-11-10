@@ -11,6 +11,12 @@ extern "C" {
 #endif
 
 /**
+ * @defgroup stream Streams
+ * @brief Safe sequential bit stream processing and parsing
+ * @{
+ */
+
+/**
  * @brief Represents a bit-level memory stream for binary analysis.
  */
 typedef struct {
@@ -87,6 +93,8 @@ bf_status bf_stream_read_byte(bf_stream_t *stream, uint8_t *out_value);
  * @return bf_status BF_OK on success, or an error code on failure.
  */
 bf_status bf_stream_read_bool(bf_stream_t *stream, bool *out_value);
+
+/** @} */
 
 #ifdef __cplusplus
 }

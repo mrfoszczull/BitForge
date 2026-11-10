@@ -5,17 +5,27 @@
 extern "C" {
 #endif
 
+/**
+ * @defgroup pattern Patterns
+ * @brief Bit-level pattern matching and searching with wildcard support
+ * @{
+ */
+
 #include <bitforge/status.h>
 #include <bitforge/stream.h>
 #include <stddef.h>
 #include <stdint.h>
 
+/** @brief Maximum number of bits in a pattern. */
 #define BF_MAX_PATTERN_BITS 64
 
-typedef struct {
-	uint64_t data;	  // Normalized pattern value
-	uint64_t mask;	  // Bitmask (1 = check bit, 0 = wildcard)
-	size_t bit_count; // Exact pattern length in bits (1 - 64)
+/**
+ * @brief A bit pattern with a mask.
+ */
+typedef struct bf_pattern_t {
+	uint64_t data;	  /**< Pattern bits. */
+	uint64_t mask;	  /**< Bits that are compared. */
+	size_t bit_count; /**< Number of valid bits. */
 } bf_pattern_t;
 
 /**
@@ -55,6 +65,8 @@ bf_status bf_pattern_init_masked(bf_pattern_t *pattern, const uint8_t *data,
  */
 bf_status bf_stream_find_pattern(
     bf_stream_t *stream, const bf_pattern_t *pattern);
+
+/** @} */
 
 #ifdef __cplusplus
 }

@@ -25,3 +25,11 @@ format-check:
 
 clean:
 	find . -type d -name '*build*' -prune -exec rm -rf {} +
+
+docs:
+	doxygen Doxyfile
+	mkdir -p docs
+	moxygen --groups --output docs/%s.md build-docs/xml
+	rm -f docs/api.md
+
+.PHONY: docs
