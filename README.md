@@ -172,7 +172,7 @@ The public API is intended to remain stable throughout the 1.x release series. B
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup, coding guidelines, and the pull request process.
+Contributions are welcome! Please read [CONTRIBUTING.md](docs/CONTRIBUTING.md) for the development setup, coding guidelines, and the pull request process.
 
 Before submitting a pull request, run:
 
@@ -187,7 +187,7 @@ Found a bug or have an idea? [Open an issue](https://github.com/mrfoszczull/BitF
 
 If you believe you have found a security vulnerability, **do not open a public issue**. Report it privately through GitHub Security Advisories instead.
 
-Security fixes are provided for the latest stable release. See [SECURITY.md](SECURITY.md) for the full policy, including what to include in a report and how it is handled.
+Security fixes are provided for the latest stable release. See [SECURITY.md](docs/SECURITY.md) for the full policy, including what to include in a report and how it is handled.
 
 ## 📄 License
 
