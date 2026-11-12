@@ -101,6 +101,21 @@ bf_status bf_buffer_write(
  */
 bf_status bf_buffer_get_view(const bf_buffer_t *buffer, bf_view_t *view);
 
+/**
+ * @brief Appends bytes to the end of a buffer.
+ *
+ * Copies data to the buffer starting at its current logical size
+ * and increases the size after a successful operation.
+ *
+ * @param buffer Destination buffer.
+ * @param source Source memory.
+ * @param length Number of bytes to append.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments or
+ *         insufficient buffer capacity.
+ */
+bf_status bf_buffer_append(
+    bf_buffer_t *buffer, const uint8_t *source, size_t length);
+
 /** @} */
 
 #ifdef __cplusplus

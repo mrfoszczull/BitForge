@@ -115,3 +115,31 @@ bf_status bf_buffer_get_view(const bf_buffer_t *buffer, bf_view_t *view)
 
 	return BF_OK;
 }
+
+bf_status bf_buffer_append(
+    bf_buffer_t *buffer, const uint8_t *source, size_t length)
+{
+	if (buffer == NULL || (source == NULL && length > 0)) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (length > buffer->capacity - buffer->size) {
+		return BF_EINVAL;
+	}
+
+	if (length > 0) {
+		memcpy(buffer->data + buffer->size, source, length);
+	}
+
+	buffer->size += length;
+
+	return BF_OK;
+}

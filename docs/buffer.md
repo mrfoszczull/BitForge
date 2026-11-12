@@ -21,6 +21,7 @@ Memory views and caller-managed buffers.
 | [`bf_status`](status.md#bf_status) | [`bf_view_slice`](#bf_view_slice)  | Creates a read-only subview without copying data. |
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_write`](#bf_buffer_write)  | Writes bytes into a buffer at the specified offset. |
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_get_view`](#bf_buffer_get_view)  | Creates a read-only view of the buffer's current contents. |
+| [`bf_status`](status.md#bf_status) | [`bf_buffer_append`](#bf_buffer_append)  | Appends bytes to the end of a buffer. |
 
 ---
 
@@ -165,6 +166,31 @@ BF_OK on success, BF_EINVAL on invalid arguments.
 |-----------|------|-------------|
 | `buffer` | const [`bf_buffer_t`](#bf_buffer_t) * | Source buffer. |
 | `view` | [`bf_view_t`](#bf_view_t) * | Destination view. |
+
+---
+
+### bf_buffer_append
+
+```cpp
+bf_status bf_buffer_append(bf_buffer_t * buffer, const uint8_t * source, size_t length)
+```
+
+Defined in include/bitforge/buffer.h:116
+
+Appends bytes to the end of a buffer.
+
+Copies data to the buffer starting at its current logical size and increases the size after a successful operation.
+
+#### Returns
+BF_OK on success, BF_EINVAL on invalid arguments or insufficient buffer capacity.
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `buffer` | [`bf_buffer_t`](#bf_buffer_t) * | Destination buffer. |
+| `source` | `const uint8_t *` | Source memory. |
+| `length` | `size_t` | Number of bytes to append. |
 
 
 ## Class Definitions

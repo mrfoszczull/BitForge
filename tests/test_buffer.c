@@ -229,6 +229,58 @@ static void test_bf_buffer_get_view(void)
 	CHECK(view.size == 2);
 }
 
+static void test_bf_buffer_append(void)
+{
+	uint8_t memory[5] = {0};
+	const uint8_t first[] = {10, 20};
+	const uint8_t second[] = {30, 40, 50};
+	const uint8_t extra[] = {60};
+
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 0};
+
+	CHECK(bf_buffer_append(&buffer, first, 2) == BF_OK);
+	CHECK(buffer.size == 2);
+	CHECK(memory[0] == 10);
+	CHECK(memory[1] == 20);
+
+	CHECK(bf_buffer_append(&buffer, second, 3) == BF_OK);
+	CHECK(buffer.size == 5);
+	CHECK(memory[0] == 10);
+	CHECK(memory[1] == 20);
+	CHECK(memory[2] == 30);
+	CHECK(memory[3] == 40);
+	CHECK(memory[4] == 50);
+
+	CHECK(bf_buffer_append(&buffer, extra, 1) == BF_EINVAL);
+	CHECK(buffer.size == 5);
+	CHECK(memory[4] == 50);
+
+	CHECK(bf_buffer_append(&buffer, NULL, 1) == BF_EINVAL);
+	CHECK(buffer.size == 5);
+
+	CHECK(bf_buffer_append(&buffer, NULL, 0) == BF_OK);
+	CHECK(buffer.size == 5);
+
+	bf_buffer_t invalid_size = {.data = memory, .capacity = 5, .size = 6};
+
+	CHECK(bf_buffer_append(&invalid_size, extra, 1) == BF_EINVAL);
+	CHECK(invalid_size.size == 6);
+
+	bf_buffer_t invalid_data = {.data = NULL, .capacity = 5, .size = 0};
+
+	CHECK(bf_buffer_append(&invalid_data, extra, 1) == BF_EINVAL);
+	CHECK(invalid_data.size == 0);
+
+	uint8_t empty_memory[3] = {0};
+
+	bf_buffer_t empty_buffer = {
+	    .data = empty_memory, .capacity = sizeof(empty_memory), .size = 0};
+
+	CHECK(bf_buffer_append(&empty_buffer, first, 0) == BF_OK);
+	CHECK(empty_buffer.size == 0);
+}
+
 int main(void)
 {
 	test_view_init_valid();
@@ -245,6 +297,8 @@ int main(void)
 	test_bf_view_slice();
 	test_bf_buffer_write();
 	test_bf_buffer_get_view();
+
+	test_bf_buffer_append();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d test(s) failed.\n", failures);
