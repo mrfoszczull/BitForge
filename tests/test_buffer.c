@@ -1,5 +1,6 @@
 #include <bitforge/buffer.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 static int failures = 0;
 
@@ -369,6 +370,57 @@ static void test_bf_buffer_fill(void)
 	CHECK(bf_buffer_fill(&empty_buffer, 0, 0, 0xFF) == BF_OK);
 }
 
+static void test_bf_view_compare(void)
+{
+	const uint8_t data_a[] = {10, 20, 30, 40};
+	const uint8_t data_b[] = {10, 20, 30, 40};
+	const uint8_t data_c[] = {10, 20, 30, 50};
+	const uint8_t data_d[] = {10, 20, 30};
+
+	bf_view_t view_a = {.data = data_a, .size = sizeof(data_a)};
+
+	bf_view_t view_b = {.data = data_b, .size = sizeof(data_b)};
+
+	bf_view_t view_c = {.data = data_c, .size = sizeof(data_c)};
+
+	bf_view_t view_d = {.data = data_d, .size = sizeof(data_d)};
+
+	bool equal = false;
+
+	CHECK(bf_view_compare(&view_a, &view_b, &equal) == BF_OK);
+	CHECK(equal == true);
+
+	CHECK(bf_view_compare(&view_a, &view_c, &equal) == BF_OK);
+	CHECK(equal == false);
+
+	CHECK(bf_view_compare(&view_a, &view_d, &equal) == BF_OK);
+	CHECK(equal == false);
+
+	CHECK(bf_view_compare(&view_a, &view_a, &equal) == BF_OK);
+	CHECK(equal == true);
+
+	bf_view_t empty_a = {.data = NULL, .size = 0};
+
+	bf_view_t empty_b = {.data = NULL, .size = 0};
+
+	CHECK(bf_view_compare(&empty_a, &empty_b, &equal) == BF_OK);
+	CHECK(equal == true);
+
+	CHECK(bf_view_compare(NULL, &view_a, &equal) == BF_EINVAL);
+	CHECK(bf_view_compare(&view_a, NULL, &equal) == BF_EINVAL);
+	CHECK(bf_view_compare(&view_a, &view_b, NULL) == BF_EINVAL);
+
+	bf_view_t invalid_view = {.data = NULL, .size = 4};
+
+	equal = true;
+	CHECK(bf_view_compare(&invalid_view, &view_a, &equal) == BF_EINVAL);
+	CHECK(equal == true);
+
+	equal = true;
+	CHECK(bf_view_compare(&view_a, &invalid_view, &equal) == BF_EINVAL);
+	CHECK(equal == true);
+}
+
 int main(void)
 {
 	test_view_init_valid();
@@ -389,6 +441,7 @@ int main(void)
 	test_bf_buffer_append();
 	test_bf_buffer_clear();
 	test_bf_buffer_fill();
+	test_bf_view_compare();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d test(s) failed.\n", failures);

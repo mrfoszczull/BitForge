@@ -4,6 +4,7 @@
 #include <bitforge/status.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -142,6 +143,19 @@ bf_status bf_buffer_clear(bf_buffer_t *buffer);
  */
 bf_status bf_buffer_fill(
     bf_buffer_t *buffer, size_t offset, size_t length, uint8_t value);
+
+/**
+ * @brief Compares the contents of two memory views.
+ *
+ * Compares the sizes and byte contents of both views.
+ *
+ * @param a First memory view.
+ * @param b Second memory view.
+ * @param equal Output parameter set to true if both views
+ *              contain identical data, false otherwise.
+ * @return BF_OK on success, BF_EINVAL if any argument is invalid.
+ */
+bf_status bf_view_compare(const bf_view_t *a, const bf_view_t *b, bool *equal);
 
 /** @} */
 

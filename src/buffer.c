@@ -188,3 +188,29 @@ bf_status bf_buffer_fill(
 
 	return BF_OK;
 }
+
+bf_status bf_view_compare(const bf_view_t *a, const bf_view_t *b, bool *equal)
+{
+	if (a == NULL || b == NULL || equal == NULL) {
+		return BF_EINVAL;
+	}
+
+	if ((a->data == NULL && a->size > 0) ||
+	    (b->data == NULL && b->size > 0)) {
+		return BF_EINVAL;
+	}
+
+	if (a->size != b->size) {
+		*equal = false;
+		return BF_OK;
+	}
+
+	if (a->size == 0) {
+		*equal = true;
+		return BF_OK;
+	}
+
+	*equal = memcmp(a->data, b->data, a->size) == 0;
+
+	return BF_OK;
+}
