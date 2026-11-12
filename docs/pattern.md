@@ -146,7 +146,7 @@ A bit pattern with a mask.
 
 | Return | Name | Description |
 |--------|------|-------------|
-| `uint64_t` | [`data`](#data-1)  | Pattern bits. |
+| `uint64_t` | [`data`](#data-3)  | Pattern bits. |
 | `uint64_t` | [`mask`](#mask)  | Bits that are compared. |
 | `size_t` | [`bit_count`](#bit_count)  | Number of valid bits. |
 

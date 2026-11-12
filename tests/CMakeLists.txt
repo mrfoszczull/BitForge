@@ -36,3 +36,16 @@ add_test(
     NAME pattern_tests
     COMMAND pattern_tests
 )
+
+add_executable(buffer_tests
+    test_buffer.c
+)
+
+target_link_libraries(buffer_tests
+    PRIVATE bitforge
+)
+
+add_test(
+    NAME buffer_tests
+    COMMAND buffer_tests
+)

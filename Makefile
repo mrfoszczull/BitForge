@@ -18,13 +18,13 @@ sanitize:
 check: test sanitize
 
 format:
-	find src tests examples -type f \( -name '*.c' -o -name '*.h' \) -exec clang-format -i {} +
+	find src include tests examples -type f \( -name '*.c' -o -name '*.h' \) -exec clang-format -i {} +
 
 format-check:
-	find src tests examples -type f \( -name '*.c' -o -name '*.h' \) -exec clang-format --dry-run --Werror {} +
+	find src include tests examples -type f \( -name '*.c' -o -name '*.h' \) -exec clang-format --dry-run --Werror {} +
 
 clean:
-	find . -type d -name '*build*' -prune -exec rm -rf {} +
+	rm -rf $(BUILD_DIR) $(SANITIZE_DIR) build-docs
 
 docs:
 	doxygen Doxyfile
