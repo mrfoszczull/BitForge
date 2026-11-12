@@ -6,37 +6,86 @@ on:
 
 jobs:
   build-and-test:
-    name: ${{ matrix.compiler }} / ${{ matrix.build_type }}
-    runs-on: ubuntu-latest
+    name: Build (${{ matrix.os }}, ${{ matrix.compiler }}, ${{ matrix.build_type }})
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        compiler: [gcc, clang]
-        build_type: [Debug, Release]
+        include:
+          - os: ubuntu-latest
+            compiler: gcc
+            build_type: Debug
+          - os: ubuntu-latest
+            compiler: gcc
+            build_type: Release
+          - os: ubuntu-latest
+            compiler: clang
+            build_type: Debug
+          - os: ubuntu-latest
+            compiler: clang
+            build_type: Release
+          - os: macos-latest
+            compiler: clang
+            build_type: Debug
+          - os: macos-latest
+            compiler: clang
+            build_type: Release
+          - os: windows-latest
+            compiler: msvc
+            build_type: Debug
+          - os: windows-latest
+            compiler: msvc
+            build_type: Release
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Configure CMake
+        shell: bash
         run: |
-          cmake -S . -B build \
-            -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DBITFORGE_ENABLE_SANITIZERS=${{ matrix.compiler == 'gcc' && matrix.build_type == 'Debug' }}
+          if [ "${{ matrix.compiler }}" = "msvc" ]; then
+            cmake -S . -B build \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          else
+            cmake -S . -B build \
+              -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          fi
 
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build build --config ${{ matrix.build_type }} --parallel
 
       - name: Run tests
-        run: ctest --test-dir build --output-on-failure
+        run: ctest --test-dir build -C ${{ matrix.build_type }} --output-on-failure
 
-  cppcheck:
+  sanitizers:
+    name: AddressSanitizer + UndefinedBehaviorSanitizer
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: >
+          cmake -S . -B build-sanitize
+          -DCMAKE_BUILD_TYPE=Debug
+          -DBITFORGE_ENABLE_SANITIZERS=ON
+
+      - name: Build
+        run: cmake --build build-sanitize --parallel
+
+      - name: Run tests
+        run: ctest --test-dir build-sanitize --output-on-failure
+
+  static-analysis:
+    name: Cppcheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install Cppcheck
@@ -45,24 +94,24 @@ jobs:
           sudo apt-get install -y cppcheck
 
       - name: Run Cppcheck
-        run: |
-          cppcheck --enable=all \
-                   --inconclusive \
-                   --std=c17 \
-                   --error-exitcode=1 \
-                   --suppress=missingIncludeSystem \
-                   --suppress=unusedFunction \
-                   --suppress=normalCheckLevelMaxBranches \
-                   src/ tests/
+        run: >
+          cppcheck
+          --enable=warning,style,performance,portability
+          --error-exitcode=1
+          --std=c17
+          --language=c
+          -I include
+          src/ include/ tests/
 
   format-check:
+    name: Clang Format
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install ClangFormat
+      - name: Install clang-format
         run: |
           sudo apt-get update
           sudo apt-get install -y clang-format
@@ -71,75 +120,72 @@ jobs:
         run: make format-check
 
   install-test:
+    name: Installed package test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure CMake
+      - name: Configure BitForge
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build
+      - name: Build BitForge
         run: cmake --build build --parallel
 
       - name: Install BitForge
-        run: cmake --install build --prefix "$RUNNER_TEMP/bitforge-install"
+        run: cmake --install build --prefix "$HOME/bitforge-install"
 
       - name: Create consumer project
+        shell: bash
         run: |
-          mkdir -p "$RUNNER_TEMP/bitforge-consumer"
-          cd "$RUNNER_TEMP/bitforge-consumer"
+          mkdir -p consumer
 
-          cat > CMakeLists.txt <<'EOF'
+          cat > consumer/CMakeLists.txt <<'EOF'
           cmake_minimum_required(VERSION 3.20)
-
           project(BitForgeConsumer LANGUAGES C)
 
-          find_package(BitForge 1.3 CONFIG REQUIRED)
+          find_package(BitForge 1.4 CONFIG REQUIRED)
 
           add_executable(consumer main.c)
           target_link_libraries(consumer PRIVATE BitForge::bitforge)
           EOF
 
-          cat > main.c <<'EOF'
-          #include <bitforge/bitops.h>
-          #include <bitforge/stream.h>
-          #include <bitforge/pattern.h>
-          #include <stdint.h>
+          cat > consumer/main.c <<'EOF'
+          #include <bitforge/buffer.h>
           #include <stdio.h>
 
           int main(void)
           {
-              uint8_t value = 0x00;
+              uint8_t storage[8] = {0};
+              bf_buffer_t buffer;
 
-              if (bf_set(&value, 3) != BF_OK) {
+              if (bf_buffer_init(&buffer, storage, sizeof(storage)) != BF_OK) {
                   return 1;
               }
 
-              bf_pattern_t pattern;
-              uint8_t pat_data[] = {0x08};
-              if (bf_pattern_init(&pattern, pat_data, 8) != BF_OK) {
+              const uint8_t value = 0x08;
+
+              if (bf_buffer_append(&buffer, &value, 1) != BF_OK) {
                   return 1;
               }
 
-              printf("Value: 0x%02X, Pattern bits: %zu\n", (unsigned int)value, pattern.bit_count);
-
+              printf("Buffer size: %zu\n", buffer.size);
               return 0;
           }
           EOF
 
-      - name: Configure consumer project
-        run: |
-          cmake -S "$RUNNER_TEMP/bitforge-consumer" \
-                -B "$RUNNER_TEMP/bitforge-consumer/build" \
-                -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/bitforge-install"
+      - name: Configure consumer
+        run: >
+          cmake -S consumer -B consumer/build
+          -DCMAKE_PREFIX_PATH="$HOME/bitforge-install"
 
-      - name: Build consumer project
-        run: cmake --build "$RUNNER_TEMP/bitforge-consumer/build" --parallel
+      - name: Build consumer
+        run: cmake --build consumer/build --parallel
 
       - name: Run consumer
+        shell: bash
         run: |
-          output=$("$RUNNER_TEMP/bitforge-consumer/build/consumer")
+          output=$(./consumer/build/consumer)
           echo "$output"
-          test "$output" = "Value: 0x08, Pattern bits: 8"
+          test "$output" = "Buffer size: 1"

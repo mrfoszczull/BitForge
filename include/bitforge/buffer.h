@@ -20,17 +20,18 @@ extern "C" {
  * @brief Read-only view of a memory region.
  */
 typedef struct {
-	const uint8_t *data;
-	size_t size;
+	const uint8_t
+	    *data;   /**< Pointer to the first byte of the viewed region. */
+	size_t size; /**< Number of bytes in the viewed region. */
 } bf_view_t;
 
 /**
- * @brief Writable buffer backed by caller-provided memory.
+ * @brief Mutable buffer backed by caller-provided memory.
  */
 typedef struct {
-	uint8_t *data;
-	size_t capacity;
-	size_t size;
+	uint8_t *data;	 /**< Pointer to the caller-provided memory. */
+	size_t capacity; /**< Total available memory in bytes. */
+	size_t size;	 /**< Number of bytes currently used. */
 } bf_buffer_t;
 
 /**

@@ -9,7 +9,7 @@ Memory views and caller-managed buffers.
 | Name | Description |
 |------|-------------|
 | [`bf_view_t`](#bf_view_t) | Read-only view of a memory region. |
-| [`bf_buffer_t`](#bf_buffer_t) | Writable buffer backed by caller-provided memory. |
+| [`bf_buffer_t`](#bf_buffer_t) | Mutable buffer backed by caller-provided memory. |
 
 ## Functions
 
@@ -35,7 +35,7 @@ Memory views and caller-managed buffers.
 bf_status bf_view_init(bf_view_t * view, const uint8_t * data, size_t size)
 ```
 
-Defined in include/bitforge/buffer.h:44
+Defined in include/bitforge/buffer.h:45
 
 Initializes a read-only memory view.
 
@@ -58,7 +58,7 @@ BF_OK on success, BF_EINVAL on invalid arguments.
 bf_status bf_buffer_init(bf_buffer_t * buffer, uint8_t * data, size_t capacity)
 ```
 
-Defined in include/bitforge/buffer.h:56
+Defined in include/bitforge/buffer.h:57
 
 Initializes a writable buffer using caller-provided memory.
 
@@ -83,7 +83,7 @@ BF_OK on success, BF_EINVAL on invalid arguments.
 bf_status bf_view_read(const bf_view_t * view, size_t offset, uint8_t * destination, size_t length)
 ```
 
-Defined in include/bitforge/buffer.h:67
+Defined in include/bitforge/buffer.h:68
 
 Reads bytes from a memory view.
 
@@ -107,7 +107,7 @@ BF_OK on success, BF_EINVAL on invalid arguments.
 bf_status bf_view_slice(const bf_view_t * view, size_t offset, size_t length, bf_view_t * result)
 ```
 
-Defined in include/bitforge/buffer.h:79
+Defined in include/bitforge/buffer.h:80
 
 Creates a read-only subview without copying data.
 
@@ -131,7 +131,7 @@ BF_OK on success, BF_EINVAL on invalid arguments.
 bf_status bf_buffer_write(bf_buffer_t * buffer, size_t offset, const uint8_t * source, size_t length)
 ```
 
-Defined in include/bitforge/buffer.h:93
+Defined in include/bitforge/buffer.h:94
 
 Writes bytes into a buffer at the specified offset.
 
@@ -157,7 +157,7 @@ BF_OK on success, BF_EINVAL on invalid arguments.
 bf_status bf_buffer_get_view(const bf_buffer_t * buffer, bf_view_t * view)
 ```
 
-Defined in include/bitforge/buffer.h:103
+Defined in include/bitforge/buffer.h:104
 
 Creates a read-only view of the buffer's current contents.
 
@@ -179,7 +179,7 @@ BF_OK on success, BF_EINVAL on invalid arguments.
 bf_status bf_buffer_append(bf_buffer_t * buffer, const uint8_t * source, size_t length)
 ```
 
-Defined in include/bitforge/buffer.h:117
+Defined in include/bitforge/buffer.h:118
 
 Appends bytes to the end of a buffer.
 
@@ -204,7 +204,7 @@ BF_OK on success, BF_EINVAL on invalid arguments or insufficient buffer capacity
 bf_status bf_buffer_clear(bf_buffer_t * buffer)
 ```
 
-Defined in include/bitforge/buffer.h:129
+Defined in include/bitforge/buffer.h:130
 
 Clears the logical contents of a buffer.
 
@@ -227,7 +227,7 @@ BF_OK on success, BF_EINVAL if the buffer is invalid.
 bf_status bf_buffer_fill(bf_buffer_t * buffer, size_t offset, size_t length, uint8_t value)
 ```
 
-Defined in include/bitforge/buffer.h:144
+Defined in include/bitforge/buffer.h:145
 
 Fills a range of a buffer with a specified byte value.
 
@@ -253,7 +253,7 @@ BF_OK on success, BF_EINVAL on invalid arguments or an out-of-bounds range.
 bf_status bf_view_compare(const bf_view_t * a, const bf_view_t * b, bool * equal)
 ```
 
-Defined in include/bitforge/buffer.h:158
+Defined in include/bitforge/buffer.h:159
 
 Compares the contents of two memory views.
 
@@ -278,7 +278,7 @@ BF_OK on success, BF_EINVAL if any argument is invalid.
 bf_status bf_buffer_copy(bf_buffer_t * destination, const bf_buffer_t * source)
 ```
 
-Defined in include/bitforge/buffer.h:171
+Defined in include/bitforge/buffer.h:172
 
 Copies the contents of one buffer into another.
 
@@ -317,8 +317,8 @@ Read-only view of a memory region.
 
 | Return | Name | Description |
 |--------|------|-------------|
-| `const uint8_t *` | [`data`](#data)  |  |
-| `size_t` | [`size`](#size)  |  |
+| `const uint8_t *` | [`data`](#data)  | Pointer to the first byte of the viewed region. |
+| `size_t` | [`size`](#size)  | Number of bytes in the viewed region. |
 
 ---
 
@@ -328,7 +328,9 @@ Read-only view of a memory region.
 const uint8_t * data
 ```
 
-Defined in include/bitforge/buffer.h:23
+Defined in include/bitforge/buffer.h:24
+
+Pointer to the first byte of the viewed region.
 
 ---
 
@@ -338,7 +340,9 @@ Defined in include/bitforge/buffer.h:23
 size_t size
 ```
 
-Defined in include/bitforge/buffer.h:24
+Defined in include/bitforge/buffer.h:25
+
+Number of bytes in the viewed region.
 
 
 
@@ -352,17 +356,17 @@ Defined in include/bitforge/buffer.h:24
 struct bf_buffer_t
 ```
 
-Defined in include/bitforge/buffer.h:30
+Defined in include/bitforge/buffer.h:31
 
-Writable buffer backed by caller-provided memory.
+Mutable buffer backed by caller-provided memory.
 
 #### Public Attributes
 
 | Return | Name | Description |
 |--------|------|-------------|
-| `uint8_t *` | [`data`](#data-1)  |  |
-| `size_t` | [`capacity`](#capacity)  |  |
-| `size_t` | [`size`](#size-1)  |  |
+| `uint8_t *` | [`data`](#data-1)  | Pointer to the caller-provided memory. |
+| `size_t` | [`capacity`](#capacity)  | Total available memory in bytes. |
+| `size_t` | [`size`](#size-1)  | Number of bytes currently used. |
 
 ---
 
@@ -372,7 +376,9 @@ Writable buffer backed by caller-provided memory.
 uint8_t * data
 ```
 
-Defined in include/bitforge/buffer.h:31
+Defined in include/bitforge/buffer.h:32
+
+Pointer to the caller-provided memory.
 
 ---
 
@@ -382,7 +388,9 @@ Defined in include/bitforge/buffer.h:31
 size_t capacity
 ```
 
-Defined in include/bitforge/buffer.h:32
+Defined in include/bitforge/buffer.h:33
+
+Total available memory in bytes.
 
 ---
 
@@ -392,5 +400,7 @@ Defined in include/bitforge/buffer.h:32
 size_t size
 ```
 
-Defined in include/bitforge/buffer.h:33
+Defined in include/bitforge/buffer.h:34
+
+Number of bytes currently used.
 

@@ -2,7 +2,7 @@
 
 # 🔧 BitForge
 
-**A lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, bit pattern matching, and binary data analysis.**
+**A lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, bit pattern matching, and binary data handling.**
 
 [![CI](https://github.com/mrfoszczull/BitForge/actions/workflows/ci.yml/badge.svg)](https://github.com/mrfoszczull/BitForge/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -12,7 +12,7 @@
 
 ---
 
-BitForge provides a simple and consistent API for common bitwise operations, bit-level streams, and pattern matching, with explicit status codes and a focus on reliability, portability, and ease of integration.
+BitForge provides a simple and consistent API for bitwise operations, bit-level streams, pattern matching, and binary buffer manipulation. It focuses on reliability, portability, explicit status codes, and predictable memory management.
 
 ## 📑 Table of Contents
 
@@ -35,10 +35,12 @@ BitForge provides a simple and consistent API for common bitwise operations, bit
 - **Bitwise operations** – reverse, rotate, and swap bits in 8-bit values.
 - **Bit stream processing** – safe sequential reading of arbitrary bit counts (MSB-first) across byte boundaries, with bit skipping and byte alignment.
 - **Bit pattern matching** – efficient bit-level pattern matching and searching with custom masks and wildcards.
+- **Binary buffers and views** – caller-owned memory buffers with read, write, append, clear, fill, copy, and comparison operations.
 - **Bit analysis** – count set bits and check whether a value is a power of two.
 - **Error handling** – explicit status codes for predictable error handling.
+- **Memory control** – no mandatory dynamic allocation; memory is provided and managed by the caller.
 - **Lightweight** – no external runtime dependencies.
-- **Portable** – C17-compatible API.
+- **Portable** – C17-compatible API designed for Linux, Windows, and macOS.
 - **CMake integration** – installable static library with exported CMake package support.
 
 ## 📋 Requirements
@@ -90,7 +92,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(MyApplication LANGUAGES C)
 
-find_package(BitForge 1.3 CONFIG REQUIRED)
+find_package(BitForge 1.4 CONFIG REQUIRED)
 
 add_executable(my_app main.c)
 
@@ -104,20 +106,28 @@ cmake -S . -B build \
     -DCMAKE_PREFIX_PATH="/path/to/bitforge/install"
 ```
 
-Then include the headers you need, for example `<bitforge/bitops.h>` or `<bitforge/stream.h>`.
+Then include the headers you need, for example:
+
+```c
+#include <bitforge/bitops.h>
+#include <bitforge/stream.h>
+#include <bitforge/pattern.h>
+#include <bitforge/buffer.h>
+```
 
 ## 📚 Documentation
 
-The full API reference, including bit indexing and endianness conventions, is in **[docs/](docs/README.md)**:
+The full API reference, including bit indexing, endianness conventions, buffer behavior, and memory requirements, is available in **[docs/](docs/README.md)**:
 
 | Module | Description |
 |--------|-------------|
 | [bitops](docs/bitops.md) | Bit-level operations on 8-bit values |
 | [stream](docs/stream.md) | Sequential bit stream processing and parsing |
 | [pattern](docs/pattern.md) | Bit-level pattern matching with wildcard support |
+| [buffer](docs/buffer.md) | Caller-owned buffers and read-only memory views |
 | [status](docs/status.md) | Status codes and error handling |
 
-> All functions return a `bf_status` value to indicate success or failure.
+> All functions return a `bf_status` value to indicate success or failure, unless their return type specifies otherwise.
 
 To regenerate the module pages from the source comments:
 
@@ -164,9 +174,11 @@ ctest --test-dir build-sanitize --output-on-failure
 
 ## 📌 Project Status
 
-BitForge v1.3.0 is currently in active development.
+**BitForge v1.4.0** is currently in active development.
 
-This version introduces the new `bf_pattern` module for efficient bit-level pattern matching and searching, building upon the robust sequential bit-stream parsing primitives of `bf_stream` from v1.2.0.
+Version 1.4.0 introduces the `bf_buffer` module, providing caller-owned mutable buffers and read-only views for binary data manipulation. It builds upon the bit manipulation, sequential stream parsing, and pattern matching capabilities introduced in previous releases.
+
+The library is designed around explicit memory ownership and does not require dynamic allocation for its core operations.
 
 The public API is intended to remain stable throughout the 1.x release series. Breaking API changes are reserved for a future major release.
 
