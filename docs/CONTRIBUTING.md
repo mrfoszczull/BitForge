@@ -1,54 +1,57 @@
 # Contributing to BitForge
 
-Thank you for your interest in contributing to BitForge! Bug reports, fixes,
-tests, documentation improvements and new ideas are all welcome.
+Thank you for your interest in contributing to BitForge!
+
+Bug reports, bug fixes, tests, documentation improvements, and new ideas are all welcome. This guide explains how to report issues, propose changes, build the project, and submit contributions.
 
 ## Table of Contents
 
-- [Reporting bugs](#reporting-bugs)
-- [Suggesting features](#suggesting-features)
-- [Development setup](#development-setup)
-- [Making changes](#making-changes)
-- [Coding guidelines](#coding-guidelines)
-- [API conventions](#api-conventions)
+- [Reporting Bugs](#reporting-bugs)
+- [Suggesting Features](#suggesting-features)
+- [Development Setup](#development-setup)
+- [Making Changes](#making-changes)
+- [Coding Guidelines](#coding-guidelines)
+- [API Conventions](#api-conventions)
 - [Testing](#testing)
-- [Submitting a pull request](#submitting-a-pull-request)
-- [API stability](#api-stability)
-- [License](#license)
+- [Submitting a Pull Request](#submitting-a-pull-request)
+- [API Stability](#api-stability)
+- [Additional Resources](#additional-resources)
 
-## Reporting bugs
+## Reporting Bugs
 
-Before opening an issue, please check whether it has already been reported.
-A good bug report includes:
+Before opening an issue, check whether it has already been reported.
 
-- The BitForge version (or commit hash).
-- Your platform, compiler and CMake version.
-- The exact steps or a minimal code snippet that reproduces the problem.
+A good bug report should include:
+
+- The BitForge version or commit hash.
+- Your operating system, compiler, and CMake version.
+- The exact steps or a minimal code example needed to reproduce the problem.
 - The expected result and the actual result.
 
-If the problem looks like a memory error or undefined behavior, please include
-the output of a sanitizer-enabled build (see [Testing](#testing)).
+If the problem involves a possible memory error or undefined behavior, include the output of a sanitizer-enabled build (see [Testing](#testing)).
 
-## Suggesting features
+For security-related vulnerabilities, follow the instructions in the project's [Security Policy](SECURITY.md) rather than reporting them publicly.
 
-Open an issue before starting work on a larger feature. Describe the use case
-first and the proposed API second. This avoids wasted effort on changes that
-do not fit the direction of the library.
+## Suggesting Features
 
-Keep in mind that the public API of the 1.x series is intended to remain
-stable, so new features are added without modifying existing functions
-(see [API stability](#api-stability)).
+Open an issue before starting work on a larger feature.
 
-## Development setup
+Describe the use case first and the proposed API second. This helps ensure that new functionality fits the project's direction and avoids unnecessary work.
 
-Requirements:
+Keep in mind that the public API of the 1.x release series is intended to remain stable. New features should be introduced without modifying existing functions (see [API Stability](#api-stability)).
+
+## Development Setup
+
+### Requirements
 
 - A C compiler with C17 support (GCC or Clang).
 - CMake 3.21 or newer.
 - Make (optional, for the provided Makefile).
-- ClangFormat (for formatting).
+- ClangFormat (for source formatting).
 
-Fork the repository, clone your fork and build:
+### Building the Project
+
+Fork the repository, clone your fork, and build the project:
 
 ```bash
 git clone https://github.com/<your-username>/BitForge.git
@@ -56,119 +59,123 @@ cd BitForge
 make build
 ```
 
-Useful targets:
+### Available Make Targets
 
 | Command | Description |
 |---|---|
-| `make build` | Configure and build |
-| `make test` | Build and run tests with CTest |
-| `make sanitize` | Build and run tests with AddressSanitizer and UBSan |
-| `make check` | Run regular and sanitizer-enabled tests |
-| `make format` | Format sources with ClangFormat |
-| `make format-check` | Check formatting without modifying files |
-| `make clean` | Remove build directories |
+| `make build` | Configure and build the project. |
+| `make test` | Build and run tests with CTest. |
+| `make sanitize` | Build and run tests with AddressSanitizer and UBSan. |
+| `make check` | Run regular and sanitizer-enabled tests. |
+| `make format` | Format source files using ClangFormat. |
+| `make format-check` | Check formatting without modifying files. |
+| `make clean` | Remove build directories. |
 
-## Making changes
+## Making Changes
 
-1. Create a branch from `main` with a descriptive name, for example
-   `fix-rotate-overflow` or `add-bitbuf-api`.
-2. Keep each pull request focused on one logical change. Unrelated fixes
-   belong in separate pull requests.
-3. Add or update tests together with the code change.
-4. Update the documentation (Doxygen comments in headers, README) when the
-   behavior or the API changes.
-5. Run `make format` and `make check` before pushing.
+1. Create a branch from `main` with a descriptive name, such as `fix-rotate-overflow` or `add-bitbuf-api`.
+2. Keep each pull request focused on one logical change. Unrelated fixes should be submitted separately.
+3. Add or update tests alongside code changes.
+4. Update the documentation, including Doxygen comments in headers and the README, whenever API behavior or functionality changes.
+5. Run `make format` and `make check` before pushing your changes.
 
-Commit messages should have a short summary line in the imperative mood
-(for example `Fix range check in bf_get_bits`), optionally followed by a blank
-line and a longer explanation of *why* the change is needed.
+### Commit Messages
 
-## Coding guidelines
+Commit messages should contain a short summary written in the imperative mood.
 
-BitForge is written in **C17** and must compile without warnings with
-`-Wall -Wextra -Wpedantic`.
+For example:
 
-- **Formatting** is defined by `.clang-format` (LLVM-based, Linux brace style,
-  tabs, 80 columns). Do not format by hand; run `make format`.
-- **Naming**: public functions use the `bf_` prefix, types and constants use
-  `bf_` / `BF_`. Internal helpers must be `static`.
-- **Portability**: use fixed-width types from `<stdint.h>` for data and
-  `size_t` for sizes and indices. Do not rely on implementation-defined or
-  undefined behavior (signed overflow, shifts by the full width of a type,
-  strict aliasing violations, unaligned access through casted pointers).
-- **Dependencies**: the library has no runtime dependencies beyond the C
-  standard library. Please keep it that way.
-- **Comments**: public functions are documented in headers using Doxygen
-  (`@brief`, `@param`, `@return`). Describe valid ranges and error conditions.
+```text
+Fix range check in bf_get_bits
+```
 
-## API conventions
+An optional longer explanation may follow after a blank line, describing why the change is necessary.
 
-New public functions should follow the existing conventions:
+## Coding Guidelines
 
-- Every function that can fail returns a `bf_status`. Results are returned
-  through output parameters.
-- Arguments are validated **before** any output is written. When a function
-  returns an error, its output parameters and the data it was asked to modify
-  must be left unchanged.
-- Invalid arguments (`NULL` pointers, out-of-range indices or counts) return
-  `BF_EINVAL`.
-- Bit indices are **LSB-first**: index `0` is the least significant bit.
-- Range operations take `bit_index` (first bit) and `bit_count` (number of
-  bits). Range checks must be written so that they cannot overflow `size_t`.
-- New status codes are only added when a function can actually return them.
+BitForge is written in **C17** and must compile without warnings when using:
+
+```text
+-Wall -Wextra -Wpedantic
+```
+
+Follow these guidelines when contributing:
+
+- **Formatting:** The `.clang-format` file defines the project's formatting rules (LLVM-based, Linux brace style, tabs, and 80-column limit). Use `make format` instead of formatting code manually.
+- **Naming:** Public functions must use the `bf_` prefix. Types and constants must follow the `bf_` and `BF_` naming conventions, respectively. Internal helper functions must be declared `static`.
+- **Portability:** Use fixed-width integer types from `<stdint.h>` for data and `size_t` for sizes and indices. Avoid implementation-defined behavior and undefined behavior, including signed overflow, shifts by the full width of a type, strict aliasing violations, and unaligned access through cast pointers.
+- **Dependencies:** The library must not introduce runtime dependencies beyond the C standard library.
+- **Documentation:** Public functions must be documented in headers using Doxygen (`@brief`, `@param`, and `@return`). Document valid argument ranges and possible error conditions.
+
+## API Conventions
+
+New public functions must follow the existing API conventions:
+
+- Every function that can fail must return a `bf_status`. Results should be provided through output parameters.
+- Validate all arguments before writing to output parameters or modifying data.
+- If a function returns an error, its output parameters and any data it was asked to modify must remain unchanged.
+- Invalid arguments, including `NULL` pointers and out-of-range indices or counts, must return `BF_EINVAL`.
+- Bit indices must be **LSB-first**: index `0` represents the least significant bit.
+- Range operations must use `bit_index` (the first bit) and `bit_count` (the number of bits). Range checks must be implemented so that they cannot overflow `size_t`.
+- New status codes should only be introduced when a function can actually return them.
 
 ## Testing
 
-Tests live in `tests/` and use the lightweight `CHECK` macro defined in
-`tests/test_bitops.c`.
+Tests are located in `tests/` and use the lightweight `CHECK` macro defined in `tests/test_bitops.c`.
+
+### Running Tests
+
+Run the following commands from the project root:
 
 ```bash
-make test       # regular build
-make sanitize   # AddressSanitizer + UndefinedBehaviorSanitizer
-make check      # both
+make test       # Regular build and tests
+make sanitize   # AddressSanitizer and UndefinedBehaviorSanitizer
+make check      # Regular and sanitizer-enabled tests
 ```
 
-When adding or changing a function, please cover:
+### Test Coverage
 
-- The normal behavior.
-- Boundary values (first and last valid index, minimum and maximum count).
-- Every error path (`NULL` pointers, indices and counts out of range).
-- Behavior on error: data must stay unchanged.
+When adding or modifying a function, cover:
 
-Because the domain of 8-bit operations is tiny (256 values), exhaustive tests
-are encouraged wherever they are practical. A bug fix should come with a test
-that fails without the fix.
+- Normal operation and expected behavior.
+- Boundary values, including the first and last valid indices and minimum and maximum counts.
+- Every error path, including `NULL` pointers and out-of-range indices or counts.
+- Error handling: data and output parameters must remain unchanged when an operation fails.
 
-## Submitting a pull request
+Because the domain of 8-bit operations is small (256 possible values), exhaustive testing is encouraged wherever practical.
+
+Every bug fix should include a regression test that fails without the fix.
+
+## Submitting a Pull Request
 
 Before opening a pull request, make sure that:
 
-- [ ] The project builds without warnings.
-- [ ] `make check` passes (tests and sanitizers).
-- [ ] `make format-check` passes.
-- [ ] New and changed public functions are documented.
-- [ ] New behavior is covered by tests.
-- [ ] The pull request description explains **what** changed and **why**,
-      and links the related issue, if there is one.
+- The project builds without warnings.
+- `make check` passes, including tests and sanitizers.
+- `make format-check` passes.
+- New and modified public functions are documented.
+- New functionality is covered by tests.
+- The pull request description explains **what** changed and **why**, and links the related issue when applicable.
 
-CI runs the build and tests with GCC and Clang, a sanitizer build, a format
-check and an install test. All checks must pass before a pull request can be
-merged. Reviews may ask for changes; this is a normal part of the process.
+CI runs the build and tests with GCC and Clang, a sanitizer build, a formatting check, and an installation test.
 
-## API stability
+All CI checks must pass before a pull request can be merged. Reviewers may request changes; this is a normal part of the contribution process.
+
+## API Stability
 
 The public API of the 1.x release series is intended to remain stable.
-The following are considered breaking changes and are reserved for a major
-release:
 
-- Removing or renaming a public function, type or header.
+The following changes are considered breaking and are reserved for a major release:
+
+- Removing or renaming a public function, type, or header.
 - Changing the signature or documented behavior of an existing function.
 - Changing the numeric values or meaning of existing `bf_status` codes.
-- Changing the bit indexing convention.
+- Changing the bit-indexing convention.
 
-Adding new functions, headers and status codes is compatible with 1.x.
+Adding new functions, headers, and status codes is compatible with the 1.x release series.
 
-## License
+## Additional Resources
 
-By contributing, you agree that your contributions will be licensed under the
-[MIT License](LICENSE), the same license that covers the project.
+- [Project Documentation](README.md)
+- [Security Policy](SECURITY.md)
+- [License](../LICENSE)

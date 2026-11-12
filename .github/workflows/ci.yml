@@ -120,6 +120,24 @@ jobs:
       - name: Check formatting
         run: make format-check
 
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen
+
+      - name: Install Moxygen
+        run: sudo npm install -g moxygen
+
+      - name: Generate documentation
+        run: make docs
+
   install-test:
     name: Installed package test
     runs-on: ubuntu-latest
