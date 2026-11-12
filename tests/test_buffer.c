@@ -281,6 +281,44 @@ static void test_bf_buffer_append(void)
 	CHECK(empty_buffer.size == 0);
 }
 
+static void test_bf_buffer_clear(void)
+{
+	uint8_t memory[] = {10, 20, 30, 40};
+
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 4};
+
+	CHECK(bf_buffer_clear(&buffer) == BF_OK);
+	CHECK(buffer.size == 0);
+	CHECK(buffer.capacity == 4);
+	CHECK(buffer.data == memory);
+
+	CHECK(memory[0] == 10);
+	CHECK(memory[1] == 20);
+	CHECK(memory[2] == 30);
+	CHECK(memory[3] == 40);
+
+	CHECK(bf_buffer_clear(&buffer) == BF_OK);
+	CHECK(buffer.size == 0);
+
+	CHECK(bf_buffer_clear(NULL) == BF_EINVAL);
+
+	bf_buffer_t invalid_size = {.data = memory, .capacity = 4, .size = 5};
+
+	CHECK(bf_buffer_clear(&invalid_size) == BF_EINVAL);
+	CHECK(invalid_size.size == 5);
+
+	bf_buffer_t invalid_data = {.data = NULL, .capacity = 4, .size = 0};
+
+	CHECK(bf_buffer_clear(&invalid_data) == BF_EINVAL);
+	CHECK(invalid_data.size == 0);
+
+	bf_buffer_t empty_buffer = {.data = NULL, .capacity = 0, .size = 0};
+
+	CHECK(bf_buffer_clear(&empty_buffer) == BF_OK);
+	CHECK(empty_buffer.size == 0);
+}
+
 int main(void)
 {
 	test_view_init_valid();
@@ -299,6 +337,7 @@ int main(void)
 	test_bf_buffer_get_view();
 
 	test_bf_buffer_append();
+	test_bf_buffer_clear();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d test(s) failed.\n", failures);

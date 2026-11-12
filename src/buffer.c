@@ -143,3 +143,22 @@ bf_status bf_buffer_append(
 
 	return BF_OK;
 }
+
+bf_status bf_buffer_clear(bf_buffer_t *buffer)
+{
+	if (buffer == NULL) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	buffer->size = 0;
+
+	return BF_OK;
+}

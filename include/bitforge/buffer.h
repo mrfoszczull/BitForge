@@ -116,6 +116,17 @@ bf_status bf_buffer_get_view(const bf_buffer_t *buffer, bf_view_t *view);
 bf_status bf_buffer_append(
     bf_buffer_t *buffer, const uint8_t *source, size_t length);
 
+/**
+ * @brief Clears the logical contents of a buffer.
+ *
+ * Sets the buffer's size to zero without modifying the
+ * underlying memory or its capacity.
+ *
+ * @param buffer Buffer to clear.
+ * @return BF_OK on success, BF_EINVAL if the buffer is invalid.
+ */
+bf_status bf_buffer_clear(bf_buffer_t *buffer);
+
 /** @} */
 
 #ifdef __cplusplus
