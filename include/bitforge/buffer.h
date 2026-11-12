@@ -127,6 +127,22 @@ bf_status bf_buffer_append(
  */
 bf_status bf_buffer_clear(bf_buffer_t *buffer);
 
+/**
+ * @brief Fills a range of a buffer with a specified byte value.
+ *
+ * Writes the given value into the specified range without
+ * changing the buffer's logical size.
+ *
+ * @param buffer Destination buffer.
+ * @param offset Starting offset in the buffer.
+ * @param length Number of bytes to fill.
+ * @param value Byte value used to fill the range.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments
+ *         or an out-of-bounds range.
+ */
+bf_status bf_buffer_fill(
+    bf_buffer_t *buffer, size_t offset, size_t length, uint8_t value);
+
 /** @} */
 
 #ifdef __cplusplus

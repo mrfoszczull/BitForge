@@ -319,6 +319,56 @@ static void test_bf_buffer_clear(void)
 	CHECK(empty_buffer.size == 0);
 }
 
+static void test_bf_buffer_fill(void)
+{
+	uint8_t memory[6] = {0};
+
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 4};
+
+	CHECK(bf_buffer_fill(&buffer, 0, 6, 0xFF) == BF_OK);
+
+	for (size_t i = 0; i < 6; i++) {
+		CHECK(memory[i] == 0xFF);
+	}
+
+	CHECK(buffer.size == 4);
+	CHECK(buffer.capacity == 6);
+
+	CHECK(bf_buffer_fill(&buffer, 1, 3, 0xAA) == BF_OK);
+	CHECK(memory[0] == 0xFF);
+	CHECK(memory[1] == 0xAA);
+	CHECK(memory[2] == 0xAA);
+	CHECK(memory[3] == 0xAA);
+	CHECK(memory[4] == 0xFF);
+	CHECK(memory[5] == 0xFF);
+
+	CHECK(buffer.size == 4);
+
+	CHECK(bf_buffer_fill(&buffer, 0, 2, 0x00) == BF_OK);
+	CHECK(memory[0] == 0x00);
+	CHECK(memory[1] == 0x00);
+
+	CHECK(bf_buffer_fill(&buffer, 6, 0, 0xFF) == BF_OK);
+	CHECK(bf_buffer_fill(&buffer, 7, 0, 0xFF) == BF_EINVAL);
+	CHECK(bf_buffer_fill(&buffer, 5, 2, 0xFF) == BF_EINVAL);
+
+	CHECK(bf_buffer_fill(NULL, 0, 1, 0xFF) == BF_EINVAL);
+
+	bf_buffer_t invalid_size = {.data = memory, .capacity = 6, .size = 7};
+
+	CHECK(bf_buffer_fill(&invalid_size, 0, 1, 0xFF) == BF_EINVAL);
+	CHECK(invalid_size.size == 7);
+
+	bf_buffer_t invalid_data = {.data = NULL, .capacity = 6, .size = 0};
+
+	CHECK(bf_buffer_fill(&invalid_data, 0, 1, 0xFF) == BF_EINVAL);
+
+	bf_buffer_t empty_buffer = {.data = NULL, .capacity = 0, .size = 0};
+
+	CHECK(bf_buffer_fill(&empty_buffer, 0, 0, 0xFF) == BF_OK);
+}
+
 int main(void)
 {
 	test_view_init_valid();
@@ -338,6 +388,7 @@ int main(void)
 
 	test_bf_buffer_append();
 	test_bf_buffer_clear();
+	test_bf_buffer_fill();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d test(s) failed.\n", failures);

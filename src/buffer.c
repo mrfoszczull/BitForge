@@ -162,3 +162,29 @@ bf_status bf_buffer_clear(bf_buffer_t *buffer)
 
 	return BF_OK;
 }
+
+bf_status bf_buffer_fill(
+    bf_buffer_t *buffer, size_t offset, size_t length, uint8_t value)
+{
+	if (buffer == NULL) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (offset > buffer->capacity || length > buffer->capacity - offset) {
+		return BF_EINVAL;
+	}
+
+	if (length > 0) {
+		memset(buffer->data + offset, value, length);
+	}
+
+	return BF_OK;
+}
