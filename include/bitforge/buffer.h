@@ -54,6 +54,53 @@ bf_status bf_view_init(bf_view_t *view, const uint8_t *data, size_t size);
  */
 bf_status bf_buffer_init(bf_buffer_t *buffer, uint8_t *data, size_t capacity);
 
+/**
+ * @brief Reads bytes from a memory view.
+ *
+ * @param view Source memory view.
+ * @param offset Starting offset in the view.
+ * @param destination Destination memory.
+ * @param length Number of bytes to read.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments.
+ */
+bf_status bf_view_read(
+    const bf_view_t *view, size_t offset, uint8_t *destination, size_t length);
+
+/**
+ * @brief Creates a read-only subview without copying data.
+ *
+ * @param view Source memory view.
+ * @param offset Starting offset in the source view.
+ * @param length Number of bytes in the subview.
+ * @param result Destination view.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments.
+ */
+bf_status bf_view_slice(
+    const bf_view_t *view, size_t offset, size_t length, bf_view_t *result);
+
+/**
+ * @brief Writes bytes into a buffer at the specified offset.
+ *
+ * Does not change the buffer's logical size.
+ *
+ * @param buffer Destination buffer.
+ * @param offset Starting offset in the buffer.
+ * @param source Source memory.
+ * @param length Number of bytes to write.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments.
+ */
+bf_status bf_buffer_write(
+    bf_buffer_t *buffer, size_t offset, const uint8_t *source, size_t length);
+
+/**
+ * @brief Creates a read-only view of the buffer's current contents.
+ *
+ * @param buffer Source buffer.
+ * @param view Destination view.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments.
+ */
+bf_status bf_buffer_get_view(const bf_buffer_t *buffer, bf_view_t *view);
+
 /** @} */
 
 #ifdef __cplusplus

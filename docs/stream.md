@@ -202,8 +202,8 @@ Represents a bit-level memory stream for binary analysis.
 
 | Return | Name | Description |
 |--------|------|-------------|
-| `const uint8_t *` | [`data`](#data)  | Pointer to the underlying data buffer |
-| `size_t` | [`size`](#size)  | Total size of the buffer in bytes |
+| `const uint8_t *` | [`data`](#data-2)  | Pointer to the underlying data buffer |
+| `size_t` | [`size`](#size-2)  | Total size of the buffer in bytes |
 | `size_t` | [`byte_offset`](#byte_offset)  | Current byte index |
 | `uint8_t` | [`bit_offset`](#bit_offset)  | Current bit index within the byte (0-7) |
 
