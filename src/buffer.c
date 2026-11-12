@@ -214,3 +214,32 @@ bf_status bf_view_compare(const bf_view_t *a, const bf_view_t *b, bool *equal)
 
 	return BF_OK;
 }
+
+bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source)
+{
+	if (destination == NULL || source == NULL) {
+		return BF_EINVAL;
+	}
+
+	if (source->size > source->capacity ||
+	    destination->size > destination->capacity) {
+		return BF_EINVAL;
+	}
+
+	if ((source->data == NULL && source->capacity > 0) ||
+	    (destination->data == NULL && destination->capacity > 0)) {
+		return BF_EINVAL;
+	}
+
+	if (source->size > destination->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (source->size > 0) {
+		memcpy(destination->data, source->data, source->size);
+	}
+
+	destination->size = source->size;
+
+	return BF_OK;
+}

@@ -421,6 +421,79 @@ static void test_bf_view_compare(void)
 	CHECK(equal == true);
 }
 
+static void test_bf_buffer_copy(void)
+{
+	uint8_t source_memory[] = {10, 20, 30, 40};
+	uint8_t destination_memory[6] = {0};
+
+	bf_buffer_t source = {.data = source_memory,
+	    .capacity = sizeof(source_memory),
+	    .size = sizeof(source_memory)};
+
+	bf_buffer_t destination = {.data = destination_memory,
+	    .capacity = sizeof(destination_memory),
+	    .size = 2};
+
+	CHECK(bf_buffer_copy(&destination, &source) == BF_OK);
+	CHECK(destination.size == 4);
+	CHECK(destination.capacity == 6);
+	CHECK(destination.data == destination_memory);
+
+	CHECK(destination_memory[0] == 10);
+	CHECK(destination_memory[1] == 20);
+	CHECK(destination_memory[2] == 30);
+	CHECK(destination_memory[3] == 40);
+
+	CHECK(bf_buffer_copy(&destination, &source) == BF_OK);
+	CHECK(destination.size == 4);
+
+	uint8_t small_memory[2] = {50, 60};
+
+	bf_buffer_t small_destination = {
+	    .data = small_memory, .capacity = sizeof(small_memory), .size = 2};
+
+	CHECK(bf_buffer_copy(&small_destination, &source) == BF_EINVAL);
+	CHECK(small_destination.size == 2);
+	CHECK(small_memory[0] == 50);
+	CHECK(small_memory[1] == 60);
+
+	CHECK(bf_buffer_copy(NULL, &source) == BF_EINVAL);
+	CHECK(bf_buffer_copy(&destination, NULL) == BF_EINVAL);
+
+	bf_buffer_t invalid_source_size = {
+	    .data = source_memory, .capacity = 4, .size = 5};
+
+	CHECK(bf_buffer_copy(&destination, &invalid_source_size) == BF_EINVAL);
+	CHECK(destination.size == 4);
+	CHECK(destination_memory[0] == 10);
+
+	bf_buffer_t invalid_source_data = {
+	    .data = NULL, .capacity = 4, .size = 1};
+
+	CHECK(bf_buffer_copy(&destination, &invalid_source_data) == BF_EINVAL);
+	CHECK(destination.size == 4);
+
+	bf_buffer_t invalid_destination_size = {
+	    .data = destination_memory, .capacity = 6, .size = 7};
+
+	CHECK(bf_buffer_copy(&invalid_destination_size, &source) == BF_EINVAL);
+	CHECK(invalid_destination_size.size == 7);
+
+	bf_buffer_t invalid_destination_data = {
+	    .data = NULL, .capacity = 6, .size = 0};
+
+	CHECK(bf_buffer_copy(&invalid_destination_data, &source) == BF_EINVAL);
+	CHECK(invalid_destination_data.size == 0);
+
+	bf_buffer_t empty_source = {.data = NULL, .capacity = 0, .size = 0};
+
+	bf_buffer_t empty_destination = {
+	    .data = NULL, .capacity = 0, .size = 0};
+
+	CHECK(bf_buffer_copy(&empty_destination, &empty_source) == BF_OK);
+	CHECK(empty_destination.size == 0);
+}
+
 int main(void)
 {
 	test_view_init_valid();
@@ -442,6 +515,7 @@ int main(void)
 	test_bf_buffer_clear();
 	test_bf_buffer_fill();
 	test_bf_view_compare();
+	test_bf_buffer_copy();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d test(s) failed.\n", failures);

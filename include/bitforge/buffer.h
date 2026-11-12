@@ -157,6 +157,19 @@ bf_status bf_buffer_fill(
  */
 bf_status bf_view_compare(const bf_view_t *a, const bf_view_t *b, bool *equal);
 
+/**
+ * @brief Copies the contents of one buffer into another.
+ *
+ * Copies all logically used bytes from the source buffer
+ * into the destination buffer.
+ *
+ * @param destination Destination buffer.
+ * @param source Source buffer.
+ * @return BF_OK on success, BF_EINVAL if an argument is invalid
+ *         or the destination capacity is insufficient.
+ */
+bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source);
+
 /** @} */
 
 #ifdef __cplusplus
