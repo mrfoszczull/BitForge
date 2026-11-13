@@ -29,6 +29,7 @@ Memory views and caller-managed buffers.
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_read`](#bf_buffer_read)  | Reads bytes from a buffer into a destination memory region. |
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_insert`](#bf_buffer_insert)  | Inserts bytes into a buffer at the specified offset, shifting existing data. |
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_remove`](#bf_buffer_remove)  | Removes bytes from a buffer at the specified offset, shifting subsequent data. |
+| [`bf_status`](status.md#bf_status) | [`bf_buffer_resize`](#bf_buffer_resize)  | Changes the logical size of the buffer. |
 
 ---
 
@@ -371,6 +372,30 @@ BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds range.
 | `buffer` | [`bf_buffer_t`](#bf_buffer_t) * | Target buffer. |
 | `offset` | `size_t` | Offset from which to remove bytes. |
 | `length` | `size_t` | Number of bytes to remove. |
+
+---
+
+### bf_buffer_resize
+
+```cpp
+bf_status bf_buffer_resize(bf_buffer_t * buffer, size_t new_size)
+```
+
+Defined in include/bitforge/buffer.h:227
+
+Changes the logical size of the buffer.
+
+If new_size is greater than current size, the newly exposed bytes are zeroed.
+
+#### Returns
+BF_OK on success, BF_EINVAL if new_size exceeds buffer capacity or arguments are invalid.
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `buffer` | [`bf_buffer_t`](#bf_buffer_t) * | Target buffer. |
+| `new_size` | `size_t` | New logical size in bytes. |
 
 
 ## Class Definitions

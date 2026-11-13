@@ -600,6 +600,40 @@ static void test_bf_buffer_remove(void)
 	CHECK(bf_buffer_remove(&invalid_size, 0, 1) == BF_EINVAL);
 }
 
+static void test_bf_buffer_resize(void)
+{
+	uint8_t memory[10] = {
+	    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 2};
+
+	memory[0] = 10;
+	memory[1] = 20;
+
+	CHECK(bf_buffer_resize(&buffer, 5) == BF_OK);
+	CHECK(buffer.size == 5);
+	CHECK(memory[0] == 10);
+	CHECK(memory[1] == 20);
+	CHECK(memory[2] == 0x00);
+	CHECK(memory[3] == 0x00);
+	CHECK(memory[4] == 0x00);
+	CHECK(memory[5] == 0xFF);
+
+	CHECK(bf_buffer_resize(&buffer, 1) == BF_OK);
+	CHECK(buffer.size == 1);
+
+	CHECK(bf_buffer_resize(&buffer, 0) == BF_OK);
+	CHECK(buffer.size == 0);
+
+	CHECK(bf_buffer_resize(NULL, 2) == BF_EINVAL);
+
+	CHECK(bf_buffer_resize(&buffer, 11) == BF_EINVAL);
+	CHECK(buffer.size == 0);
+
+	bf_buffer_t invalid_size = {.data = memory, .capacity = 10, .size = 11};
+	CHECK(bf_buffer_resize(&invalid_size, 5) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_view_init_valid();
@@ -626,6 +660,8 @@ int main(void)
 	test_bf_buffer_read();
 	test_bf_buffer_insert();
 	test_bf_buffer_remove();
+
+	test_bf_buffer_resize();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d test(s) failed.\n", failures);

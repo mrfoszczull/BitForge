@@ -214,6 +214,18 @@ bf_status bf_buffer_insert(
  */
 bf_status bf_buffer_remove(bf_buffer_t *buffer, size_t offset, size_t length);
 
+/**
+ * @brief Changes the logical size of the buffer.
+ *
+ * If new_size is greater than current size, the newly exposed bytes are zeroed.
+ *
+ * @param buffer Target buffer.
+ * @param new_size New logical size in bytes.
+ * @return BF_OK on success, BF_EINVAL if new_size exceeds buffer capacity or
+ * arguments are invalid.
+ */
+bf_status bf_buffer_resize(bf_buffer_t *buffer, size_t new_size);
+
 /** @} */
 
 #ifdef __cplusplus

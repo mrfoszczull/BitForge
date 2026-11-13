@@ -343,3 +343,30 @@ bf_status bf_buffer_remove(bf_buffer_t *buffer, size_t offset, size_t length)
 
 	return BF_OK;
 }
+
+bf_status bf_buffer_resize(bf_buffer_t *buffer, size_t new_size)
+{
+	if (buffer == NULL) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (new_size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (new_size > buffer->size) {
+		memset(buffer->data + buffer->size, 0, new_size - buffer->size);
+	}
+
+	buffer->size = new_size;
+
+	return BF_OK;
+}
