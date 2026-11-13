@@ -28,6 +28,7 @@ Memory views and caller-managed buffers.
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_copy`](#bf_buffer_copy)  | Copies the contents of one buffer into another. |
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_read`](#bf_buffer_read)  | Reads bytes from a buffer into a destination memory region. |
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_insert`](#bf_buffer_insert)  | Inserts bytes into a buffer at the specified offset, shifting existing data. |
+| [`bf_status`](status.md#bf_status) | [`bf_buffer_remove`](#bf_buffer_remove)  | Removes bytes from a buffer at the specified offset, shifting subsequent data. |
 
 ---
 
@@ -345,6 +346,31 @@ BF_OK on success, BF_EINVAL on invalid arguments, out-of-bounds offset, or insuf
 | `offset` | `size_t` | Offset at which to insert bytes (can be equal to buffer->size). |
 | `source` | `const uint8_t *` | Source memory to insert. |
 | `length` | `size_t` | Number of bytes to insert. |
+
+---
+
+### bf_buffer_remove
+
+```cpp
+bf_status bf_buffer_remove(bf_buffer_t * buffer, size_t offset, size_t length)
+```
+
+Defined in include/bitforge/buffer.h:215
+
+Removes bytes from a buffer at the specified offset, shifting subsequent data.
+
+Decreases the logical size of the buffer.
+
+#### Returns
+BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds range.
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `buffer` | [`bf_buffer_t`](#bf_buffer_t) * | Target buffer. |
+| `offset` | `size_t` | Offset from which to remove bytes. |
+| `length` | `size_t` | Number of bytes to remove. |
 
 
 ## Class Definitions

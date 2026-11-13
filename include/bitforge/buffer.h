@@ -200,6 +200,20 @@ bf_status bf_buffer_read(const bf_buffer_t *buffer, size_t offset,
 bf_status bf_buffer_insert(
     bf_buffer_t *buffer, size_t offset, const uint8_t *source, size_t length);
 
+/**
+ * @brief Removes bytes from a buffer at the specified offset, shifting
+ * subsequent data.
+ *
+ * Decreases the logical size of the buffer.
+ *
+ * @param buffer Target buffer.
+ * @param offset Offset from which to remove bytes.
+ * @param length Number of bytes to remove.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds
+ * range.
+ */
+bf_status bf_buffer_remove(bf_buffer_t *buffer, size_t offset, size_t length);
+
 /** @} */
 
 #ifdef __cplusplus
