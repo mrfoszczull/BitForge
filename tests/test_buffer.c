@@ -494,6 +494,41 @@ static void test_bf_buffer_copy(void)
 	CHECK(empty_destination.size == 0);
 }
 
+static void test_bf_buffer_read(void)
+{
+	uint8_t memory[] = {10, 20, 30, 40, 50};
+	uint8_t destination[3] = {0};
+
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 4};
+
+	CHECK(bf_buffer_read(&buffer, 1, destination, 3) == BF_OK);
+	CHECK(destination[0] == 20);
+	CHECK(destination[1] == 30);
+	CHECK(destination[2] == 40);
+
+	CHECK(bf_buffer_read(&buffer, 0, destination, 3) == BF_OK);
+	CHECK(destination[0] == 10);
+	CHECK(destination[1] == 20);
+	CHECK(destination[2] == 30);
+
+	CHECK(bf_buffer_read(&buffer, 2, NULL, 0) == BF_OK);
+
+	CHECK(bf_buffer_read(NULL, 0, destination, 1) == BF_EINVAL);
+	CHECK(bf_buffer_read(&buffer, 0, NULL, 1) == BF_EINVAL);
+
+	CHECK(bf_buffer_read(&buffer, 3, destination, 2) ==
+	      BF_EINVAL); // 3 + 2 = 5 > 4
+	CHECK(bf_buffer_read(&buffer, 5, destination, 0) ==
+	      BF_EINVAL); // offset > size
+
+	bf_buffer_t invalid_size = {.data = memory, .capacity = 5, .size = 6};
+	CHECK(bf_buffer_read(&invalid_size, 0, destination, 1) == BF_EINVAL);
+
+	bf_buffer_t invalid_data = {.data = NULL, .capacity = 5, .size = 0};
+	CHECK(bf_buffer_read(&invalid_data, 0, destination, 1) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_view_init_valid();
@@ -515,7 +550,9 @@ int main(void)
 	test_bf_buffer_clear();
 	test_bf_buffer_fill();
 	test_bf_view_compare();
+
 	test_bf_buffer_copy();
+	test_bf_buffer_read();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d test(s) failed.\n", failures);

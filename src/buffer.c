@@ -243,3 +243,29 @@ bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source)
 
 	return BF_OK;
 }
+
+bf_status bf_buffer_read(const bf_buffer_t *buffer, size_t offset,
+    uint8_t *destination, size_t length)
+{
+	if (buffer == NULL || (destination == NULL && length > 0)) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (offset > buffer->size || length > buffer->size - offset) {
+		return BF_EINVAL;
+	}
+
+	if (length > 0) {
+		memcpy(destination, buffer->data + offset, length);
+	}
+
+	return BF_OK;
+}

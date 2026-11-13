@@ -171,6 +171,19 @@ bf_status bf_view_compare(const bf_view_t *a, const bf_view_t *b, bool *equal);
  */
 bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source);
 
+/**
+ * @brief Reads bytes from a buffer into a destination memory region.
+ *
+ * @param buffer Source buffer.
+ * @param offset Starting offset in the buffer (relative to buffer->size).
+ * @param destination Destination memory region.
+ * @param length Number of bytes to read.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds
+ * range.
+ */
+bf_status bf_buffer_read(const bf_buffer_t *buffer, size_t offset,
+    uint8_t *destination, size_t length);
+
 /** @} */
 
 #ifdef __cplusplus
