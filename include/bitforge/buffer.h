@@ -226,6 +226,17 @@ bf_status bf_buffer_remove(bf_buffer_t *buffer, size_t offset, size_t length);
  */
 bf_status bf_buffer_resize(bf_buffer_t *buffer, size_t new_size);
 
+/**
+ * @brief Checks if the buffer has sufficient capacity for additional bytes.
+ *
+ * @param buffer Target buffer.
+ * @param additional_capacity Number of additional bytes required.
+ * @return BF_OK if capacity is sufficient, BF_EINVAL on invalid args or
+ * insufficient capacity.
+ */
+bf_status bf_buffer_reserve(
+    const bf_buffer_t *buffer, size_t additional_capacity);
+
 /** @} */
 
 #ifdef __cplusplus

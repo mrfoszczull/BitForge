@@ -30,6 +30,7 @@ Memory views and caller-managed buffers.
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_insert`](#bf_buffer_insert)  | Inserts bytes into a buffer at the specified offset, shifting existing data. |
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_remove`](#bf_buffer_remove)  | Removes bytes from a buffer at the specified offset, shifting subsequent data. |
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_resize`](#bf_buffer_resize)  | Changes the logical size of the buffer. |
+| [`bf_status`](status.md#bf_status) | [`bf_buffer_reserve`](#bf_buffer_reserve)  | Checks if the buffer has sufficient capacity for additional bytes. |
 
 ---
 
@@ -396,6 +397,28 @@ BF_OK on success, BF_EINVAL if new_size exceeds buffer capacity or arguments are
 |-----------|------|-------------|
 | `buffer` | [`bf_buffer_t`](#bf_buffer_t) * | Target buffer. |
 | `new_size` | `size_t` | New logical size in bytes. |
+
+---
+
+### bf_buffer_reserve
+
+```cpp
+bf_status bf_buffer_reserve(const bf_buffer_t * buffer, size_t additional_capacity)
+```
+
+Defined in include/bitforge/buffer.h:237
+
+Checks if the buffer has sufficient capacity for additional bytes.
+
+#### Returns
+BF_OK if capacity is sufficient, BF_EINVAL on invalid args or insufficient capacity.
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `buffer` | const [`bf_buffer_t`](#bf_buffer_t) * | Target buffer. |
+| `additional_capacity` | `size_t` | Number of additional bytes required. |
 
 
 ## Class Definitions

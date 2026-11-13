@@ -370,3 +370,25 @@ bf_status bf_buffer_resize(bf_buffer_t *buffer, size_t new_size)
 
 	return BF_OK;
 }
+
+bf_status bf_buffer_reserve(
+    const bf_buffer_t *buffer, size_t additional_capacity)
+{
+	if (buffer == NULL) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (additional_capacity > buffer->capacity - buffer->size) {
+		return BF_EINVAL;
+	}
+
+	return BF_OK;
+}
