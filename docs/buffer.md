@@ -26,6 +26,11 @@ Memory views and caller-managed buffers.
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_fill`](#bf_buffer_fill)  | Fills a range of a buffer with a specified byte value. |
 | [`bf_status`](status.md#bf_status) | [`bf_view_compare`](#bf_view_compare)  | Compares the contents of two memory views. |
 | [`bf_status`](status.md#bf_status) | [`bf_buffer_copy`](#bf_buffer_copy)  | Copies the contents of one buffer into another. |
+| [`bf_status`](status.md#bf_status) | [`bf_buffer_read`](#bf_buffer_read)  | Reads bytes from a buffer into a destination memory region. |
+| [`bf_status`](status.md#bf_status) | [`bf_buffer_insert`](#bf_buffer_insert)  | Inserts bytes into a buffer at the specified offset, shifting existing data. |
+| [`bf_status`](status.md#bf_status) | [`bf_buffer_remove`](#bf_buffer_remove)  | Removes bytes from a buffer at the specified offset, shifting subsequent data. |
+| [`bf_status`](status.md#bf_status) | [`bf_buffer_resize`](#bf_buffer_resize)  | Changes the logical size of the buffer. |
+| [`bf_status`](status.md#bf_status) | [`bf_buffer_reserve`](#bf_buffer_reserve)  | Checks if the buffer has sufficient capacity for additional bytes. |
 
 ---
 
@@ -293,6 +298,127 @@ BF_OK on success, BF_EINVAL if an argument is invalid or the destination capacit
 |-----------|------|-------------|
 | `destination` | [`bf_buffer_t`](#bf_buffer_t) * | Destination buffer. |
 | `source` | const [`bf_buffer_t`](#bf_buffer_t) * | Source buffer. |
+
+---
+
+### bf_buffer_read
+
+```cpp
+bf_status bf_buffer_read(const bf_buffer_t * buffer, size_t offset, uint8_t * destination, size_t length)
+```
+
+Defined in include/bitforge/buffer.h:184
+
+Reads bytes from a buffer into a destination memory region.
+
+#### Returns
+BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds range.
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `buffer` | const [`bf_buffer_t`](#bf_buffer_t) * | Source buffer. |
+| `offset` | `size_t` | Starting offset in the buffer (relative to buffer->size). |
+| `destination` | `uint8_t *` | Destination memory region. |
+| `length` | `size_t` | Number of bytes to read. |
+
+---
+
+### bf_buffer_insert
+
+```cpp
+bf_status bf_buffer_insert(bf_buffer_t * buffer, size_t offset, const uint8_t * source, size_t length)
+```
+
+Defined in include/bitforge/buffer.h:200
+
+Inserts bytes into a buffer at the specified offset, shifting existing data.
+
+Increases the logical size of the buffer.
+
+#### Returns
+BF_OK on success, BF_EINVAL on invalid arguments, out-of-bounds offset, or insufficient remaining capacity.
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `buffer` | [`bf_buffer_t`](#bf_buffer_t) * | Target buffer. |
+| `offset` | `size_t` | Offset at which to insert bytes (can be equal to buffer->size). |
+| `source` | `const uint8_t *` | Source memory to insert. |
+| `length` | `size_t` | Number of bytes to insert. |
+
+---
+
+### bf_buffer_remove
+
+```cpp
+bf_status bf_buffer_remove(bf_buffer_t * buffer, size_t offset, size_t length)
+```
+
+Defined in include/bitforge/buffer.h:215
+
+Removes bytes from a buffer at the specified offset, shifting subsequent data.
+
+Decreases the logical size of the buffer.
+
+#### Returns
+BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds range.
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `buffer` | [`bf_buffer_t`](#bf_buffer_t) * | Target buffer. |
+| `offset` | `size_t` | Offset from which to remove bytes. |
+| `length` | `size_t` | Number of bytes to remove. |
+
+---
+
+### bf_buffer_resize
+
+```cpp
+bf_status bf_buffer_resize(bf_buffer_t * buffer, size_t new_size)
+```
+
+Defined in include/bitforge/buffer.h:227
+
+Changes the logical size of the buffer.
+
+If new_size is greater than current size, the newly exposed bytes are zeroed.
+
+#### Returns
+BF_OK on success, BF_EINVAL if new_size exceeds buffer capacity or arguments are invalid.
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `buffer` | [`bf_buffer_t`](#bf_buffer_t) * | Target buffer. |
+| `new_size` | `size_t` | New logical size in bytes. |
+
+---
+
+### bf_buffer_reserve
+
+```cpp
+bf_status bf_buffer_reserve(const bf_buffer_t * buffer, size_t additional_capacity)
+```
+
+Defined in include/bitforge/buffer.h:237
+
+Checks if the buffer has sufficient capacity for additional bytes.
+
+#### Returns
+BF_OK if capacity is sufficient, BF_EINVAL on invalid args or insufficient capacity.
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `buffer` | const [`bf_buffer_t`](#bf_buffer_t) * | Target buffer. |
+| `additional_capacity` | `size_t` | Number of additional bytes required. |
 
 
 ## Class Definitions

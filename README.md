@@ -92,7 +92,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(MyApplication LANGUAGES C)
 
-find_package(BitForge 1.4 CONFIG REQUIRED)
+find_package(BitForge 1.5 CONFIG REQUIRED)
 
 add_executable(my_app main.c)
 
@@ -174,9 +174,9 @@ ctest --test-dir build-sanitize --output-on-failure
 
 ## 📌 Project Status
 
-**BitForge v1.4.0** is currently in active development.
+**BitForge v1.5.0** is currently in active development.
 
-Version 1.4.0 introduces the `bf_buffer` module, providing caller-owned mutable buffers and read-only views for binary data manipulation. It builds upon the bit manipulation, sequential stream parsing, and pattern matching capabilities introduced in previous releases.
+Version 1.5.0 significantly extends the `bf_buffer` module with powerful new manipulation operations—including safe reading (`bf_buffer_read`), content insertion (`bf_buffer_insert`), element removal (`bf_buffer_remove`), dynamic resizing (`bf_buffer_resize`), and capacity reservation (`bf_buffer_reserve`). It builds upon the bit manipulation, sequential stream parsing, pattern matching, and binary buffer capabilities introduced in previous releases.
 
 The library is designed around explicit memory ownership and does not require dynamic allocation for its core operations.
 
