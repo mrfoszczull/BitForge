@@ -529,6 +529,47 @@ static void test_bf_buffer_read(void)
 	CHECK(bf_buffer_read(&invalid_data, 0, destination, 1) == BF_EINVAL);
 }
 
+static void test_bf_buffer_insert(void)
+{
+	uint8_t memory[10] = {0};
+	const uint8_t initial[] = {10, 40, 50};
+	const uint8_t insert_mid[] = {20, 30};
+	const uint8_t insert_end[] = {60};
+
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 0};
+
+	CHECK(bf_buffer_append(&buffer, initial, 3) ==
+	      BF_OK); // Stan: [10, 40, 50]
+
+	CHECK(bf_buffer_insert(&buffer, 1, insert_mid, 2) == BF_OK);
+	CHECK(buffer.size == 5);
+	CHECK(memory[0] == 10);
+	CHECK(memory[1] == 20);
+	CHECK(memory[2] == 30);
+	CHECK(memory[3] == 40);
+	CHECK(memory[4] == 50);
+
+	CHECK(bf_buffer_insert(&buffer, buffer.size, insert_end, 1) == BF_OK);
+	CHECK(buffer.size == 6);
+	CHECK(memory[5] == 60);
+
+	CHECK(bf_buffer_insert(&buffer, 2, NULL, 0) == BF_OK);
+	CHECK(buffer.size == 6);
+
+	CHECK(bf_buffer_insert(NULL, 0, insert_end, 1) == BF_EINVAL);
+	CHECK(bf_buffer_insert(&buffer, 0, NULL, 1) == BF_EINVAL);
+
+	CHECK(bf_buffer_insert(&buffer, buffer.size + 1, insert_end, 1) ==
+	      BF_EINVAL);
+
+	uint8_t too_large[5] = {1, 2, 3, 4, 5};
+	CHECK(bf_buffer_insert(&buffer, 0, too_large, 5) == BF_EINVAL);
+
+	bf_buffer_t invalid_size = {.data = memory, .capacity = 10, .size = 11};
+	CHECK(bf_buffer_insert(&invalid_size, 0, insert_end, 1) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_view_init_valid();
@@ -553,6 +594,7 @@ int main(void)
 
 	test_bf_buffer_copy();
 	test_bf_buffer_read();
+	test_bf_buffer_insert();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d test(s) failed.\n", failures);

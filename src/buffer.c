@@ -269,3 +269,42 @@ bf_status bf_buffer_read(const bf_buffer_t *buffer, size_t offset,
 
 	return BF_OK;
 }
+
+bf_status bf_buffer_insert(
+    bf_buffer_t *buffer, size_t offset, const uint8_t *source, size_t length)
+{
+	if (buffer == NULL || (source == NULL && length > 0)) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (offset > buffer->size) {
+		return BF_EINVAL;
+	}
+
+	if (length > buffer->capacity - buffer->size) {
+		return BF_EINVAL;
+	}
+
+	size_t tail_bytes = buffer->size - offset;
+
+	if (tail_bytes > 0) {
+		memmove(buffer->data + offset + length, buffer->data + offset,
+		    tail_bytes);
+	}
+
+	if (length > 0) {
+		memcpy(buffer->data + offset, source, length);
+	}
+
+	buffer->size += length;
+
+	return BF_OK;
+}

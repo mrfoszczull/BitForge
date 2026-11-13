@@ -184,6 +184,22 @@ bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source);
 bf_status bf_buffer_read(const bf_buffer_t *buffer, size_t offset,
     uint8_t *destination, size_t length);
 
+/**
+ * @brief Inserts bytes into a buffer at the specified offset, shifting existing
+ * data.
+ *
+ * Increases the logical size of the buffer.
+ *
+ * @param buffer Target buffer.
+ * @param offset Offset at which to insert bytes (can be equal to buffer->size).
+ * @param source Source memory to insert.
+ * @param length Number of bytes to insert.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments, out-of-bounds
+ * offset, or insufficient remaining capacity.
+ */
+bf_status bf_buffer_insert(
+    bf_buffer_t *buffer, size_t offset, const uint8_t *source, size_t length);
+
 /** @} */
 
 #ifdef __cplusplus
