@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🔧 BitForge
+#  BitForge
 
 **A lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, bit pattern matching, and binary data handling.**
 
