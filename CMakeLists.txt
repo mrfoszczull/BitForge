@@ -31,6 +31,7 @@ add_library(bitforge STATIC
     src/stream.c
     src/pattern.c
     src/buffer.c
+    src/io.c
 )
 
 add_library(BitForge::bitforge ALIAS bitforge)
