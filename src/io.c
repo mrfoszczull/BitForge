@@ -1,6 +1,7 @@
 #include <bitforge/io.h>
 
 #include <stdio.h>
+#include <limits.h>
 
 bf_status bf_io_open(bf_file_t *file, const char *path, bf_file_mode mode)
 {
@@ -135,6 +136,27 @@ bf_status bf_io_write(
 	*out_written = bytes_written;
 
 	if (bytes_written != size) {
+		return BF_EIO;
+	}
+
+	return BF_OK;
+}
+
+bf_status bf_io_seek(bf_file_t *file, size_t offset)
+{
+	FILE *handle;
+
+	if (file == NULL || file->handle == NULL) {
+		return BF_EINVAL;
+	}
+
+	if (offset > LONG_MAX) {
+		return BF_EINVAL;
+	}
+
+	handle = (FILE *)file->handle;
+
+	if (fseek(handle, (long)offset, SEEK_SET) != 0) {
 		return BF_EIO;
 	}
 
