@@ -72,3 +72,41 @@ bool bf_io_is_open(const bf_file_t *file)
 {
 	return file != NULL && file->handle != NULL;
 }
+
+bf_status bf_io_read(
+    bf_file_t *file, uint8_t *data, size_t size, size_t *out_read)
+{
+	FILE *handle;
+	size_t bytes_read;
+
+	if (file == NULL || file->handle == NULL || out_read == NULL ||
+	    (data == NULL && size > 0)) {
+		return BF_EINVAL;
+	}
+
+	*out_read = 0;
+
+	if (size == 0) {
+		return BF_OK;
+	}
+
+	handle = (FILE *)file->handle;
+
+	bytes_read = fread(data, 1, size, handle);
+
+	*out_read = bytes_read;
+
+	if (bytes_read == size) {
+		return BF_OK;
+	}
+
+	if (ferror(handle)) {
+		return BF_EIO;
+	}
+
+	if (feof(handle)) {
+		return bytes_read > 0 ? BF_OK : BF_EOF;
+	}
+
+	return BF_EIO;
+}
