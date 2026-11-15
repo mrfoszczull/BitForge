@@ -67,3 +67,8 @@ bf_status bf_io_close(bf_file_t *file)
 
 	return BF_OK;
 }
+
+bool bf_io_is_open(const bf_file_t *file)
+{
+	return file != NULL && file->handle != NULL;
+}
