@@ -46,3 +46,24 @@ bf_status bf_io_open(bf_file_t *file, const char *path, bf_file_mode mode)
 
 	return BF_OK;
 }
+
+bf_status bf_io_close(bf_file_t *file)
+{
+	FILE *handle;
+	int result;
+
+	if (file == NULL || file->handle == NULL) {
+		return BF_EINVAL;
+	}
+
+	handle = (FILE *)file->handle;
+	file->handle = NULL;
+
+	result = fclose(handle);
+
+	if (result != 0) {
+		return BF_EIO;
+	}
+
+	return BF_OK;
+}
