@@ -110,3 +110,33 @@ bf_status bf_io_read(
 
 	return BF_EIO;
 }
+
+bf_status bf_io_write(
+    bf_file_t *file, const uint8_t *data, size_t size, size_t *out_written)
+{
+	FILE *handle;
+	size_t bytes_written;
+
+	if (file == NULL || file->handle == NULL || out_written == NULL ||
+	    (data == NULL && size > 0)) {
+		return BF_EINVAL;
+	}
+
+	*out_written = 0;
+
+	if (size == 0) {
+		return BF_OK;
+	}
+
+	handle = (FILE *)file->handle;
+
+	bytes_written = fwrite(data, 1, size, handle);
+
+	*out_written = bytes_written;
+
+	if (bytes_written != size) {
+		return BF_EIO;
+	}
+
+	return BF_OK;
+}
