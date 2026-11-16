@@ -1,8 +1,8 @@
-<div align="center">
+ <div align="center">
 
-# 🔧 BitForge
+# BitForge
 
-**A lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, bit pattern matching, and binary data handling.**
+**A lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, bit pattern matching, binary data handling, and file I/O.**
 
 [![CI](https://github.com/mrfoszczull/BitForge/actions/workflows/ci.yml/badge.svg)](https://github.com/mrfoszczull/BitForge/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -12,7 +12,7 @@
 
 ---
 
-BitForge provides a simple and consistent API for bitwise operations, bit-level streams, pattern matching, and binary buffer manipulation. It focuses on reliability, portability, explicit status codes, and predictable memory management.
+BitForge provides a simple and consistent API for bitwise operations, bit-level streams, pattern matching, binary buffer manipulation, and file I/O. It focuses on reliability, portability, explicit status codes, and predictable resource management.
 
 ## 📑 Table of Contents
 
@@ -36,9 +36,12 @@ BitForge provides a simple and consistent API for bitwise operations, bit-level 
 - **Bit stream processing** – safe sequential reading of arbitrary bit counts (MSB-first) across byte boundaries, with bit skipping and byte alignment.
 - **Bit pattern matching** – efficient bit-level pattern matching and searching with custom masks and wildcards.
 - **Binary buffers and views** – caller-owned memory buffers with read, write, append, clear, fill, copy, and comparison operations.
+- **File I/O** – binary file handling with open, close, read, write, seek, position, and file size operations.
+- **Flexible file access** – support for read, write, append, and read/write modes.
 - **Bit analysis** – count set bits and check whether a value is a power of two.
 - **Error handling** – explicit status codes for predictable error handling.
-- **Memory control** – no mandatory dynamic allocation; memory is provided and managed by the caller.
+- **Memory control** – no mandatory dynamic allocation for buffer operations; memory is provided and managed by the caller.
+- **Resource management** – explicit file handle lifecycle and predictable cleanup.
 - **Lightweight** – no external runtime dependencies.
 - **Portable** – C17-compatible API designed for Linux, Windows, and macOS.
 - **CMake integration** – installable static library with exported CMake package support.
@@ -92,7 +95,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(MyApplication LANGUAGES C)
 
-find_package(BitForge 1.4 CONFIG REQUIRED)
+find_package(BitForge 1.6 CONFIG REQUIRED)
 
 add_executable(my_app main.c)
 
@@ -113,11 +116,12 @@ Then include the headers you need, for example:
 #include <bitforge/stream.h>
 #include <bitforge/pattern.h>
 #include <bitforge/buffer.h>
+#include <bitforge/io.h>
 ```
 
 ## 📚 Documentation
 
-The full API reference, including bit indexing, endianness conventions, buffer behavior, and memory requirements, is available in **[docs/](docs/README.md)**:
+The full API reference, including bit indexing, endianness conventions, buffer behavior, file operations, and resource management, is available in **[docs/](docs/README.md)**:
 
 | Module | Description |
 |--------|-------------|
@@ -125,6 +129,7 @@ The full API reference, including bit indexing, endianness conventions, buffer b
 | [stream](docs/stream.md) | Sequential bit stream processing and parsing |
 | [pattern](docs/pattern.md) | Bit-level pattern matching with wildcard support |
 | [buffer](docs/buffer.md) | Caller-owned buffers and read-only memory views |
+| [io](docs/io.md) | Binary file operations and file management |
 | [status](docs/status.md) | Status codes and error handling |
 
 > All functions return a `bf_status` value to indicate success or failure, unless their return type specifies otherwise.
@@ -150,6 +155,8 @@ make test    # run tests
 make check   # run regular and sanitizer-enabled checks
 ```
 
+The test suite covers all library modules, including bit operations, streams, pattern matching, buffers, and file I/O.
+
 ## 🎨 Code Formatting
 
 BitForge uses ClangFormat to maintain consistent source code formatting.
@@ -174,11 +181,13 @@ ctest --test-dir build-sanitize --output-on-failure
 
 ## 📌 Project Status
 
-**BitForge v1.4.0** is currently in active development.
+**BitForge v1.6.0** introduces the new `bf_io` module for binary file handling.
 
-Version 1.4.0 introduces the `bf_buffer` module, providing caller-owned mutable buffers and read-only views for binary data manipulation. It builds upon the bit manipulation, sequential stream parsing, and pattern matching capabilities introduced in previous releases.
+Version 1.6.0 extends the library with file I/O capabilities, including opening and closing files, reading and writing binary data, seeking to absolute file positions, retrieving the current position, and querying file size. Multiple access modes are supported: read, write, append, and read/write.
 
-The library is designed around explicit memory ownership and does not require dynamic allocation for its core operations.
+This release builds upon the bit manipulation, sequential stream processing, pattern matching, and binary buffer functionality introduced in previous versions.
+
+The library is designed around explicit memory ownership and resource management. Buffer operations do not require dynamic allocation, while file resources are managed explicitly through the `bf_file_t` interface.
 
 The public API is intended to remain stable throughout the 1.x release series. Breaking API changes are reserved for a future major release.
 
