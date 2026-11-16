@@ -186,3 +186,43 @@ bf_status bf_io_tell(const bf_file_t *file, size_t *out_position)
 
 	return BF_OK;
 }
+
+bf_status bf_io_size(bf_file_t *file, size_t *out_size)
+{
+	FILE *handle;
+	long current_position;
+	long file_size;
+
+	if (file == NULL || file->handle == NULL || out_size == NULL) {
+		return BF_EINVAL;
+	}
+
+	*out_size = 0;
+
+	handle = (FILE *)file->handle;
+
+	current_position = ftell(handle);
+
+	if (current_position < 0) {
+		return BF_EIO;
+	}
+
+	if (fseek(handle, 0, SEEK_END) != 0) {
+		return BF_EIO;
+	}
+
+	file_size = ftell(handle);
+
+	if (file_size < 0) {
+		(void)fseek(handle, current_position, SEEK_SET);
+		return BF_EIO;
+	}
+
+	if (fseek(handle, current_position, SEEK_SET) != 0) {
+		return BF_EIO;
+	}
+
+	*out_size = (size_t)file_size;
+
+	return BF_OK;
+}
