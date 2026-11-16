@@ -162,3 +162,27 @@ bf_status bf_io_seek(bf_file_t *file, size_t offset)
 
 	return BF_OK;
 }
+
+bf_status bf_io_tell(const bf_file_t *file, size_t *out_position)
+{
+	FILE *handle;
+	long position;
+
+	if (file == NULL || file->handle == NULL || out_position == NULL) {
+		return BF_EINVAL;
+	}
+
+	*out_position = 0;
+
+	handle = (FILE *)file->handle;
+
+	position = ftell(handle);
+
+	if (position < 0) {
+		return BF_EIO;
+	}
+
+	*out_position = (size_t)position;
+
+	return BF_OK;
+}
