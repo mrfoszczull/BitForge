@@ -9,6 +9,8 @@ The module documentation is generated from Doxygen comments in `include/bitforge
 - [Modules](#modules)
 - [Conventions](#conventions)
   - [Bit Indexing and Endianness](#bit-indexing-and-endianness)
+  - [Buffer Model](#buffer-model)
+  - [File I/O Model](#file-io-model)
   - [Error Handling](#error-handling)
 - [Regenerating Documentation](#regenerating-documentation)
 - [Additional Resources](#additional-resources)
@@ -17,11 +19,12 @@ The module documentation is generated from Doxygen comments in `include/bitforge
 
 | Module | Header | Description |
 |--------|--------|-------------|
-| [bitops](bitops.md) | `bitops.h` | Single-bit and bit-range operations on 8-bit values: get, set, clear, toggle, swap, reverse, rotate, count set bits, power-of-two check. |
-| [stream](stream.md) | `stream.h` | Safe sequential reading of arbitrary bit counts across byte boundaries, with bit skipping and byte alignment. |
-| [pattern](pattern.md) | `pattern.h` | Bit-level pattern matching and searching in a stream, with custom masks and wildcards. |
+| [bitops](bitops.md) | `bitops.h` | Single-bit and bit-range operations on 8-bit values: get, set, clear, toggle, swap, reverse, rotate, count set bits, and power-of-two check. |
+| [stream](stream.md) | `stream.h` | Sequential MSB-first reading of arbitrary bit counts across byte boundaries, with bit skipping and byte alignment. |
+| [pattern](pattern.md) | `pattern.h` | Bit-level pattern matching and searching in a stream, with custom masks and wildcard support. |
 | [buffer](buffer.md) | `buffer.h` | Non-owning views and caller-provided buffers with bounded reading, slicing, writing, appending, clearing, filling, comparing, and copying operations. |
-| [status](status.md) | `status.h` | Status codes (`bf_status`) returned by all BitForge functions. |
+| [io](io.md) | `io.h` | Binary file operations, including opening, closing, reading, writing, seeking, retrieving the current position, and querying file size. |
+| [status](status.md) | `status.h` | Status codes (`bf_status`) returned by BitForge functions. |
 
 ## Conventions
 
@@ -30,17 +33,12 @@ The module documentation is generated from Doxygen comments in `include/bitforge
 Different modules use different bit-ordering conventions:
 
 | Module | Bit Order | Description |
-|---|---|---|
+|--------|-----------|-------------|
 | `bitops.h` | **LSB-first** | Bit index `0` represents the least significant bit, while bit index `7` represents the most significant bit. |
-| `stream.h`, `pattern.h` | **MSB-first** | Bits are read and matched from most significant to least significant across buffer boundaries, following standard binary formats and protocol specifications. |
+| `stream.h`, `pattern.h` | **MSB-first** | Bits are read and matched from most significant to least significant across byte boundaries, following standard binary formats and protocol specifications. |
+| `buffer.h`, `io.h` | **Byte-oriented** | Operations work with bytes and byte offsets. Bit ordering is not applicable. |
 
-| Module | Order | Description |
-|--------|-------|-------------|
-| `bitops.h` | **LSB-first** | Bit index `0` is the least significant bit; index `7` is the most significant bit. |
-| `stream.h`, `pattern.h` | **MSB-first** | Bits are read and matched most significant first across buffer boundaries, matching standard binary formats and protocol specifications. |
-| `buffer.h` | **Byte-oriented** | Buffer operations work with bytes and offsets. Bit ordering is not applicable. |
-
-### Buffer model
+### Buffer Model
 
 The Buffer module does not allocate or free memory. The caller provides the memory used by `bf_buffer_t`, while `bf_view_t` provides read-only access to a region of data.
 
@@ -48,9 +46,37 @@ Buffer operations validate offsets and lengths against the available capacity or
 
 Copying operations using `memcpy()` require that the source and destination memory regions do not overlap.
 
-Every function returns a `bf_status` value.
+### File I/O Model
 
-Always check the returned status against `BF_OK` before accessing any output parameters.
+The I/O module provides binary file operations through the `bf_file_t` structure.
+
+File resources are managed explicitly by the caller:
+
+- Initialize a file object before opening it, for example, with `bf_file_t file = {0};`.
+- Use `bf_io_open()` to open a file in the required mode.
+- Use `bf_io_close()` to release an opened file.
+- Use `bf_io_is_open()` to check whether a file object currently holds an open file handle.
+
+Supported file modes:
+
+| Mode | Description |
+|------|-------------|
+| `BF_FILE_MODE_READ` | Opens an existing file for reading. |
+| `BF_FILE_MODE_WRITE` | Opens a file for writing, creating it if necessary or truncating it if it already exists. |
+| `BF_FILE_MODE_APPEND` | Opens a file for appending, creating it if necessary. |
+| `BF_FILE_MODE_READ_WRITE` | Opens an existing file for both reading and writing without truncating it. |
+
+Read and write operations report the number of bytes processed through output parameters.
+
+A read operation that reaches the end of a file may return `BF_OK` when some bytes were successfully read. `BF_EOF` indicates that no bytes could be read because the end of the file was reached.
+
+File positioning uses absolute byte offsets relative to the beginning of the file.
+
+### Error Handling
+
+Every function returning a `bf_status` value uses explicit status codes to indicate success or failure.
+
+Always check the returned status against `BF_OK` before relying on output parameters.
 
 See [status](status.md) for the complete list of available status codes and their meanings.
 
@@ -63,3 +89,9 @@ make docs
 ```
 
 This runs Doxygen and Moxygen and writes the module pages into this directory.
+
+## Additional Resources
+
+- [Project README](../README.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
