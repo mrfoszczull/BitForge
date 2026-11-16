@@ -243,3 +243,152 @@ bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source)
 
 	return BF_OK;
 }
+
+bf_status bf_buffer_read(const bf_buffer_t *buffer, size_t offset,
+    uint8_t *destination, size_t length)
+{
+	if (buffer == NULL || (destination == NULL && length > 0)) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (offset > buffer->size || length > buffer->size - offset) {
+		return BF_EINVAL;
+	}
+
+	if (length > 0) {
+		memcpy(destination, buffer->data + offset, length);
+	}
+
+	return BF_OK;
+}
+
+bf_status bf_buffer_insert(
+    bf_buffer_t *buffer, size_t offset, const uint8_t *source, size_t length)
+{
+	if (buffer == NULL || (source == NULL && length > 0)) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (offset > buffer->size) {
+		return BF_EINVAL;
+	}
+
+	if (length > buffer->capacity - buffer->size) {
+		return BF_EINVAL;
+	}
+
+	size_t tail_bytes = buffer->size - offset;
+
+	if (tail_bytes > 0) {
+		memmove(buffer->data + offset + length, buffer->data + offset,
+		    tail_bytes);
+	}
+
+	if (length > 0) {
+		memcpy(buffer->data + offset, source, length);
+	}
+
+	buffer->size += length;
+
+	return BF_OK;
+}
+
+bf_status bf_buffer_remove(bf_buffer_t *buffer, size_t offset, size_t length)
+{
+	if (buffer == NULL) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (offset > buffer->size || length > buffer->size - offset) {
+		return BF_EINVAL;
+	}
+
+	if (length == 0) {
+		return BF_OK;
+	}
+
+	size_t tail_offset = offset + length;
+	size_t tail_bytes = buffer->size - tail_offset;
+
+	if (tail_bytes > 0) {
+		memmove(buffer->data + offset, buffer->data + tail_offset,
+		    tail_bytes);
+	}
+
+	buffer->size -= length;
+
+	return BF_OK;
+}
+
+bf_status bf_buffer_resize(bf_buffer_t *buffer, size_t new_size)
+{
+	if (buffer == NULL) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (new_size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (new_size > buffer->size) {
+		memset(buffer->data + buffer->size, 0, new_size - buffer->size);
+	}
+
+	buffer->size = new_size;
+
+	return BF_OK;
+}
+
+bf_status bf_buffer_reserve(
+    const bf_buffer_t *buffer, size_t additional_capacity)
+{
+	if (buffer == NULL) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return BF_EINVAL;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return BF_EINVAL;
+	}
+
+	if (additional_capacity > buffer->capacity - buffer->size) {
+		return BF_EINVAL;
+	}
+
+	return BF_OK;
+}

@@ -171,6 +171,72 @@ bf_status bf_view_compare(const bf_view_t *a, const bf_view_t *b, bool *equal);
  */
 bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source);
 
+/**
+ * @brief Reads bytes from a buffer into a destination memory region.
+ *
+ * @param buffer Source buffer.
+ * @param offset Starting offset in the buffer (relative to buffer->size).
+ * @param destination Destination memory region.
+ * @param length Number of bytes to read.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds
+ * range.
+ */
+bf_status bf_buffer_read(const bf_buffer_t *buffer, size_t offset,
+    uint8_t *destination, size_t length);
+
+/**
+ * @brief Inserts bytes into a buffer at the specified offset, shifting existing
+ * data.
+ *
+ * Increases the logical size of the buffer.
+ *
+ * @param buffer Target buffer.
+ * @param offset Offset at which to insert bytes (can be equal to buffer->size).
+ * @param source Source memory to insert.
+ * @param length Number of bytes to insert.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments, out-of-bounds
+ * offset, or insufficient remaining capacity.
+ */
+bf_status bf_buffer_insert(
+    bf_buffer_t *buffer, size_t offset, const uint8_t *source, size_t length);
+
+/**
+ * @brief Removes bytes from a buffer at the specified offset, shifting
+ * subsequent data.
+ *
+ * Decreases the logical size of the buffer.
+ *
+ * @param buffer Target buffer.
+ * @param offset Offset from which to remove bytes.
+ * @param length Number of bytes to remove.
+ * @return BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds
+ * range.
+ */
+bf_status bf_buffer_remove(bf_buffer_t *buffer, size_t offset, size_t length);
+
+/**
+ * @brief Changes the logical size of the buffer.
+ *
+ * If new_size is greater than current size, the newly exposed bytes are zeroed.
+ *
+ * @param buffer Target buffer.
+ * @param new_size New logical size in bytes.
+ * @return BF_OK on success, BF_EINVAL if new_size exceeds buffer capacity or
+ * arguments are invalid.
+ */
+bf_status bf_buffer_resize(bf_buffer_t *buffer, size_t new_size);
+
+/**
+ * @brief Checks if the buffer has sufficient capacity for additional bytes.
+ *
+ * @param buffer Target buffer.
+ * @param additional_capacity Number of additional bytes required.
+ * @return BF_OK if capacity is sufficient, BF_EINVAL on invalid args or
+ * insufficient capacity.
+ */
+bf_status bf_buffer_reserve(
+    const bf_buffer_t *buffer, size_t additional_capacity);
+
 /** @} */
 
 #ifdef __cplusplus

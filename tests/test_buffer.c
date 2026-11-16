@@ -494,6 +494,166 @@ static void test_bf_buffer_copy(void)
 	CHECK(empty_destination.size == 0);
 }
 
+static void test_bf_buffer_read(void)
+{
+	uint8_t memory[] = {10, 20, 30, 40, 50};
+	uint8_t destination[3] = {0};
+
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 4};
+
+	CHECK(bf_buffer_read(&buffer, 1, destination, 3) == BF_OK);
+	CHECK(destination[0] == 20);
+	CHECK(destination[1] == 30);
+	CHECK(destination[2] == 40);
+
+	CHECK(bf_buffer_read(&buffer, 0, destination, 3) == BF_OK);
+	CHECK(destination[0] == 10);
+	CHECK(destination[1] == 20);
+	CHECK(destination[2] == 30);
+
+	CHECK(bf_buffer_read(&buffer, 2, NULL, 0) == BF_OK);
+
+	CHECK(bf_buffer_read(NULL, 0, destination, 1) == BF_EINVAL);
+	CHECK(bf_buffer_read(&buffer, 0, NULL, 1) == BF_EINVAL);
+
+	CHECK(bf_buffer_read(&buffer, 3, destination, 2) ==
+	      BF_EINVAL); // 3 + 2 = 5 > 4
+	CHECK(bf_buffer_read(&buffer, 5, destination, 0) ==
+	      BF_EINVAL); // offset > size
+
+	bf_buffer_t invalid_size = {.data = memory, .capacity = 5, .size = 6};
+	CHECK(bf_buffer_read(&invalid_size, 0, destination, 1) == BF_EINVAL);
+
+	bf_buffer_t invalid_data = {.data = NULL, .capacity = 5, .size = 0};
+	CHECK(bf_buffer_read(&invalid_data, 0, destination, 1) == BF_EINVAL);
+}
+
+static void test_bf_buffer_insert(void)
+{
+	uint8_t memory[10] = {0};
+	const uint8_t initial[] = {10, 40, 50};
+	const uint8_t insert_mid[] = {20, 30};
+	const uint8_t insert_end[] = {60};
+
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 0};
+
+	CHECK(bf_buffer_append(&buffer, initial, 3) ==
+	      BF_OK); // Stan: [10, 40, 50]
+
+	CHECK(bf_buffer_insert(&buffer, 1, insert_mid, 2) == BF_OK);
+	CHECK(buffer.size == 5);
+	CHECK(memory[0] == 10);
+	CHECK(memory[1] == 20);
+	CHECK(memory[2] == 30);
+	CHECK(memory[3] == 40);
+	CHECK(memory[4] == 50);
+
+	CHECK(bf_buffer_insert(&buffer, buffer.size, insert_end, 1) == BF_OK);
+	CHECK(buffer.size == 6);
+	CHECK(memory[5] == 60);
+
+	CHECK(bf_buffer_insert(&buffer, 2, NULL, 0) == BF_OK);
+	CHECK(buffer.size == 6);
+
+	CHECK(bf_buffer_insert(NULL, 0, insert_end, 1) == BF_EINVAL);
+	CHECK(bf_buffer_insert(&buffer, 0, NULL, 1) == BF_EINVAL);
+
+	CHECK(bf_buffer_insert(&buffer, buffer.size + 1, insert_end, 1) ==
+	      BF_EINVAL);
+
+	uint8_t too_large[5] = {1, 2, 3, 4, 5};
+	CHECK(bf_buffer_insert(&buffer, 0, too_large, 5) == BF_EINVAL);
+
+	bf_buffer_t invalid_size = {.data = memory, .capacity = 10, .size = 11};
+	CHECK(bf_buffer_insert(&invalid_size, 0, insert_end, 1) == BF_EINVAL);
+}
+
+static void test_bf_buffer_remove(void)
+{
+	uint8_t memory[10] = {10, 20, 30, 40, 50, 60};
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 6};
+
+	CHECK(bf_buffer_remove(&buffer, 1, 2) == BF_OK);
+	CHECK(buffer.size == 4);
+	CHECK(memory[0] == 10);
+	CHECK(memory[1] == 40);
+	CHECK(memory[2] == 50);
+	CHECK(memory[3] == 60);
+
+	CHECK(bf_buffer_remove(&buffer, 2, 2) == BF_OK);
+	CHECK(buffer.size == 2);
+	CHECK(memory[0] == 10);
+	CHECK(memory[1] == 40);
+
+	CHECK(bf_buffer_remove(&buffer, 0, 0) == BF_OK);
+	CHECK(buffer.size == 2);
+
+	CHECK(bf_buffer_remove(NULL, 0, 1) == BF_EINVAL);
+
+	CHECK(bf_buffer_remove(&buffer, 1, 3) == BF_EINVAL);
+	CHECK(bf_buffer_remove(&buffer, 3, 1) == BF_EINVAL);
+
+	bf_buffer_t invalid_size = {.data = memory, .capacity = 10, .size = 11};
+	CHECK(bf_buffer_remove(&invalid_size, 0, 1) == BF_EINVAL);
+}
+
+static void test_bf_buffer_resize(void)
+{
+	uint8_t memory[10] = {
+	    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 2};
+
+	memory[0] = 10;
+	memory[1] = 20;
+
+	CHECK(bf_buffer_resize(&buffer, 5) == BF_OK);
+	CHECK(buffer.size == 5);
+	CHECK(memory[0] == 10);
+	CHECK(memory[1] == 20);
+	CHECK(memory[2] == 0x00);
+	CHECK(memory[3] == 0x00);
+	CHECK(memory[4] == 0x00);
+	CHECK(memory[5] == 0xFF);
+
+	CHECK(bf_buffer_resize(&buffer, 1) == BF_OK);
+	CHECK(buffer.size == 1);
+
+	CHECK(bf_buffer_resize(&buffer, 0) == BF_OK);
+	CHECK(buffer.size == 0);
+
+	CHECK(bf_buffer_resize(NULL, 2) == BF_EINVAL);
+
+	CHECK(bf_buffer_resize(&buffer, 11) == BF_EINVAL);
+	CHECK(buffer.size == 0);
+
+	bf_buffer_t invalid_size = {.data = memory, .capacity = 10, .size = 11};
+	CHECK(bf_buffer_resize(&invalid_size, 5) == BF_EINVAL);
+}
+
+static void test_bf_buffer_reserve(void)
+{
+	uint8_t memory[10] = {0};
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 4};
+
+	CHECK(bf_buffer_reserve(&buffer, 4) == BF_OK);
+
+	CHECK(bf_buffer_reserve(&buffer, 6) == BF_OK);
+
+	CHECK(bf_buffer_reserve(&buffer, 7) == BF_EINVAL);
+
+	CHECK(bf_buffer_reserve(&buffer, 0) == BF_OK);
+
+	CHECK(bf_buffer_reserve(NULL, 1) == BF_EINVAL);
+
+	bf_buffer_t invalid_size = {.data = memory, .capacity = 10, .size = 11};
+	CHECK(bf_buffer_reserve(&invalid_size, 1) == BF_EINVAL);
+}
+
 int main(void)
 {
 	test_view_init_valid();
@@ -515,7 +675,14 @@ int main(void)
 	test_bf_buffer_clear();
 	test_bf_buffer_fill();
 	test_bf_view_compare();
+
 	test_bf_buffer_copy();
+	test_bf_buffer_read();
+	test_bf_buffer_insert();
+	test_bf_buffer_remove();
+
+	test_bf_buffer_resize();
+	test_bf_buffer_reserve();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d test(s) failed.\n", failures);
