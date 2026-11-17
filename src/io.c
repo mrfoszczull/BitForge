@@ -1,12 +1,20 @@
 #include <bitforge/io.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <limits.h>
+
+typedef struct {
+	FILE *stream;
+	bf_file_mode mode;
+	bool last_operation_was_write;
+} bf_file_internal_t;
 
 bf_status bf_io_open(bf_file_t *file, const char *path, bf_file_mode mode)
 {
-	const char *open_mode = NULL;
-	FILE *handle;
+	bf_file_internal_t *internal;
+	const char *open_mode;
+	FILE *stream;
 
 	if (file == NULL || path == NULL || path[0] == '\0') {
 		return BF_EINVAL;
@@ -37,30 +45,44 @@ bf_status bf_io_open(bf_file_t *file, const char *path, bf_file_mode mode)
 		return BF_EINVAL;
 	}
 
-	handle = fopen(path, open_mode);
+	stream = fopen(path, open_mode);
 
-	if (handle == NULL) {
+	if (stream == NULL) {
 		return BF_EIO;
 	}
 
-	file->handle = handle;
+	internal = malloc(sizeof(*internal));
+
+	if (internal == NULL) {
+		fclose(stream);
+		return BF_ENOMEM;
+	}
+
+	internal->stream = stream;
+	internal->mode = mode;
+	internal->last_operation_was_write = false;
+
+	file->handle = internal;
 
 	return BF_OK;
 }
 
 bf_status bf_io_close(bf_file_t *file)
 {
-	FILE *handle;
+	bf_file_internal_t *internal;
 	int result;
 
 	if (file == NULL || file->handle == NULL) {
 		return BF_EINVAL;
 	}
 
-	handle = (FILE *)file->handle;
+	internal = (bf_file_internal_t *)file->handle;
+
 	file->handle = NULL;
 
-	result = fclose(handle);
+	result = fclose(internal->stream);
+
+	free(internal);
 
 	if (result != 0) {
 		return BF_EIO;
