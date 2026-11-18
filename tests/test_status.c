@@ -34,7 +34,10 @@ static void test_unknown_status(void)
 	const char *message = bf_status_string((bf_status)-1);
 
 	CHECK(message != NULL);
-	CHECK(strcmp(message, "Unknown status") == 0);
+
+	if (message != NULL) {
+		CHECK(strcmp(message, "Unknown status") == 0);
+	}
 }
 
 int main(void)
