@@ -1,4 +1,4 @@
-#include <bitforge/status.h>
+
 #include <bitforge/buffer.h>
 #include <string.h>
 
@@ -43,7 +43,7 @@ bf_status bf_view_read(
 	}
 
 	if (length > 0) {
-		memcpy(destination, view->data + offset, length);
+		memmove(destination, view->data + offset, length);
 	}
 
 	return BF_OK;
@@ -90,7 +90,7 @@ bf_status bf_buffer_write(
 	}
 
 	if (length > 0) {
-		memcpy(buffer->data + offset, source, length);
+		memmove(buffer->data + offset, source, length);
 	}
 
 	return BF_OK;
@@ -136,7 +136,7 @@ bf_status bf_buffer_append(
 	}
 
 	if (length > 0) {
-		memcpy(buffer->data + buffer->size, source, length);
+		memmove(buffer->data + buffer->size, source, length);
 	}
 
 	buffer->size += length;
@@ -236,7 +236,7 @@ bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source)
 	}
 
 	if (source->size > 0) {
-		memcpy(destination->data, source->data, source->size);
+		memmove(destination->data, source->data, source->size);
 	}
 
 	destination->size = source->size;
@@ -264,7 +264,7 @@ bf_status bf_buffer_read(const bf_buffer_t *buffer, size_t offset,
 	}
 
 	if (length > 0) {
-		memcpy(destination, buffer->data + offset, length);
+		memmove(destination, buffer->data + offset, length);
 	}
 
 	return BF_OK;
@@ -371,24 +371,13 @@ bf_status bf_buffer_resize(bf_buffer_t *buffer, size_t new_size)
 	return BF_OK;
 }
 
-bf_status bf_buffer_reserve(
+bool bf_buffer_has_capacity(
     const bf_buffer_t *buffer, size_t additional_capacity)
 {
-	if (buffer == NULL) {
-		return BF_EINVAL;
+	if (buffer == NULL || buffer->size > buffer->capacity ||
+	    (buffer->data == NULL && buffer->capacity > 0)) {
+		return false;
 	}
 
-	if (buffer->size > buffer->capacity) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->data == NULL && buffer->capacity > 0) {
-		return BF_EINVAL;
-	}
-
-	if (additional_capacity > buffer->capacity - buffer->size) {
-		return BF_EINVAL;
-	}
-
-	return BF_OK;
+	return additional_capacity <= buffer->capacity - buffer->size;
 }

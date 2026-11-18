@@ -634,24 +634,88 @@ static void test_bf_buffer_resize(void)
 	CHECK(bf_buffer_resize(&invalid_size, 5) == BF_EINVAL);
 }
 
-static void test_bf_buffer_reserve(void)
+static void test_bf_buffer_has_capacity(void)
 {
 	uint8_t memory[10] = {0};
 	bf_buffer_t buffer = {
 	    .data = memory, .capacity = sizeof(memory), .size = 4};
 
-	CHECK(bf_buffer_reserve(&buffer, 4) == BF_OK);
+	CHECK(bf_buffer_has_capacity(&buffer, 0) == true);
+	CHECK(bf_buffer_has_capacity(&buffer, 4) == true);
+	CHECK(bf_buffer_has_capacity(&buffer, 6) == true);
+	CHECK(bf_buffer_has_capacity(&buffer, 7) == false);
 
-	CHECK(bf_buffer_reserve(&buffer, 6) == BF_OK);
-
-	CHECK(bf_buffer_reserve(&buffer, 7) == BF_EINVAL);
-
-	CHECK(bf_buffer_reserve(&buffer, 0) == BF_OK);
-
-	CHECK(bf_buffer_reserve(NULL, 1) == BF_EINVAL);
+	CHECK(bf_buffer_has_capacity(NULL, 1) == false);
 
 	bf_buffer_t invalid_size = {.data = memory, .capacity = 10, .size = 11};
-	CHECK(bf_buffer_reserve(&invalid_size, 1) == BF_EINVAL);
+
+	CHECK(bf_buffer_has_capacity(&invalid_size, 1) == false);
+
+	bf_buffer_t invalid_data = {.data = NULL, .capacity = 10, .size = 0};
+
+	CHECK(bf_buffer_has_capacity(&invalid_data, 0) == false);
+
+	bf_buffer_t empty_buffer = {.data = NULL, .capacity = 0, .size = 0};
+
+	CHECK(bf_buffer_has_capacity(&empty_buffer, 0) == true);
+	CHECK(bf_buffer_has_capacity(&empty_buffer, 1) == false);
+}
+
+static void test_bf_buffer_overlapping_operations(void)
+{
+	uint8_t memory[8] = {10, 20, 30, 40, 50, 60, 0, 0};
+
+	bf_buffer_t buffer = {
+	    .data = memory, .capacity = sizeof(memory), .size = 6};
+
+	CHECK(bf_buffer_write(&buffer, 1, memory, 4) == BF_OK);
+	CHECK(memory[0] == 10);
+	CHECK(memory[1] == 10);
+	CHECK(memory[2] == 20);
+	CHECK(memory[3] == 30);
+	CHECK(memory[4] == 40);
+	CHECK(buffer.size == 6);
+
+	memory[0] = 10;
+	memory[1] = 20;
+	memory[2] = 30;
+	memory[3] = 40;
+	memory[4] = 50;
+	memory[5] = 60;
+
+	buffer.size = 4;
+
+	CHECK(bf_buffer_append(&buffer, memory, 3) == BF_OK);
+	CHECK(buffer.size == 7);
+	CHECK(memory[0] == 10);
+	CHECK(memory[1] == 20);
+	CHECK(memory[2] == 30);
+	CHECK(memory[3] == 40);
+	CHECK(memory[4] == 10);
+	CHECK(memory[5] == 20);
+	CHECK(memory[6] == 30);
+
+	uint8_t copy_memory[8] = {0};
+	bf_buffer_t source = {
+	    .data = memory, .capacity = sizeof(memory), .size = 5};
+	bf_buffer_t destination = {
+	    .data = memory + 2, .capacity = sizeof(memory) - 2, .size = 0};
+
+	memory[0] = 1;
+	memory[1] = 2;
+	memory[2] = 3;
+	memory[3] = 4;
+	memory[4] = 5;
+
+	CHECK(bf_buffer_copy(&destination, &source) == BF_OK);
+	CHECK(destination.size == 5);
+	CHECK(memory[2] == 1);
+	CHECK(memory[3] == 2);
+	CHECK(memory[4] == 3);
+	CHECK(memory[5] == 4);
+	CHECK(memory[6] == 5);
+
+	(void)copy_memory;
 }
 
 int main(void)
@@ -682,7 +746,8 @@ int main(void)
 	test_bf_buffer_remove();
 
 	test_bf_buffer_resize();
-	test_bf_buffer_reserve();
+	test_bf_buffer_has_capacity();
+	test_bf_buffer_overlapping_operations();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d test(s) failed.\n", failures);
