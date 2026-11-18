@@ -371,22 +371,47 @@ static void test_bf_swap_bits(void)
 	CHECK(bf_swap_bits(NULL, 0, 1) == BF_EINVAL);
 }
 
+static void test_count_set_bits_extended(void)
+{
+	uint8_t value = 0x80;
+	uint8_t result = 0;
+
+	CHECK(bf_count_set_bits(&value, &result) == BF_OK);
+	CHECK(result == 1);
+
+	value = 0x55;
+	CHECK(bf_count_set_bits(&value, &result) == BF_OK);
+	CHECK(result == 4);
+
+	value = 0xAA;
+	CHECK(bf_count_set_bits(&value, &result) == BF_OK);
+	CHECK(result == 4);
+
+	value = 0x81;
+	CHECK(bf_count_set_bits(&value, &result) == BF_OK);
+	CHECK(result == 2);
+}
+
 int main(void)
 {
 	test_rotate_left();
 	test_bf_rotate_right();
 	test_get();
 	test_set();
+
 	test_clear();
 	test_toggle();
 	test_count_set_bits();
 	test_is_power_of_two();
+
 	test_reverse_bits();
 	test_bf_get_bits();
 	test_bf_set_bits();
 	test_bf_clear_bits();
+
 	test_bf_toggle_bits();
 	test_bf_swap_bits();
+	test_count_set_bits_extended();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
