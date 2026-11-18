@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 static int failures = 0;
 
@@ -392,6 +393,63 @@ static void test_count_set_bits_extended(void)
 	CHECK(result == 2);
 }
 
+static void test_rotate_large_positions(void)
+{
+	uint8_t result = 0;
+
+	CHECK(bf_rotate_left(0x96, UINT_MAX, &result) == BF_OK);
+	CHECK(result == (uint8_t)((0x96u << (UINT_MAX % 8)) |
+				  (0x96u >> (8 - (UINT_MAX % 8)))));
+
+	CHECK(bf_rotate_right(0x96, UINT_MAX, &result) == BF_OK);
+
+	unsigned int position = UINT_MAX % 8;
+	uint8_t expected =
+	    position == 0
+		? 0x96
+		: (uint8_t)((0x96u >> position) | (0x96u << (8 - position)));
+
+	CHECK(result == expected);
+}
+
+static void test_swap_same_bit(void)
+{
+	uint8_t value = 0xA5;
+
+	CHECK(bf_swap_bits(&value, 0, 0) == BF_OK);
+	CHECK(value == 0xA5);
+
+	CHECK(bf_swap_bits(&value, 7, 7) == BF_OK);
+	CHECK(value == 0xA5);
+}
+
+static void test_invalid_operations_preserve_value(void)
+{
+	uint8_t value = 0xA5;
+	uint8_t original = value;
+
+	CHECK(bf_set(&value, 8) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_clear(&value, 8) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_toggle(&value, 8) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_set_bits(&value, 7, 2) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_clear_bits(&value, 8, 1) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_toggle_bits(&value, 0, 0) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_swap_bits(&value, 0, 8) == BF_EINVAL);
+	CHECK(value == original);
+}
+
 int main(void)
 {
 	test_rotate_left();
@@ -411,7 +469,11 @@ int main(void)
 
 	test_bf_toggle_bits();
 	test_bf_swap_bits();
+
 	test_count_set_bits_extended();
+	test_rotate_large_positions();
+	test_swap_same_bit();
+	test_invalid_operations_preserve_value();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
