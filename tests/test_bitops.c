@@ -396,20 +396,17 @@ static void test_count_set_bits_extended(void)
 static void test_rotate_large_positions(void)
 {
 	uint8_t result = 0;
+	unsigned int position = UINT_MAX % 8;
+
+	CHECK(position == 7);
 
 	CHECK(bf_rotate_left(0x96, UINT_MAX, &result) == BF_OK);
-	CHECK(result == (uint8_t)((0x96u << (UINT_MAX % 8)) |
-				  (0x96u >> (8 - (UINT_MAX % 8)))));
+	CHECK(result ==
+	      (uint8_t)((0x96u << position) | (0x96u >> (8 - position))));
 
 	CHECK(bf_rotate_right(0x96, UINT_MAX, &result) == BF_OK);
-
-	unsigned int position = UINT_MAX % 8;
-	uint8_t expected =
-	    position == 0
-		? 0x96
-		: (uint8_t)((0x96u >> position) | (0x96u << (8 - position)));
-
-	CHECK(result == expected);
+	CHECK(result ==
+	      (uint8_t)((0x96u >> position) | (0x96u << (8 - position))));
 }
 
 static void test_swap_same_bit(void)
