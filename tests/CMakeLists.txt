@@ -62,3 +62,16 @@ add_test(
     NAME io_tests
     COMMAND io_tests
 )
+
+add_executable(status_tests
+    test_status.c
+)
+
+target_link_libraries(status_tests
+    PRIVATE bitforge
+)
+
+add_test(
+    NAME status_tests
+    COMMAND status_tests
+)

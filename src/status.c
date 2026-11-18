@@ -12,9 +12,15 @@ const char *bf_status_string(bf_status status)
 	case BF_EIO:
 		return "Input/output error";
 	case BF_EOF:
-		return "End of file";
+		return "End of input";
 	case BF_ENOTFOUND:
-		return "Pattern is not found";
+		return "Not found";
+	case BF_EOVERFLOW:
+		return "Arithmetic overflow";
+	case BF_EUNSUPPORTED:
+		return "Operation not supported";
+	case BF_EFORMAT:
+		return "Invalid data format";
 	default:
 		return "Unknown status";
 	}
