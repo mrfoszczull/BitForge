@@ -2,9 +2,9 @@
 #define BITFORGE_BUFFER_H
 
 #include <bitforge/status.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,7 +37,7 @@ typedef struct {
  * @brief Initializes a read-only memory view.
  *
  * @param view Destination view.
- * @param data Source memory.
+ * @param data Source memory (may be NULL only when size == 0).
  * @param size Number of bytes available.
  * @return BF_OK on success, BF_EINVAL on invalid arguments.
  */
@@ -46,11 +46,11 @@ bf_status bf_view_init(bf_view_t *view, const uint8_t *data, size_t size);
 /**
  * @brief Initializes a writable buffer using caller-provided memory.
  *
- * The buffer starts empty. No memory is allocated.
+ * The buffer starts empty (size == 0). No memory is allocated.
  *
  * @param buffer Destination buffer.
- * @param data Writable memory region.
- * @param capacity Total available capacity.
+ * @param data Writable memory region (may be NULL only when capacity == 0).
+ * @param capacity Total available capacity in bytes.
  * @return BF_OK on success, BF_EINVAL on invalid arguments.
  */
 bf_status bf_buffer_init(bf_buffer_t *buffer, uint8_t *data, size_t capacity);
@@ -59,11 +59,11 @@ bf_status bf_buffer_init(bf_buffer_t *buffer, uint8_t *data, size_t capacity);
  * @brief Reads bytes from a memory view.
  *
  * @param view Source memory view.
- * @param offset Starting offset in the view.
+ * @param offset Starting byte offset within the view.
  * @param destination Destination memory.
  * @param length Number of bytes to read.
  * @return BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds
- * range.
+ *         range.
  */
 bf_status bf_view_read(
     const bf_view_t *view, size_t offset, uint8_t *destination, size_t length);
@@ -72,33 +72,33 @@ bf_status bf_view_read(
  * @brief Creates a read-only subview without copying data.
  *
  * @param view Source memory view.
- * @param offset Starting offset in the source view.
+ * @param offset Starting byte offset within the source view.
  * @param length Number of bytes in the subview.
  * @param result Destination view.
  * @return BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds
- * range.
+ *         range.
  */
 bf_status bf_view_slice(
     const bf_view_t *view, size_t offset, size_t length, bf_view_t *result);
 
 /**
- * @brief Writes bytes into a buffer at the specified offset.
+ * @brief Writes bytes into a buffer at the specified offset within capacity.
  *
  * Supports overlapping source and destination memory regions.
  * Does not change the buffer's logical size.
  *
  * @param buffer Destination buffer.
- * @param offset Starting offset in the buffer.
+ * @param offset Starting byte offset in the buffer.
  * @param source Source memory.
  * @param length Number of bytes to write.
  * @return BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds
- * range.
+ *         range.
  */
 bf_status bf_buffer_write(
     bf_buffer_t *buffer, size_t offset, const uint8_t *source, size_t length);
 
 /**
- * @brief Creates a read-only view of the buffer's current contents.
+ * @brief Creates a read-only view of the buffer's current logical contents.
  *
  * @param buffer Source buffer.
  * @param view Destination view.
@@ -107,7 +107,7 @@ bf_status bf_buffer_write(
 bf_status bf_buffer_get_view(const bf_buffer_t *buffer, bf_view_t *view);
 
 /**
- * @brief Appends bytes to the end of a buffer.
+ * @brief Appends bytes to the end of a buffer and increases its logical size.
  *
  * Supports overlapping source and destination memory regions.
  *
@@ -115,7 +115,7 @@ bf_status bf_buffer_get_view(const bf_buffer_t *buffer, bf_view_t *view);
  * @param source Source memory.
  * @param length Number of bytes to append.
  * @return BF_OK on success, BF_EINVAL on invalid arguments or insufficient
- * capacity.
+ *         capacity.
  */
 bf_status bf_buffer_append(
     bf_buffer_t *buffer, const uint8_t *source, size_t length);
@@ -123,7 +123,7 @@ bf_status bf_buffer_append(
 /**
  * @brief Clears the logical contents of a buffer.
  *
- * Sets the buffer's size to zero without modifying the underlying memory.
+ * Sets the buffer's logical size to zero without modifying underlying memory.
  *
  * @param buffer Buffer to clear.
  * @return BF_OK on success, BF_EINVAL if the buffer is invalid.
@@ -131,64 +131,63 @@ bf_status bf_buffer_append(
 bf_status bf_buffer_clear(bf_buffer_t *buffer);
 
 /**
- * @brief Fills a range of a buffer with a specified byte value.
+ * @brief Fills a range within buffer capacity with a specified byte value.
  *
  * Does not change the buffer's logical size.
  *
  * @param buffer Destination buffer.
- * @param offset Starting offset in the buffer.
+ * @param offset Starting byte offset in the buffer.
  * @param length Number of bytes to fill.
  * @param value Byte value used to fill the range.
  * @return BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds
- * range.
+ *         range.
  */
 bf_status bf_buffer_fill(
     bf_buffer_t *buffer, size_t offset, size_t length, uint8_t value);
 
 /**
- * @brief Compares the contents of two memory views.
+ * @brief Compares the logical contents of two memory views.
  *
  * @param a First memory view.
  * @param b Second memory view.
- * @param equal Output parameter set to true if both views contain identical
- * data.
+ * @param equal Output parameter set to true if both views have equal size
+ *              and identical bytes.
  * @return BF_OK on success, BF_EINVAL if any argument is invalid.
  */
 bf_status bf_view_compare(const bf_view_t *a, const bf_view_t *b, bool *equal);
 
 /**
- * @brief Copies the contents of one buffer into another.
+ * @brief Copies the logical contents of one buffer into another.
  *
  * Supports overlapping source and destination memory regions.
  *
  * @param destination Destination buffer.
  * @param source Source buffer.
  * @return BF_OK on success, BF_EINVAL if an argument is invalid or
- *         the destination capacity is insufficient.
+ *         destination capacity is insufficient.
  */
 bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source);
 
 /**
- * @brief Reads bytes from a buffer into a destination memory region.
+ * @brief Reads bytes from the buffer's logical contents ([0, buffer->size)).
  *
  * @param buffer Source buffer.
- * @param offset Starting offset relative to buffer->size.
+ * @param offset Starting byte offset from the beginning of logical data.
  * @param destination Destination memory region.
  * @param length Number of bytes to read.
  * @return BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds
- * range.
+ *         range.
  */
 bf_status bf_buffer_read(const bf_buffer_t *buffer, size_t offset,
     uint8_t *destination, size_t length);
 
 /**
- * @brief Inserts bytes into a buffer at the specified offset.
+ * @brief Inserts bytes into a buffer at the specified logical offset.
  *
- * Shifts existing data and increases the logical size.
- * The source memory region must not overlap the buffer's memory region.
+ * Shifts existing tail data and increases logical size by length.
  *
  * @param buffer Target buffer.
- * @param offset Offset at which to insert bytes.
+ * @param offset Byte offset in [0, buffer->size] at which to insert bytes.
  * @param source Source memory to insert.
  * @param length Number of bytes to insert.
  * @return BF_OK on success, BF_EINVAL on invalid arguments, out-of-bounds
@@ -198,15 +197,15 @@ bf_status bf_buffer_insert(
     bf_buffer_t *buffer, size_t offset, const uint8_t *source, size_t length);
 
 /**
- * @brief Removes bytes from a buffer at the specified offset.
+ * @brief Removes bytes from a buffer at the specified logical offset.
  *
- * Shifts subsequent data and decreases the logical size.
+ * Shifts subsequent data and decreases logical size by length.
  *
  * @param buffer Target buffer.
- * @param offset Offset from which to remove bytes.
+ * @param offset Starting byte offset in [0, buffer->size].
  * @param length Number of bytes to remove.
  * @return BF_OK on success, BF_EINVAL on invalid arguments or out-of-bounds
- * range.
+ *         range.
  */
 bf_status bf_buffer_remove(bf_buffer_t *buffer, size_t offset, size_t length);
 
@@ -216,18 +215,20 @@ bf_status bf_buffer_remove(bf_buffer_t *buffer, size_t offset, size_t length);
  * If new_size is greater than current size, newly exposed bytes are zeroed.
  *
  * @param buffer Target buffer.
- * @param new_size New logical size in bytes.
+ * @param new_size New logical size in bytes (must be less than or equal to
+ * capacity).
  * @return BF_OK on success, BF_EINVAL if new_size exceeds capacity or
  *         arguments are invalid.
  */
 bf_status bf_buffer_resize(bf_buffer_t *buffer, size_t new_size);
 
 /**
- * @brief Checks whether the buffer has enough capacity for additional bytes.
+ * @brief Checks whether the buffer has enough remaining capacity.
  *
  * @param buffer Target buffer.
  * @param additional_capacity Number of additional bytes required.
- * @return true if sufficient capacity is available, false otherwise.
+ * @return true if buffer is valid and capacity - size is greater than or equal
+ *         to additional_capacity, false otherwise.
  */
 bool bf_buffer_has_capacity(
     const bf_buffer_t *buffer, size_t additional_capacity);
@@ -238,4 +239,4 @@ bool bf_buffer_has_capacity(
 }
 #endif
 
-#endif
+#endif /* BITFORGE_BUFFER_H */

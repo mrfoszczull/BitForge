@@ -1,11 +1,12 @@
-#include <bitforge/status.h>
 #include <bitforge/io.h>
+#include <bitforge/status.h>
 
+#include <limits.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <limits.h>
 
 typedef struct {
 	FILE *stream;
@@ -49,13 +50,11 @@ bf_status bf_io_open(bf_file_t *file, const char *path, bf_file_mode mode)
 	}
 
 	stream = fopen(path, open_mode);
-
 	if (stream == NULL) {
 		return BF_EIO;
 	}
 
 	internal = malloc(sizeof(*internal));
-
 	if (internal == NULL) {
 		(void)fclose(stream);
 		return BF_ENOMEM;
@@ -80,11 +79,9 @@ bf_status bf_io_close(bf_file_t *file)
 	}
 
 	internal = (bf_file_internal_t *)file->handle;
-
 	file->handle = NULL;
 
 	result = fclose(internal->stream);
-
 	free(internal);
 
 	if (result != 0) {
@@ -125,7 +122,7 @@ bf_status bf_io_read(
 
 	if (internal->mode == BF_FILE_READ_WRITE &&
 	    internal->last_operation_was_write) {
-		if (fflush(internal->stream) != 0) {
+		if (fseek(internal->stream, 0, SEEK_CUR) != 0) {
 			return BF_EIO;
 		}
 	}
@@ -229,7 +226,6 @@ bf_status bf_io_tell(const bf_file_t *file, size_t *out_position)
 	internal = (bf_file_internal_t *)file->handle;
 
 	position = ftell(internal->stream);
-
 	if (position < 0) {
 		return BF_EIO;
 	}
@@ -257,7 +253,6 @@ bf_status bf_io_size(bf_file_t *file, size_t *out_size)
 	internal = (bf_file_internal_t *)file->handle;
 
 	current_position = ftell(internal->stream);
-
 	if (current_position < 0) {
 		return BF_EIO;
 	}
@@ -268,7 +263,6 @@ bf_status bf_io_size(bf_file_t *file, size_t *out_size)
 	}
 
 	file_size = ftell(internal->stream);
-
 	if (file_size < 0) {
 		(void)fseek(internal->stream, current_position, SEEK_SET);
 		return BF_EIO;
@@ -282,7 +276,6 @@ bf_status bf_io_size(bf_file_t *file, size_t *out_size)
 		return BF_EOVERFLOW;
 	}
 
-	internal->last_operation_was_write = false;
 	*out_size = (size_t)file_size;
 
 	return BF_OK;
