@@ -1,10 +1,10 @@
-
 #include <bitforge/io.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <limits.h>
 
 static int failures = 0;
 
@@ -241,6 +241,91 @@ static void test_io_write(void)
 	remove_test_file();
 }
 
+static void test_io_write_modes(void)
+{
+	bf_file_t file = {0};
+	const uint8_t data[] = {0xAA, 0xBB};
+	size_t bytes_written = 0;
+
+	create_test_file();
+
+	CHECK(bf_io_open(&file, TEST_FILE, BF_FILE_READ) == BF_OK);
+	CHECK(bf_io_write(&file, data, sizeof(data), &bytes_written) ==
+	      BF_EINVAL);
+	CHECK(bytes_written == 0);
+	CHECK(bf_io_close(&file) == BF_OK);
+
+	CHECK(bf_io_open(&file, TEST_FILE, BF_FILE_APPEND) == BF_OK);
+	CHECK(bf_io_write(&file, data, sizeof(data), &bytes_written) == BF_OK);
+	CHECK(bytes_written == sizeof(data));
+	CHECK(bf_io_close(&file) == BF_OK);
+
+	remove_test_file();
+}
+
+static void test_io_append(void)
+{
+	bf_file_t file = {0};
+	const uint8_t appended[] = {0xAA, 0xBB};
+	uint8_t buffer[sizeof(test_data) + sizeof(appended)] = {0};
+	size_t bytes_written = 0;
+	size_t bytes_read = 0;
+
+	create_test_file();
+
+	CHECK(bf_io_open(&file, TEST_FILE, BF_FILE_APPEND) == BF_OK);
+	CHECK(bf_io_write(&file, appended, sizeof(appended), &bytes_written) ==
+	      BF_OK);
+	CHECK(bytes_written == sizeof(appended));
+	CHECK(bf_io_close(&file) == BF_OK);
+
+	CHECK(bf_io_open(&file, TEST_FILE, BF_FILE_READ) == BF_OK);
+	CHECK(bf_io_read(&file, buffer, sizeof(buffer), &bytes_read) == BF_OK);
+	CHECK(bytes_read == sizeof(buffer));
+	CHECK(memcmp(buffer, test_data, sizeof(test_data)) == 0);
+	CHECK(memcmp(buffer + sizeof(test_data), appended, sizeof(appended)) ==
+	      0);
+	CHECK(bf_io_close(&file) == BF_OK);
+
+	remove_test_file();
+}
+
+static void test_io_read_write_transitions(void)
+{
+	bf_file_t file = {0};
+	const uint8_t replacement[] = {0xAA, 0xBB};
+	const uint8_t expected[] = {0x10, 0x20, 0xAA, 0xBB, 0x50};
+	uint8_t buffer[sizeof(test_data)] = {0};
+	uint8_t first_bytes[2] = {0};
+	uint8_t last_byte = 0;
+	size_t bytes_read = 0;
+	size_t bytes_written = 0;
+
+	create_test_file();
+	CHECK(bf_io_open(&file, TEST_FILE, BF_FILE_READ_WRITE) == BF_OK);
+
+	CHECK(bf_io_read(&file, first_bytes, sizeof(first_bytes),
+		  &bytes_read) == BF_OK);
+	CHECK(bytes_read == sizeof(first_bytes));
+	CHECK(memcmp(first_bytes, test_data, sizeof(first_bytes)) == 0);
+
+	CHECK(bf_io_write(&file, replacement, sizeof(replacement),
+		  &bytes_written) == BF_OK);
+	CHECK(bytes_written == sizeof(replacement));
+
+	CHECK(bf_io_read(&file, &last_byte, 1, &bytes_read) == BF_OK);
+	CHECK(bytes_read == 1);
+	CHECK(last_byte == 0x50);
+
+	CHECK(bf_io_seek(&file, 0) == BF_OK);
+	CHECK(bf_io_read(&file, buffer, sizeof(buffer), &bytes_read) == BF_OK);
+	CHECK(bytes_read == sizeof(buffer));
+	CHECK(memcmp(buffer, expected, sizeof(expected)) == 0);
+
+	CHECK(bf_io_close(&file) == BF_OK);
+	remove_test_file();
+}
+
 static void test_io_seek(void)
 {
 	bf_file_t file = {0};
@@ -264,6 +349,21 @@ static void test_io_seek(void)
 
 	CHECK(bf_io_close(&file) == BF_OK);
 
+	remove_test_file();
+}
+
+static void test_io_seek_overflow(void)
+{
+	bf_file_t file = {0};
+
+	create_test_file();
+	CHECK(bf_io_open(&file, TEST_FILE, BF_FILE_READ) == BF_OK);
+
+#if SIZE_MAX > LONG_MAX
+	CHECK(bf_io_seek(&file, (size_t)LONG_MAX + 1u) == BF_EOVERFLOW);
+#endif
+
+	CHECK(bf_io_close(&file) == BF_OK);
 	remove_test_file();
 }
 
@@ -336,7 +436,11 @@ int main(void)
 	test_io_read_partial();
 	test_io_read_modes();
 	test_io_write();
+	test_io_write_modes();
+	test_io_append();
+	test_io_read_write_transitions();
 	test_io_seek();
+	test_io_seek_overflow();
 	test_io_tell();
 	test_io_size();
 

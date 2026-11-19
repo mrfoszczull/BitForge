@@ -1,4 +1,3 @@
-
 #ifndef BITFORGE_IO_H
 #define BITFORGE_IO_H
 

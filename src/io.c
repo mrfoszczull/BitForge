@@ -1,6 +1,7 @@
 #include <bitforge/status.h>
 #include <bitforge/io.h>
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -56,7 +57,7 @@ bf_status bf_io_open(bf_file_t *file, const char *path, bf_file_mode mode)
 	internal = malloc(sizeof(*internal));
 
 	if (internal == NULL) {
-		fclose(stream);
+		(void)fclose(stream);
 		return BF_ENOMEM;
 	}
 
@@ -199,8 +200,8 @@ bf_status bf_io_seek(bf_file_t *file, size_t offset)
 		return BF_EINVAL;
 	}
 
-	if (offset > LONG_MAX) {
-		return BF_EINVAL;
+	if ((uintmax_t)offset > (uintmax_t)LONG_MAX) {
+		return BF_EOVERFLOW;
 	}
 
 	internal = (bf_file_internal_t *)file->handle;
@@ -233,6 +234,10 @@ bf_status bf_io_tell(const bf_file_t *file, size_t *out_position)
 		return BF_EIO;
 	}
 
+	if ((uintmax_t)position > (uintmax_t)SIZE_MAX) {
+		return BF_EOVERFLOW;
+	}
+
 	*out_position = (size_t)position;
 
 	return BF_OK;
@@ -249,7 +254,6 @@ bf_status bf_io_size(bf_file_t *file, size_t *out_size)
 	}
 
 	*out_size = 0;
-
 	internal = (bf_file_internal_t *)file->handle;
 
 	current_position = ftell(internal->stream);
@@ -259,6 +263,7 @@ bf_status bf_io_size(bf_file_t *file, size_t *out_size)
 	}
 
 	if (fseek(internal->stream, 0, SEEK_END) != 0) {
+		(void)fseek(internal->stream, current_position, SEEK_SET);
 		return BF_EIO;
 	}
 
@@ -271,6 +276,10 @@ bf_status bf_io_size(bf_file_t *file, size_t *out_size)
 
 	if (fseek(internal->stream, current_position, SEEK_SET) != 0) {
 		return BF_EIO;
+	}
+
+	if ((uintmax_t)file_size > (uintmax_t)SIZE_MAX) {
+		return BF_EOVERFLOW;
 	}
 
 	internal->last_operation_was_write = false;
