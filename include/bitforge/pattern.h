@@ -133,7 +133,7 @@ bf_status bf_stream_find_pattern_from(const bf_stream_t *stream,
  * @param out_count Receives total number of matches found.
  * @return BF_OK on success, or BF_EINVAL on invalid arguments.
  */
-bf_status bf_stream_find_pattern_all(bf_stream_t *stream,
+bf_status bf_stream_find_pattern_all(const bf_stream_t *stream,
     const bf_pattern_t *pattern, size_t *positions, size_t capacity,
     size_t *out_count);
 

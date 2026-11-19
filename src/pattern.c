@@ -291,7 +291,7 @@ bf_status bf_stream_find_pattern_from(const bf_stream_t *stream,
 	return bf_stream_tell(&search, out_byte, out_bit);
 }
 
-bf_status bf_stream_find_pattern_all(bf_stream_t *stream,
+bf_status bf_stream_find_pattern_all(const bf_stream_t *stream,
     const bf_pattern_t *pattern, size_t *positions, size_t capacity,
     size_t *out_count)
 {
