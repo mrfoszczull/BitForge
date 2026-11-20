@@ -75,3 +75,16 @@ add_test(
     NAME status_tests
     COMMAND status_tests
 )
+
+add_executable(parser_tests
+    test_parser.c
+)
+
+target_link_libraries(parser_tests
+    PRIVATE bitforge
+)
+
+add_test(
+    NAME parser_tests
+    COMMAND parser_tests
+)
