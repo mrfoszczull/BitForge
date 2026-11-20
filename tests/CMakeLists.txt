@@ -88,3 +88,16 @@ add_test(
     NAME parser_tests
     COMMAND parser_tests
 )
+
+add_executable(png_tests
+    test_png.c
+)
+
+target_link_libraries(png_tests
+    PRIVATE bitforge
+)
+
+add_test(
+    NAME png_tests
+    COMMAND png_tests
+)

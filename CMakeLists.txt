@@ -37,6 +37,7 @@ add_library(bitforge STATIC
     src/parser/validation.c
     src/parser/diagnostics.c
     src/parser/string.c
+    src/formats/png.c
 )
 
 add_library(BitForge::bitforge ALIAS bitforge)
