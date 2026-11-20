@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 static int failures = 0;
 
@@ -172,12 +174,141 @@ static void test_parser_validation_and_errors(void)
 	printf("test_parser_validation_and_errors finished.\n");
 }
 
+static bool float_near(float a, float b, float eps)
+{
+	return fabsf(a - b) <= eps;
+}
+
+static bool double_near(double a, double b, double eps)
+{
+	return fabs(a - b) <= eps;
+}
+
+static void test_parser_floats(void)
+{
+	uint8_t buf[] = {
+	    0x00, 0x00, 0xA0, 0x3F,			    /* f32_le: 1.25f */
+	    0xC0, 0x20, 0x00, 0x00,			    /* f32_be: -2.5f */
+	    0x18, 0x2D, 0x44, 0x54, 0xFB, 0x21, 0x09, 0x40, /* f64_le: pi */
+	    0x40, 0x09, 0x21, 0xFB, 0x54, 0x44, 0x2D, 0x18  /* f64_be: pi */
+	};
+	bf_stream_t s;
+	CHECK(bf_stream_init(&s, buf, sizeof(buf)) == BF_OK);
+
+	float f = 0.0f;
+	double d = 0.0;
+
+	CHECK(bf_parser_read_f32_le(&s, &f) == BF_OK &&
+	      float_near(f, 1.25f, 1e-6f));
+	CHECK(bf_parser_read_f32_be(&s, &f) == BF_OK &&
+	      float_near(f, -2.5f, 1e-6f));
+	CHECK(bf_parser_read_f64_le(&s, &d) == BF_OK &&
+	      double_near(d, 3.141592653589793, 1e-12));
+	CHECK(bf_parser_read_f64_be(&s, &d) == BF_OK &&
+	      double_near(d, 3.141592653589793, 1e-12));
+
+	CHECK(bf_stream_seek(&s, 21U, 0U) == BF_OK);
+	CHECK(bf_parser_read_f32_le(&s, &f) == BF_EOF);
+	CHECK(s.byte_offset == 21U);
+
+	CHECK(bf_parser_read_f32_le(&s, NULL) == BF_EINVAL);
+	CHECK(bf_parser_read_f64_be(NULL, &d) == BF_EINVAL);
+	CHECK(bf_stream_seek(&s, 0U, 2U) == BF_OK);
+	CHECK(bf_parser_read_f32_le(&s, &f) == BF_EINVAL);
+	CHECK(bf_parser_read_f64_le(&s, &d) == BF_EINVAL);
+
+	printf("test_parser_floats finished.\n");
+}
+
+static void test_parser_strings(void)
+{
+	uint8_t buf[] = {'A', 'B', 'C', 'D', 'h', 'e', 'l', 'l', 'o', '\0',
+	    0x03U, 'x', 'y', 'z', 'N', 'O', '_', 'N', 'U', 'L'};
+	bf_stream_t s;
+	CHECK(bf_stream_init(&s, buf, sizeof(buf)) == BF_OK);
+
+	char out[16] = {0};
+
+	CHECK(bf_parser_read_fixed_string(&s, 4U, out, 4U) == BF_EOVERFLOW);
+	CHECK(s.byte_offset == 0U);
+
+	CHECK(bf_parser_read_fixed_string(&s, 4U, out, sizeof(out)) == BF_OK);
+	CHECK(strcmp(out, "ABCD") == 0);
+	CHECK(s.byte_offset == 4U);
+
+	CHECK(bf_parser_read_cstr(&s, out, sizeof(out)) == BF_OK);
+	CHECK(strcmp(out, "hello") == 0);
+	CHECK(s.byte_offset == 10U);
+
+	CHECK(bf_parser_read_pascal_u8_string(&s, out, 3U) == BF_EOVERFLOW);
+	CHECK(s.byte_offset == 10U);
+
+	CHECK(bf_parser_read_pascal_u8_string(&s, out, sizeof(out)) == BF_OK);
+	CHECK(strcmp(out, "xyz") == 0);
+	CHECK(s.byte_offset == 14U);
+
+	CHECK(bf_parser_read_cstr(&s, out, sizeof(out)) == BF_EFORMAT);
+	CHECK(s.byte_offset == 14U);
+
+	CHECK(bf_parser_read_fixed_string(NULL, 1U, out, sizeof(out)) ==
+	      BF_EINVAL);
+	CHECK(bf_parser_read_cstr(&s, NULL, sizeof(out)) == BF_EINVAL);
+	CHECK(bf_parser_read_pascal_u8_string(&s, out, 0U) == BF_EINVAL);
+
+	printf("test_parser_strings finished.\n");
+}
+
+static void test_parser_diagnostics(void)
+{
+	uint8_t buf[] = {0x01U, 0x02U, 0x03U, 0x04U};
+	bf_stream_t s;
+	CHECK(bf_stream_init(&s, buf, sizeof(buf)) == BF_OK);
+	CHECK(bf_stream_seek(&s, 2U, 5U) == BF_OK);
+
+	bf_parser_diag_t diag;
+	bf_parser_diag_reset(&diag);
+	CHECK(diag.byte_offset == 0U);
+	CHECK(diag.bit_offset == 0U);
+	CHECK(diag.status == BF_OK);
+	CHECK(diag.message == NULL);
+
+	CHECK(bf_parser_diag_set(&diag, &s, BF_EFORMAT, "bad magic header") ==
+	      BF_OK);
+	CHECK(diag.byte_offset == 2U);
+	CHECK(diag.bit_offset == 5U);
+	CHECK(diag.status == BF_EFORMAT);
+	CHECK(strcmp(diag.message, "bad magic header") == 0);
+
+	char formatted[128] = {0};
+	CHECK(bf_parser_diag_format(&diag, formatted, sizeof(formatted)) ==
+	      BF_OK);
+	CHECK(strstr(formatted, "2:5") != NULL);
+	CHECK(strstr(formatted, "bad magic header") != NULL);
+
+	char tiny[8] = {0};
+	CHECK(bf_parser_diag_format(&diag, tiny, sizeof(tiny)) == BF_EOVERFLOW);
+
+	CHECK(bf_parser_diag_set(NULL, &s, BF_EINVAL, "err") == BF_EINVAL);
+	CHECK(bf_parser_diag_set(&diag, NULL, BF_EINVAL, "err") == BF_EINVAL);
+	CHECK(bf_parser_diag_format(NULL, formatted, sizeof(formatted)) ==
+	      BF_EINVAL);
+	CHECK(
+	    bf_parser_diag_format(&diag, NULL, sizeof(formatted)) == BF_EINVAL);
+	CHECK(bf_parser_diag_format(&diag, formatted, 0U) == BF_EINVAL);
+	bf_parser_diag_reset(NULL);
+
+	printf("test_parser_diagnostics finished.\n");
+}
+
 int main(void)
 {
 	test_parser_unsigned_integers();
 	test_parser_signed_integers();
 	test_parser_bitfields_and_reserved();
 	test_parser_validation_and_errors();
+	test_parser_floats();
+	test_parser_strings();
+	test_parser_diagnostics();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);
