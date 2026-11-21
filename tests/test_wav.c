@@ -179,13 +179,13 @@ static void test_wav_chunks_fmt_and_data(void)
 		} else if (bf_wav_chunk_is(&chunk, "PAD ")) {
 			saw_pad = true;
 			CHECK(chunk.size == 3U);
-			CHECK(memcmp(chunk.data, "ABC", 3U) == 0);
+			CHECK(chunk.data != NULL &&
+			      memcmp(chunk.data, "ABC", 3U) == 0);
 		} else if (bf_wav_chunk_is(&chunk, "data")) {
 			saw_data = true;
 			CHECK(bf_wav_get_data(&chunk, &data) == BF_OK);
 			CHECK(data.size == 8U);
-			CHECK(data.data != NULL);
-			CHECK(data.data[0] == 0x01U);
+			CHECK(data.data != NULL && data.data[0] == 0x01U);
 		}
 	}
 
