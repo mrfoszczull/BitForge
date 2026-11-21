@@ -101,3 +101,16 @@ add_test(
     NAME png_tests
     COMMAND png_tests
 )
+
+add_executable(bmp_tests
+    test_bmp.c
+)
+
+target_link_libraries(bmp_tests
+    PRIVATE bitforge
+)
+
+add_test(
+    NAME bmp_tests
+    COMMAND bmp_tests
+)

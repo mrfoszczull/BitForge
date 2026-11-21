@@ -38,6 +38,7 @@ add_library(bitforge STATIC
     src/parser/diagnostics.c
     src/parser/string.c
     src/formats/png.c
+    src/formats/bmp.c
 )
 
 add_library(BitForge::bitforge ALIAS bitforge)
