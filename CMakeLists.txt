@@ -39,6 +39,7 @@ add_library(bitforge STATIC
     src/parser/string.c
     src/formats/png.c
     src/formats/bmp.c
+    src/formats/wav.c
 )
 
 add_library(BitForge::bitforge ALIAS bitforge)

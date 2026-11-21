@@ -114,3 +114,16 @@ add_test(
     NAME bmp_tests
     COMMAND bmp_tests
 )
+
+add_executable(wav_tests
+    test_wav.c
+)
+
+target_link_libraries(wav_tests
+    PRIVATE bitforge
+)
+
+add_test(
+    NAME wav_tests
+    COMMAND wav_tests
+)
