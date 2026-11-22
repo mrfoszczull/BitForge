@@ -42,8 +42,9 @@ extern "C" {
 #define BF_ELF32_SYM_LEN 16U /**< Minimum ELF32 symbol entry size in bytes. */
 #define BF_ELF64_SYM_LEN 24U /**< Minimum ELF64 symbol entry size in bytes. */
 #define BF_ELF32_DYN_LEN 8U  /**< Minimum ELF32 dynamic entry size in bytes. */
-#define BF_ELF64_DYN_LEN 16U /**< Minimum ELF64 dynamic entry size in bytes.   \
-			      */
+#define BF_ELF64_DYN_LEN                                                       \
+	16U /**< Minimum ELF64 dynamic entry size in bytes.                    \
+	     */
 #define BF_ELF32_REL_LEN                                                       \
 	8U /**< Minimum ELF32 `REL` relocation entry size in bytes. */
 #define BF_ELF32_RELA_LEN                                                      \
