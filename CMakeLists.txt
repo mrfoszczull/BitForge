@@ -40,6 +40,7 @@ add_library(bitforge STATIC
     src/formats/png.c
     src/formats/bmp.c
     src/formats/wav.c
+    src/formats/elf.c
 )
 
 add_library(BitForge::bitforge ALIAS bitforge)

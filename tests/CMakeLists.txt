@@ -9,6 +9,7 @@ set(TESTS
     png
     bmp
     wav
+    elf
 )
 
 foreach(test IN LISTS TESTS)
