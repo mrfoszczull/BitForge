@@ -10,6 +10,7 @@ set(TESTS
     bmp
     wav
     elf
+    pe
 )
 
 foreach(test IN LISTS TESTS)
