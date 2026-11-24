@@ -195,4 +195,4 @@ bf_status bf_swap_bits(uint8_t *value, size_t first_bit, size_t second_bit);
 }
 #endif
 
-#endif
+#endif /* BITFORGE_BITOPS_H */

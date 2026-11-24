@@ -49,4 +49,4 @@ const char *bf_status_string(bf_status status);
 }
 #endif
 
-#endif
+#endif /* BITFORGE_STATUS_H */
