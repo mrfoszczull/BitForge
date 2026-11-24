@@ -35,11 +35,11 @@ Module pages are generated from Doxygen comments in `include/bitforge/` using `m
 
 | Module | Header | Description |
 |--------|--------|-------------|
-| [png](formats/png.md) | `bitforge/formats/png.h` | PNG 8-byte signature check, `IHDR` parsing, chunk stream reading, and ISO 3309 / IEEE 802.3 CRC-32 calculation and verification. |
-| [bmp](formats/bmp.md) | `bitforge/formats/bmp.h` | BMP `"BM"` signature, 14-byte file header, DIB `BITMAPINFOHEADER`, 4-byte aligned row stride calculation, and zero-copy pixel slice view. |
-| [wav](formats/wav.md) | `bitforge/formats/wav.h` | RIFF/WAVE header parsing, word-aligned RIFF subchunk reading, `fmt ` decoding, and zero-copy `"data"` sample slice view. |
-| [elf](formats/elf.md) | `bitforge/formats/elf.h` | ELF32/ELF64 identification and headers (little/big-endian), program/section headers, extended indices, symbols, dynamic entries, relocations, and slices. |
-| [pe](formats/pe.md) | `bitforge/formats/pe.h` | MZ/DOS header, `PE\0\0` signature and COFF header, PE32/PE32+ optional headers, data directories, section headers, RVA-to-file offset translation, and slices. |
+| [png](formats_png.md) | `bitforge/formats/png.h` | PNG 8-byte signature check, `IHDR` parsing, chunk stream reading, and ISO 3309 / IEEE 802.3 CRC-32 calculation and verification. |
+| [bmp](formats_bmp.md) | `bitforge/formats/bmp.h` | BMP `"BM"` signature, 14-byte file header, DIB `BITMAPINFOHEADER`, 4-byte aligned row stride calculation, and zero-copy pixel slice view. |
+| [wav](formats_wav.md) | `bitforge/formats/wav.h` | RIFF/WAVE header parsing, word-aligned RIFF subchunk reading, `fmt ` decoding, and zero-copy `"data"` sample slice view. |
+| [elf](formats_elf.md) | `bitforge/formats/elf.h` | ELF32/ELF64 identification and headers (little/big-endian), program/section headers, extended indices, symbols, dynamic entries, relocations, and slices. |
+| [pe](formats_pe.md) | `bitforge/formats/pe.h` | MZ/DOS header, `PE\0\0` signature and COFF header, PE32/PE32+ optional headers, data directories, section headers, RVA-to-file offset translation, and slices. |
 
 ## Conventions
 
