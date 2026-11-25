@@ -1,4 +1,3 @@
-
 #ifndef BITFORGE_IO_H
 #define BITFORGE_IO_H
 
@@ -6,7 +5,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,15 +17,6 @@ extern "C" {
  */
 
 /**
- * @brief Represents an opened file.
- *
- * The internal file handle is managed by the BitForge I/O module.
- */
-typedef struct {
-	FILE *handle;
-} bf_file_t;
-
-/**
  * @brief File opening modes.
  */
 typedef enum {
@@ -36,6 +25,15 @@ typedef enum {
 	BF_FILE_APPEND, /**< Open for appending data. */
 	BF_FILE_READ_WRITE /**< Open for reading and writing. */
 } bf_file_mode;
+
+/**
+ * @brief Represents an opened file.
+ *
+ * The internal file handle is managed by the BitForge I/O module.
+ */
+typedef struct {
+	void *handle;
+} bf_file_t;
 
 /**
  * @brief Opens a file.

@@ -24,7 +24,7 @@ File input and output operations.
 enum bf_file_mode
 ```
 
-Defined in include/bitforge/io.h:33
+Defined in include/bitforge/io.h:22
 
 File opening modes.
 
@@ -55,7 +55,7 @@ File opening modes.
 bf_status bf_io_open(bf_file_t * file, const char * path, bf_file_mode mode)
 ```
 
-Defined in include/bitforge/io.h:49
+Defined in include/bitforge/io.h:47
 
 Opens a file.
 
@@ -78,7 +78,7 @@ BF_OK on success, BF_EINVAL on invalid arguments, or an appropriate error status
 bf_status bf_io_close(bf_file_t * file)
 ```
 
-Defined in include/bitforge/io.h:58
+Defined in include/bitforge/io.h:56
 
 Closes an opened file.
 
@@ -99,7 +99,7 @@ BF_OK on success, BF_EINVAL on invalid arguments, or an appropriate error status
 bf_status bf_io_read(bf_file_t * file, uint8_t * data, size_t size, size_t * out_read)
 ```
 
-Defined in include/bitforge/io.h:70
+Defined in include/bitforge/io.h:68
 
 Reads data from a file.
 
@@ -123,7 +123,7 @@ BF_OK on success, BF_EOF when no more data is available, or an appropriate error
 bf_status bf_io_write(bf_file_t * file, const uint8_t * data, size_t size, size_t * out_written)
 ```
 
-Defined in include/bitforge/io.h:82
+Defined in include/bitforge/io.h:80
 
 Writes data to a file.
 
@@ -147,7 +147,7 @@ BF_OK on success or an appropriate error status.
 bf_status bf_io_seek(bf_file_t * file, size_t offset)
 ```
 
-Defined in include/bitforge/io.h:92
+Defined in include/bitforge/io.h:90
 
 Changes the current file position.
 
@@ -169,7 +169,7 @@ BF_OK on success or an appropriate error status.
 bf_status bf_io_tell(const bf_file_t * file, size_t * out_position)
 ```
 
-Defined in include/bitforge/io.h:101
+Defined in include/bitforge/io.h:99
 
 Gets the current file position.
 
@@ -191,7 +191,7 @@ BF_OK on success or an appropriate error status.
 bf_status bf_io_size(bf_file_t * file, size_t * out_size)
 ```
 
-Defined in include/bitforge/io.h:110
+Defined in include/bitforge/io.h:108
 
 Gets the file size.
 
@@ -213,7 +213,7 @@ BF_OK on success or an appropriate error status.
 bool bf_io_is_open(const bf_file_t * file)
 ```
 
-Defined in include/bitforge/io.h:118
+Defined in include/bitforge/io.h:116
 
 Checks whether a file is currently open.
 
@@ -241,7 +241,7 @@ true if the file is open, false otherwise.
 struct bf_file_t
 ```
 
-Defined in include/bitforge/io.h:26
+Defined in include/bitforge/io.h:34
 
 Represents an opened file.
 
@@ -251,15 +251,15 @@ The internal file handle is managed by the BitForge I/O module.
 
 | Return | Name | Description |
 |--------|------|-------------|
-| `FILE *` | [`handle`](#handle)  |  |
+| `void *` | [`handle`](#handle)  |  |
 
 ---
 
 ##### handle
 
 ```cpp
-FILE * handle
+void * handle
 ```
 
-Defined in include/bitforge/io.h:27
+Defined in include/bitforge/io.h:35
 

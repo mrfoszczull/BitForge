@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 static int failures = 0;
 
@@ -371,22 +372,105 @@ static void test_bf_swap_bits(void)
 	CHECK(bf_swap_bits(NULL, 0, 1) == BF_EINVAL);
 }
 
+static void test_count_set_bits_extended(void)
+{
+	uint8_t value = 0x80;
+	uint8_t result = 0;
+
+	CHECK(bf_count_set_bits(&value, &result) == BF_OK);
+	CHECK(result == 1);
+
+	value = 0x55;
+	CHECK(bf_count_set_bits(&value, &result) == BF_OK);
+	CHECK(result == 4);
+
+	value = 0xAA;
+	CHECK(bf_count_set_bits(&value, &result) == BF_OK);
+	CHECK(result == 4);
+
+	value = 0x81;
+	CHECK(bf_count_set_bits(&value, &result) == BF_OK);
+	CHECK(result == 2);
+}
+
+static void test_rotate_large_positions(void)
+{
+	uint8_t result = 0;
+	unsigned int position = UINT_MAX % 8;
+
+	CHECK(position == 7);
+
+	CHECK(bf_rotate_left(0x96, UINT_MAX, &result) == BF_OK);
+	CHECK(result ==
+	      (uint8_t)((0x96u << position) | (0x96u >> (8 - position))));
+
+	CHECK(bf_rotate_right(0x96, UINT_MAX, &result) == BF_OK);
+	CHECK(result ==
+	      (uint8_t)((0x96u >> position) | (0x96u << (8 - position))));
+}
+
+static void test_swap_same_bit(void)
+{
+	uint8_t value = 0xA5;
+
+	CHECK(bf_swap_bits(&value, 0, 0) == BF_OK);
+	CHECK(value == 0xA5);
+
+	CHECK(bf_swap_bits(&value, 7, 7) == BF_OK);
+	CHECK(value == 0xA5);
+}
+
+static void test_invalid_operations_preserve_value(void)
+{
+	uint8_t value = 0xA5;
+	uint8_t original = value;
+
+	CHECK(bf_set(&value, 8) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_clear(&value, 8) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_toggle(&value, 8) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_set_bits(&value, 7, 2) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_clear_bits(&value, 8, 1) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_toggle_bits(&value, 0, 0) == BF_EINVAL);
+	CHECK(value == original);
+
+	CHECK(bf_swap_bits(&value, 0, 8) == BF_EINVAL);
+	CHECK(value == original);
+}
+
 int main(void)
 {
 	test_rotate_left();
 	test_bf_rotate_right();
 	test_get();
 	test_set();
+
 	test_clear();
 	test_toggle();
 	test_count_set_bits();
 	test_is_power_of_two();
+
 	test_reverse_bits();
 	test_bf_get_bits();
 	test_bf_set_bits();
 	test_bf_clear_bits();
+
 	test_bf_toggle_bits();
 	test_bf_swap_bits();
+
+	test_count_set_bits_extended();
+	test_rotate_large_positions();
+	test_swap_same_bit();
+	test_invalid_operations_preserve_value();
 
 	if (failures != 0) {
 		fprintf(stderr, "%d check(s) failed\n", failures);

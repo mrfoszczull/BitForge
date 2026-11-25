@@ -15,7 +15,7 @@ sanitize:
 	cmake --build $(SANITIZE_DIR)
 	ctest --test-dir $(SANITIZE_DIR) --output-on-failure
 
-check: test sanitize
+check: test sanitize cpp-check format-check
 
 format:
 	find src include tests examples -type f \( -name '*.c' -o -name '*.h' \) -exec clang-format -i {} +
@@ -31,5 +31,8 @@ docs:
 	mkdir -p docs
 	moxygen --groups --output docs/%s.md build-docs/xml
 	rm -f docs/api.md
+
+cpp-check:
+	cppcheck --enable=warning,style,performance,portability --error-exitcode=1 --std=c17 --language=c --suppress=constVariable -I include src/ include/ tests/
 
 .PHONY: docs

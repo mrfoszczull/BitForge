@@ -1,8 +1,8 @@
- <div align="center">
+<div align="center">
 
 # BitForge
 
-**A lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, bit pattern matching, binary data handling, and file I/O.**
+**A lightweight, portable C17 library for bit-level manipulation, sequential stream parsing, bit pattern matching, binary data handling, file I/O, and binary format parsers.**
 
 [![CI](https://github.com/mrfoszczull/BitForge/actions/workflows/ci.yml/badge.svg)](https://github.com/mrfoszczull/BitForge/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -12,7 +12,7 @@
 
 ---
 
-BitForge provides a simple and consistent API for bitwise operations, bit-level streams, pattern matching, binary buffer manipulation, and file I/O. It focuses on reliability, portability, explicit status codes, and predictable resource management.
+BitForge provides a consistent C17 API for bitwise operations, bit-level streams, pattern matching, binary buffer manipulation, file I/O, endian-aware parsing helpers, and format-specific parsers (**PNG**, **BMP**, **WAV**, **ELF**, and **PE / PE32+**). It focuses on reliability, portability, explicit status codes, zero-allocation parsing paths where applicable, and predictable resource management.
 
 ## 📑 Table of Contents
 
@@ -21,7 +21,7 @@ BitForge provides a simple and consistent API for bitwise operations, bit-level 
 - [Getting Started](#-getting-started)
 - [CMake Integration](#-cmake-integration)
 - [Documentation](#-documentation)
-- [Testing](#-testing)
+- [Testing and Static Analysis](#-testing-and-static-analysis)
 - [Code Formatting](#-code-formatting)
 - [Sanitizers](#-sanitizers)
 - [Project Status](#-project-status)
@@ -38,9 +38,11 @@ BitForge provides a simple and consistent API for bitwise operations, bit-level 
 - **Binary buffers and views** – caller-owned memory buffers with read, write, append, clear, fill, copy, and comparison operations.
 - **File I/O** – binary file handling with open, close, read, write, seek, position, and file size operations.
 - **Flexible file access** – support for read, write, append, and read/write modes.
+- **Endian-aware parser helpers** – bounded reads for unsigned/signed integers (`u8`–`u64`, `i8`–`i64`), IEEE 754 floats (`f32`, `f64`), strings, bitfields, signature checks, and diagnostics.
+- **Format parsers** – parsers for **PNG** (signature, `IHDR`, chunks, CRC-32), **BMP** (`BM`, file/DIB headers, row stride, pixel view), **WAV** (`RIFF`/`WAVE`, subchunks, `fmt `, `data` slice), **ELF** (ELF32/ELF64, LE/BE, program/section headers, symbols, relocations), and **PE / PE32+** (DOS/MZ, COFF, PE32/PE32+ optional headers, data directories, sections, RVA translation).
 - **Bit analysis** – count set bits and check whether a value is a power of two.
-- **Error handling** – explicit status codes for predictable error handling.
-- **Memory control** – no mandatory dynamic allocation for buffer operations; memory is provided and managed by the caller.
+- **Error handling** – explicit `bf_status` codes for predictable error handling.
+- **Memory control** – caller-owned buffers and zero-copy slice views over stream data without mandatory dynamic allocation.
 - **Resource management** – explicit file handle lifecycle and predictable cleanup.
 - **Lightweight** – no external runtime dependencies.
 - **Portable** – C17-compatible API designed for Linux, Windows, and macOS.
@@ -51,6 +53,7 @@ BitForge provides a simple and consistent API for bitwise operations, bit-level 
 - C compiler with C17 support
 - CMake 3.20 or newer
 - Make *(optional, for the provided Makefile)*
+- `cppcheck` *(optional, for static analysis in `make check`)*
 - ClangFormat *(optional, for code formatting)*
 - Doxygen and Moxygen *(optional, for generating the API documentation)*
 
@@ -81,7 +84,7 @@ The installation includes:
 | Component | Location |
 |-----------|----------|
 | Static library | `lib/libbitforge.a` |
-| Public headers | `include/bitforge/` |
+| Public headers | `include/bitforge/` (including `include/bitforge/formats/`) |
 | CMake package files | `lib/cmake/BitForge/` |
 
 > 💡 To install BitForge system-wide, use an appropriate installation prefix for your platform.
@@ -95,7 +98,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(MyApplication LANGUAGES C)
 
-find_package(BitForge 1.6 CONFIG REQUIRED)
+find_package(BitForge 2.0 CONFIG REQUIRED)
 
 add_executable(my_app main.c)
 
@@ -117,30 +120,42 @@ Then include the headers you need, for example:
 #include <bitforge/pattern.h>
 #include <bitforge/buffer.h>
 #include <bitforge/io.h>
+#include <bitforge/parser.h>
+#include <bitforge/formats/png.h>
+#include <bitforge/formats/bmp.h>
+#include <bitforge/formats/wav.h>
+#include <bitforge/formats/elf.h>
+#include <bitforge/formats/pe.h>
 ```
 
 ## 📚 Documentation
 
-The full API reference, including bit indexing, endianness conventions, buffer behavior, file operations, and resource management, is available in **[docs/](docs/README.md)**:
+The API overview and conventions are available in **[docs/](docs/README.md)**, with module pages covering core and format parsers:
 
-| Module | Description |
-|--------|-------------|
-| [bitops](docs/bitops.md) | Bit-level operations on 8-bit values |
-| [stream](docs/stream.md) | Sequential bit stream processing and parsing |
-| [pattern](docs/pattern.md) | Bit-level pattern matching with wildcard support |
-| [buffer](docs/buffer.md) | Caller-owned buffers and read-only memory views |
-| [io](docs/io.md) | Binary file operations and file management |
-| [status](docs/status.md) | Status codes and error handling |
+| Module | Header | Description |
+|--------|--------|-------------|
+| [bitops](docs/bitops.md) | `bitforge/bitops.h` | Bit-level operations on 8-bit values |
+| [stream](docs/stream.md) | `bitforge/stream.h` | Sequential bit stream processing and parsing |
+| [pattern](docs/pattern.md) | `bitforge/pattern.h` | Bit-level pattern matching with wildcard support |
+| [buffer](docs/buffer.md) | `bitforge/buffer.h` | Caller-owned buffers and read-only memory views |
+| [io](docs/io.md) | `bitforge/io.h` | Binary file operations and file management |
+| [parser](docs/parser.md) | `bitforge/parser.h` | Endian-aware integers, floats, bitfields, strings, checks, and diagnostics |
+| [status](docs/status.md) | `bitforge/status.h` | Status codes and error handling |
+| [png](docs/formats/png.md) | `bitforge/formats/png.h` | PNG signature, `IHDR`, chunks, and CRC-32 |
+| [bmp](docs/formats/bmp.md) | `bitforge/formats/bmp.h` | BMP signature, file/DIB headers, row stride, and pixel slice |
+| [wav](docs/formats/wav.md) | `bitforge/formats/wav.h` | RIFF/WAVE container, chunks, `fmt `, and audio data slice |
+| [elf](docs/formats/elf.md) | `bitforge/formats/elf.h` | ELF32/ELF64 headers, segments, sections, symbols, and relocations |
+| [pe](docs/formats/pe.md) | `bitforge/formats/pe.h` | DOS, COFF, PE32/PE32+ optional headers, directories, sections, and RVAs |
 
 > All functions return a `bf_status` value to indicate success or failure, unless their return type specifies otherwise.
 
-To regenerate the module pages from the source comments:
+To regenerate the module pages from Doxygen comments:
 
 ```bash
 make docs
 ```
 
-## 🧪 Testing
+## 🧪 Testing and Static Analysis
 
 Run the test suite with CTest:
 
@@ -152,10 +167,10 @@ Or use the provided Makefile:
 
 ```bash
 make test    # run tests
-make check   # run regular and sanitizer-enabled checks
+make check   # run build, sanitizer tests, cppcheck, and format-check
 ```
 
-The test suite covers all library modules, including bit operations, streams, pattern matching, buffers, and file I/O.
+The test suite covers core modules (`bitops`, `stream`, `pattern`, `buffer`, `io`, `status`, `parser`) as well as format parsers (`png`, `bmp`, `wav`, `elf`, `pe`).
 
 ## 🎨 Code Formatting
 
@@ -181,15 +196,12 @@ ctest --test-dir build-sanitize --output-on-failure
 
 ## 📌 Project Status
 
-**BitForge v1.6.0** introduces the new `bf_io` module for binary file handling.
+**BitForge v2.0.0** expands the library with endian-aware `parser` utilities and built-in binary format parsers across two major categories:
 
-Version 1.6.0 extends the library with file I/O capabilities, including opening and closing files, reading and writing binary data, seeking to absolute file positions, retrieving the current position, and querying file size. Multiple access modes are supported: read, write, append, and read/write.
+- **Media and container formats**: `png`, `bmp`, and `wav` parsers.
+- **Executable and object formats**: `elf` and `pe` / `pe32+` parsers.
 
-This release builds upon the bit manipulation, sequential stream processing, pattern matching, and binary buffer functionality introduced in previous versions.
-
-The library is designed around explicit memory ownership and resource management. Buffer operations do not require dynamic allocation, while file resources are managed explicitly through the `bf_file_t` interface.
-
-The public API is intended to remain stable throughout the 1.x release series. Breaking API changes are reserved for a future major release.
+Buffer operations and format parsers avoid mandatory dynamic allocation, relying on caller-provided buffers, explicit bounds and overflow checks, and zero-copy slices where appropriate, while file handles remain explicitly managed via `bf_file_t`.
 
 ## 🤝 Contributing
 

@@ -18,18 +18,23 @@ Status codes and error handling.
 enum bf_status
 ```
 
-Defined in include/bitforge/status.h:17
+Defined in include/bitforge/status.h:20
 
 Status codes returned by BitForge functions.
+
+These status codes are shared across all BitForge modules and indicate whether an operation completed successfully or encountered an error.
 
 | Value | Description |
 |-------|-------------|
 | `BF_OK` | Operation completed successfully. |
-| `BF_EINVAL` | An argument is invalid. |
+| `BF_EINVAL` | An argument is invalid or an object is in an invalid state. |
 | `BF_ENOMEM` | Memory allocation failed. |
 | `BF_EIO` | An input/output operation failed. |
-| `BF_EOF` | End of input was reached. |
-| `BF_ENOTFOUND` | Pattern is not found. |
+| `BF_EOF` | End of input was reached before the requested operation could be completed. |
+| `BF_ENOTFOUND` | The requested element, value, or pattern was not found. |
+| `BF_EOVERFLOW` | An arithmetic operation or requested size exceeds the representable range. |
+| `BF_EUNSUPPORTED` | The requested operation or feature is not supported. |
+| `BF_EFORMAT` | Input data does not conform to the expected format or structure. |
 ## Functions
 
 | Return | Name | Description |
@@ -44,7 +49,7 @@ Status codes returned by BitForge functions.
 const char * bf_status_string(bf_status status)
 ```
 
-Defined in include/bitforge/status.h:32
+Defined in include/bitforge/status.h:44
 
 Returns a human-readable string for a status code.
 

@@ -1,5 +1,7 @@
 PROJECT_NAME          = "BitForge"
 INPUT                 = include/bitforge
+RECURSIVE             = YES
+PROJECT_NUMBER        = 2.0.0
 FILE_PATTERNS         = *.h
 OUTPUT_DIRECTORY      = build-docs
 OPTIMIZE_OUTPUT_FOR_C = YES

@@ -1,6 +1,49 @@
-#include <bitforge/status.h>
 #include <bitforge/buffer.h>
+#include <bitforge/status.h>
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
+
+static bool buffer_is_valid(const bf_buffer_t *buffer)
+{
+	if (buffer == NULL) {
+		return false;
+	}
+
+	if (buffer->size > buffer->capacity) {
+		return false;
+	}
+
+	if (buffer->data == NULL && buffer->capacity > 0) {
+		return false;
+	}
+
+	return true;
+}
+
+static bool view_is_valid(const bf_view_t *view)
+{
+	if (view == NULL) {
+		return false;
+	}
+
+	if (view->data == NULL && view->size > 0) {
+		return false;
+	}
+
+	return true;
+}
+
+static bool range_in_bounds(size_t total, size_t offset, size_t length)
+{
+	if (offset > total || length > total - offset) {
+		return false;
+	}
+
+	return true;
+}
 
 bf_status bf_view_init(bf_view_t *view, const uint8_t *data, size_t size)
 {
@@ -30,20 +73,16 @@ bf_status bf_buffer_init(bf_buffer_t *buffer, uint8_t *data, size_t capacity)
 bf_status bf_view_read(
     const bf_view_t *view, size_t offset, uint8_t *destination, size_t length)
 {
-	if (view == NULL || (destination == NULL && length > 0)) {
+	if (!view_is_valid(view) || (destination == NULL && length > 0)) {
 		return BF_EINVAL;
 	}
 
-	if (view->data == NULL && view->size > 0) {
-		return BF_EINVAL;
-	}
-
-	if (offset > view->size || length > view->size - offset) {
+	if (!range_in_bounds(view->size, offset, length)) {
 		return BF_EINVAL;
 	}
 
 	if (length > 0) {
-		memcpy(destination, view->data + offset, length);
+		memmove(destination, view->data + offset, length);
 	}
 
 	return BF_OK;
@@ -52,19 +91,15 @@ bf_status bf_view_read(
 bf_status bf_view_slice(
     const bf_view_t *view, size_t offset, size_t length, bf_view_t *result)
 {
-	if (view == NULL || result == NULL) {
+	if (!view_is_valid(view) || result == NULL) {
 		return BF_EINVAL;
 	}
 
-	if (view->data == NULL && view->size > 0) {
+	if (!range_in_bounds(view->size, offset, length)) {
 		return BF_EINVAL;
 	}
 
-	if (offset > view->size || length > view->size - offset) {
-		return BF_EINVAL;
-	}
-
-	result->data = view->data != NULL ? view->data + offset : NULL;
+	result->data = (view->data != NULL) ? (view->data + offset) : NULL;
 	result->size = length;
 
 	return BF_OK;
@@ -73,24 +108,16 @@ bf_status bf_view_slice(
 bf_status bf_buffer_write(
     bf_buffer_t *buffer, size_t offset, const uint8_t *source, size_t length)
 {
-	if (buffer == NULL || (source == NULL && length > 0)) {
+	if (!buffer_is_valid(buffer) || (source == NULL && length > 0)) {
 		return BF_EINVAL;
 	}
 
-	if (buffer->data == NULL && buffer->capacity > 0) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->size > buffer->capacity) {
-		return BF_EINVAL;
-	}
-
-	if (offset > buffer->capacity || length > buffer->capacity - offset) {
+	if (!range_in_bounds(buffer->capacity, offset, length)) {
 		return BF_EINVAL;
 	}
 
 	if (length > 0) {
-		memcpy(buffer->data + offset, source, length);
+		memmove(buffer->data + offset, source, length);
 	}
 
 	return BF_OK;
@@ -98,15 +125,7 @@ bf_status bf_buffer_write(
 
 bf_status bf_buffer_get_view(const bf_buffer_t *buffer, bf_view_t *view)
 {
-	if (buffer == NULL || view == NULL) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->size > buffer->capacity) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->data == NULL && buffer->capacity > 0) {
+	if (!buffer_is_valid(buffer) || view == NULL) {
 		return BF_EINVAL;
 	}
 
@@ -119,15 +138,7 @@ bf_status bf_buffer_get_view(const bf_buffer_t *buffer, bf_view_t *view)
 bf_status bf_buffer_append(
     bf_buffer_t *buffer, const uint8_t *source, size_t length)
 {
-	if (buffer == NULL || (source == NULL && length > 0)) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->size > buffer->capacity) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->data == NULL && buffer->capacity > 0) {
+	if (!buffer_is_valid(buffer) || (source == NULL && length > 0)) {
 		return BF_EINVAL;
 	}
 
@@ -136,25 +147,16 @@ bf_status bf_buffer_append(
 	}
 
 	if (length > 0) {
-		memcpy(buffer->data + buffer->size, source, length);
+		memmove(buffer->data + buffer->size, source, length);
+		buffer->size += length;
 	}
-
-	buffer->size += length;
 
 	return BF_OK;
 }
 
 bf_status bf_buffer_clear(bf_buffer_t *buffer)
 {
-	if (buffer == NULL) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->data == NULL && buffer->capacity > 0) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->size > buffer->capacity) {
+	if (!buffer_is_valid(buffer)) {
 		return BF_EINVAL;
 	}
 
@@ -166,19 +168,11 @@ bf_status bf_buffer_clear(bf_buffer_t *buffer)
 bf_status bf_buffer_fill(
     bf_buffer_t *buffer, size_t offset, size_t length, uint8_t value)
 {
-	if (buffer == NULL) {
+	if (!buffer_is_valid(buffer)) {
 		return BF_EINVAL;
 	}
 
-	if (buffer->size > buffer->capacity) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->data == NULL && buffer->capacity > 0) {
-		return BF_EINVAL;
-	}
-
-	if (offset > buffer->capacity || length > buffer->capacity - offset) {
+	if (!range_in_bounds(buffer->capacity, offset, length)) {
 		return BF_EINVAL;
 	}
 
@@ -191,12 +185,7 @@ bf_status bf_buffer_fill(
 
 bf_status bf_view_compare(const bf_view_t *a, const bf_view_t *b, bool *equal)
 {
-	if (a == NULL || b == NULL || equal == NULL) {
-		return BF_EINVAL;
-	}
-
-	if ((a->data == NULL && a->size > 0) ||
-	    (b->data == NULL && b->size > 0)) {
+	if (!view_is_valid(a) || !view_is_valid(b) || equal == NULL) {
 		return BF_EINVAL;
 	}
 
@@ -210,24 +199,14 @@ bf_status bf_view_compare(const bf_view_t *a, const bf_view_t *b, bool *equal)
 		return BF_OK;
 	}
 
-	*equal = memcmp(a->data, b->data, a->size) == 0;
+	*equal = (memcmp(a->data, b->data, a->size) == 0);
 
 	return BF_OK;
 }
 
 bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source)
 {
-	if (destination == NULL || source == NULL) {
-		return BF_EINVAL;
-	}
-
-	if (source->size > source->capacity ||
-	    destination->size > destination->capacity) {
-		return BF_EINVAL;
-	}
-
-	if ((source->data == NULL && source->capacity > 0) ||
-	    (destination->data == NULL && destination->capacity > 0)) {
+	if (!buffer_is_valid(destination) || !buffer_is_valid(source)) {
 		return BF_EINVAL;
 	}
 
@@ -236,7 +215,7 @@ bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source)
 	}
 
 	if (source->size > 0) {
-		memcpy(destination->data, source->data, source->size);
+		memmove(destination->data, source->data, source->size);
 	}
 
 	destination->size = source->size;
@@ -247,24 +226,16 @@ bf_status bf_buffer_copy(bf_buffer_t *destination, const bf_buffer_t *source)
 bf_status bf_buffer_read(const bf_buffer_t *buffer, size_t offset,
     uint8_t *destination, size_t length)
 {
-	if (buffer == NULL || (destination == NULL && length > 0)) {
+	if (!buffer_is_valid(buffer) || (destination == NULL && length > 0)) {
 		return BF_EINVAL;
 	}
 
-	if (buffer->size > buffer->capacity) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->data == NULL && buffer->capacity > 0) {
-		return BF_EINVAL;
-	}
-
-	if (offset > buffer->size || length > buffer->size - offset) {
+	if (!range_in_bounds(buffer->size, offset, length)) {
 		return BF_EINVAL;
 	}
 
 	if (length > 0) {
-		memcpy(destination, buffer->data + offset, length);
+		memmove(destination, buffer->data + offset, length);
 	}
 
 	return BF_OK;
@@ -273,24 +244,16 @@ bf_status bf_buffer_read(const bf_buffer_t *buffer, size_t offset,
 bf_status bf_buffer_insert(
     bf_buffer_t *buffer, size_t offset, const uint8_t *source, size_t length)
 {
-	if (buffer == NULL || (source == NULL && length > 0)) {
+	if (!buffer_is_valid(buffer) || (source == NULL && length > 0)) {
 		return BF_EINVAL;
 	}
 
-	if (buffer->size > buffer->capacity) {
+	if (offset > buffer->size || length > buffer->capacity - buffer->size) {
 		return BF_EINVAL;
 	}
 
-	if (buffer->data == NULL && buffer->capacity > 0) {
-		return BF_EINVAL;
-	}
-
-	if (offset > buffer->size) {
-		return BF_EINVAL;
-	}
-
-	if (length > buffer->capacity - buffer->size) {
-		return BF_EINVAL;
+	if (length == 0) {
+		return BF_OK;
 	}
 
 	size_t tail_bytes = buffer->size - offset;
@@ -300,10 +263,7 @@ bf_status bf_buffer_insert(
 		    tail_bytes);
 	}
 
-	if (length > 0) {
-		memcpy(buffer->data + offset, source, length);
-	}
-
+	memmove(buffer->data + offset, source, length);
 	buffer->size += length;
 
 	return BF_OK;
@@ -311,19 +271,11 @@ bf_status bf_buffer_insert(
 
 bf_status bf_buffer_remove(bf_buffer_t *buffer, size_t offset, size_t length)
 {
-	if (buffer == NULL) {
+	if (!buffer_is_valid(buffer)) {
 		return BF_EINVAL;
 	}
 
-	if (buffer->size > buffer->capacity) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->data == NULL && buffer->capacity > 0) {
-		return BF_EINVAL;
-	}
-
-	if (offset > buffer->size || length > buffer->size - offset) {
+	if (!range_in_bounds(buffer->size, offset, length)) {
 		return BF_EINVAL;
 	}
 
@@ -346,15 +298,7 @@ bf_status bf_buffer_remove(bf_buffer_t *buffer, size_t offset, size_t length)
 
 bf_status bf_buffer_resize(bf_buffer_t *buffer, size_t new_size)
 {
-	if (buffer == NULL) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->size > buffer->capacity) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->data == NULL && buffer->capacity > 0) {
+	if (!buffer_is_valid(buffer)) {
 		return BF_EINVAL;
 	}
 
@@ -371,24 +315,12 @@ bf_status bf_buffer_resize(bf_buffer_t *buffer, size_t new_size)
 	return BF_OK;
 }
 
-bf_status bf_buffer_reserve(
+bool bf_buffer_has_capacity(
     const bf_buffer_t *buffer, size_t additional_capacity)
 {
-	if (buffer == NULL) {
-		return BF_EINVAL;
+	if (!buffer_is_valid(buffer)) {
+		return false;
 	}
 
-	if (buffer->size > buffer->capacity) {
-		return BF_EINVAL;
-	}
-
-	if (buffer->data == NULL && buffer->capacity > 0) {
-		return BF_EINVAL;
-	}
-
-	if (additional_capacity > buffer->capacity - buffer->size) {
-		return BF_EINVAL;
-	}
-
-	return BF_OK;
+	return additional_capacity <= (buffer->capacity - buffer->size);
 }
