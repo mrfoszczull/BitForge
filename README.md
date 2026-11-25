@@ -141,11 +141,11 @@ The API overview and conventions are available in **[docs/](docs/README.md)**, w
 | [io](docs/io.md) | `bitforge/io.h` | Binary file operations and file management |
 | [parser](docs/parser.md) | `bitforge/parser.h` | Endian-aware integers, floats, bitfields, strings, checks, and diagnostics |
 | [status](docs/status.md) | `bitforge/status.h` | Status codes and error handling |
-| [png](docs/formats/png.md) | `bitforge/formats/png.h` | PNG signature, `IHDR`, chunks, and CRC-32 |
-| [bmp](docs/formats/bmp.md) | `bitforge/formats/bmp.h` | BMP signature, file/DIB headers, row stride, and pixel slice |
-| [wav](docs/formats/wav.md) | `bitforge/formats/wav.h` | RIFF/WAVE container, chunks, `fmt `, and audio data slice |
-| [elf](docs/formats/elf.md) | `bitforge/formats/elf.h` | ELF32/ELF64 headers, segments, sections, symbols, and relocations |
-| [pe](docs/formats/pe.md) | `bitforge/formats/pe.h` | DOS, COFF, PE32/PE32+ optional headers, directories, sections, and RVAs |
+| [png](docs/formats_png.md) | `bitforge/formats/png.h` | PNG signature, `IHDR`, chunks, and CRC-32 |
+| [bmp](docs/formats_bmp.md) | `bitforge/formats/bmp.h` | BMP signature, file/DIB headers, row stride, and pixel slice |
+| [wav](docs/formats_wav.md) | `bitforge/formats/wav.h` | RIFF/WAVE container, chunks, `fmt `, and audio data slice |
+| [elf](docs/formats_elf.md) | `bitforge/formats/elf.h` | ELF32/ELF64 headers, segments, sections, symbols, and relocations |
+| [pe](docs/formats_pe.md) | `bitforge/formats/pe.h` | DOS, COFF, PE32/PE32+ optional headers, directories, sections, and RVAs |
 
 > All functions return a `bf_status` value to indicate success or failure, unless their return type specifies otherwise.
 
