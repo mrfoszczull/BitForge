@@ -121,6 +121,7 @@ jobs:
         run: make format-check
 
   docs:
+    name: Documentation
     runs-on: ubuntu-latest
 
     steps:
@@ -137,6 +138,20 @@ jobs:
 
       - name: Generate documentation
         run: make docs
+
+      - name: Verify generated module docs
+        shell: bash
+        run: |
+          for doc in \
+            docs/parser.md \
+            docs/formats_png.md \
+            docs/formats_bmp.md \
+            docs/formats_wav.md \
+            docs/formats_elf.md \
+            docs/formats_pe.md
+          do
+            test -f "$doc" || { echo "Missing generated doc: $doc"; exit 1; }
+          done
 
   install-test:
     name: Installed package test
@@ -164,7 +179,11 @@ jobs:
           cmake_minimum_required(VERSION 3.20)
           project(BitForgeConsumer LANGUAGES C)
 
-          find_package(BitForge 2.0 CONFIG REQUIRED)
+          set(CMAKE_C_STANDARD 17)
+          set(CMAKE_C_STANDARD_REQUIRED ON)
+          set(CMAKE_C_EXTENSIONS OFF)
+
+          find_package(BitForge 2.0.0 CONFIG REQUIRED)
 
           add_executable(consumer main.c)
           target_link_libraries(consumer PRIVATE BitForge::bitforge)
@@ -172,6 +191,13 @@ jobs:
 
           cat > consumer/main.c <<'EOF'
           #include <bitforge/buffer.h>
+          #include <bitforge/formats/bmp.h>
+          #include <bitforge/formats/elf.h>
+          #include <bitforge/formats/pe.h>
+          #include <bitforge/formats/png.h>
+          #include <bitforge/formats/wav.h>
+          #include <bitforge/parser.h>
+          #include <stdint.h>
           #include <stdio.h>
 
           int main(void)
@@ -186,6 +212,17 @@ jobs:
               const uint8_t value = 0x08;
 
               if (bf_buffer_append(&buffer, &value, 1) != BF_OK) {
+                  return 1;
+              }
+
+              uint8_t raw[4] = {0x01, 0x02, 0x03, 0x04};
+              bf_stream_t stream;
+              if (bf_stream_init(&stream, raw, sizeof(raw)) != BF_OK) {
+                  return 1;
+              }
+
+              uint32_t le_val = 0;
+              if (bf_parser_read_u32_le(&stream, &le_val) != BF_OK || le_val != 0x04030201u) {
                   return 1;
               }
 
